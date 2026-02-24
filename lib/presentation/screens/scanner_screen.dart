@@ -1,5 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../../core/theme/app_theme.dart';
+import '../../data/datasources/premium_service.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});

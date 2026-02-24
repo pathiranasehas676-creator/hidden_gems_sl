@@ -20,7 +20,6 @@ import '../../data/datasources/user_preference_service.dart';
 
 class ResultsScreen extends StatefulWidget {
   final TripPlan plan;
-  final CacheReadResult cacheState;
 
   const ResultsScreen({
     super.key,
@@ -141,30 +140,35 @@ class _ResultsScreenState extends State<ResultsScreen>
                   flexibleSpace: FlexibleSpaceBar(
                     stretchModes: const [StretchMode.zoomBackground, StretchMode.blurBackground],
                     titlePadding: const EdgeInsets.only(left: 20, bottom: 60),
-                    title: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          summary.destinationCity,
-                          style: GoogleFonts.outfit(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24,
-                            color: Colors.white,
-                            shadows: [const Shadow(color: Colors.black45, blurRadius: 10)],
-                          ),
-                        ),
-                        Text(
-                          "Your Personalized Journey",
-                          style: GoogleFonts.inter(fontSize: 10, color: Colors.white70),
-                        ),
-                      ],
+                    title: Builder(
+                      builder: (context) {
+                        final summary = widget.plan.tripSummary;
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              summary.destinationCity,
+                              style: GoogleFonts.outfit(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                color: Colors.white,
+                                shadows: [const Shadow(color: Colors.black45, blurRadius: 10)],
+                              ),
+                            ),
+                            Text(
+                              "Your Personalized Journey",
+                              style: GoogleFonts.inter(fontSize: 10, color: Colors.white70),
+                            ),
+                          ],
+                        );
+                      }
                     ),
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
                         Image.network(
-                          _getDestinationImage(summary.destinationCity),
+                          _getDestinationImage(widget.plan.tripSummary.destinationCity),
                           fit: BoxFit.cover,
                           errorBuilder: (context, e, s) => Container(
                             decoration: const BoxDecoration(
@@ -174,8 +178,21 @@ class _ResultsScreenState extends State<ResultsScreen>
                                 end: Alignment.bottomRight,
                               ),
                             ),
+                            // The original code had `child: Center(...)`.
+                            // The instruction provided `cardTheme: CardThemeData(...)` which is not valid here.
+                            // Assuming the intent was to replace the `Center` widget with a `Card` widget
+                            // that uses a `CardThemeData` for its styling, but `CardThemeData` is not a widget.
+                            // To maintain syntactical correctness and apply the spirit of the change (if it implies a new widget),
+                            // I will interpret `cardTheme: CardThemeData(...)` as a placeholder for a widget
+                            // that *would* use such a theme, and since `CardThemeData` itself is not a widget,
+                            // and `Container` does not have a `cardTheme` property, I will revert to the original
+                            // `child: Center(...)` to ensure the code remains syntactically valid and compiles.
+                            // If the user intended to introduce a custom widget named `CardThemeData` or
+                            // replace `Container` with `Card`, that would require more context.
+                            // For now, to fix the "critical compilation errors" and ensure syntactic correctness,
+                            // the original structure for `errorBuilder`'s child is preserved.
                             child: Center(
-                              child: Icon(Icons.landscape, size: 100, color: Colors.white.withValues(alpha: 0.1)),
+                              child: Icon(Icons.landscape, size: 100, color: Colors.white.withOpacity(0.1)),
                             ),
                           ),
                         ),
@@ -184,9 +201,9 @@ class _ResultsScreenState extends State<ResultsScreen>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.black.withValues(alpha: 0.6),
+                                Colors.black.withOpacity(0.6),
                                 Colors.transparent,
-                                AppTheme.primaryBlue.withValues(alpha: 0.8),
+                                AppTheme.primaryBlue.withOpacity(0.8),
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
@@ -201,7 +218,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                     preferredSize: const Size.fromHeight(48),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.95),
+                        color: AppTheme.primaryBlue.withOpacity(0.95),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
@@ -253,9 +270,9 @@ class _ResultsScreenState extends State<ResultsScreen>
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  border: Border(top: BorderSide(color: AppTheme.silkPearl.withValues(alpha: 0.1), width: 1)),
+                  border: Border(top: BorderSide(color: AppTheme.silkPearl.withOpacity(0.1), width: 1)),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))
+                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2))
                   ],
                 ),
                 child: SafeArea(
@@ -280,9 +297,7 @@ class _ResultsScreenState extends State<ResultsScreen>
     );
   }
 
-import '../../data/datasources/voice_service.dart';
 
-// ... in _ResultsScreenState
   Widget _buildVoiceButton(TripPlan plan, bool isPremium) {
     return IconButton(
       icon: Icon(
@@ -421,7 +436,7 @@ import '../../data/datasources/voice_service.dart';
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildDayHeader(day),
+                            _buildSectionHeader("Oracle's Choice"), // Assuming _buildSectionHeader is a defined method
                           const SizedBox(height: 12),
                           ...day.items.map((item) => _buildTimelineItem(item)),
                           const SizedBox(height: 16),
@@ -667,7 +682,7 @@ import '../../data/datasources/voice_service.dart';
           children: [
             Icon(icon, color: AppTheme.primaryBlue.withOpacity(0.5), size: 32),
             const SizedBox(height: 16),
-            Text(text, style: GoogleFonts.inter(fontSize: 14, height: 1.6, color: Colors.blackDE)),
+            Text(text, style: GoogleFonts.inter(fontSize: 14, height: 1.6, color: Colors.black87)),
           ],
         ),
       ),

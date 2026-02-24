@@ -19,7 +19,7 @@ class PdfService {
               style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
           ),
           pw.SizedBox(height: 20),
-          pw.Text("Destination: ${plan.tripSummary?['destination_city'] ?? 'Sri Lanka'}", 
+          pw.Text("Destination: ${plan.tripSummary.destinationCity}",
             style: pw.TextStyle(fontSize: 18)),
           pw.Text("Duration: ${plan.itinerary.length} Days", 
             style: pw.TextStyle(fontSize: 14)),

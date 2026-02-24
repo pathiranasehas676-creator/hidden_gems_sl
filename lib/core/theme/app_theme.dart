@@ -14,7 +14,7 @@ class AppTheme {
   // --- Luxury Concierge Shadows ---
   static List<BoxShadow> get premiumShadow => [
         BoxShadow(
-          color: primaryBlue.withValues(alpha: 0.05),
+          color: primaryBlue.withOpacity(0.05),
           blurRadius: 30,
           spreadRadius: 0,
           offset: const Offset(0, 10),
@@ -23,7 +23,7 @@ class AppTheme {
 
   static List<BoxShadow> get softShadow => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.03),
+          color: Colors.black.withOpacity(0.03),
           blurRadius: 20,
           offset: const Offset(0, 8),
         ),
@@ -36,9 +36,9 @@ class AppTheme {
     BorderRadius? radius,
   }) {
     return BoxDecoration(
-      color: Colors.white.withValues(alpha: opacity),
+      color: Colors.white.withOpacity(opacity),
       borderRadius: radius ?? BorderRadius.circular(24),
-      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+      border: Border.all(color: Colors.white.withOpacity(0.2)),
     );
   }
 
@@ -82,7 +82,7 @@ class AppTheme {
         textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
       ),
     ),
-    cardTheme: CardThemeData(
+    cardTheme: CardTheme(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       color: Colors.white,
@@ -101,10 +101,10 @@ class AppTheme {
     final hour = DateTime.now().hour;
     if (hour >= 17 && hour <= 19) {
       // Golden Hour: Subtle amber warmth
-      return Colors.orangeAccent.withValues(alpha: 0.03);
+      return Colors.orangeAccent.withOpacity(0.03);
     } else if (hour >= 20 || hour <= 5) {
       // Night Mode: Subtle cool indigo
-      return Colors.indigoAccent.withValues(alpha: 0.05);
+      return Colors.indigoAccent.withOpacity(0.05);
     }
     return Colors.transparent;
   }
@@ -125,4 +125,13 @@ class AppTheme {
       bodyMedium: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9)),
     ),
   );
+
+  static ButtonStyle primaryButtonStyle(BuildContext context) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: primaryBlue,
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    );
+  }
 }

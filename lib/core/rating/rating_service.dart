@@ -1,5 +1,5 @@
 import 'package:in_app_review/in_app_review.dart';
-import '../data/datasources/user_preference_service.dart';
+import '../../data/datasources/user_preference_service.dart';
 import 'package:flutter/foundation.dart';
 
 class RatingService {
