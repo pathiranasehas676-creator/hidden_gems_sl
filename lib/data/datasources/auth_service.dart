@@ -34,7 +34,7 @@ class AuthService {
 
       return userCredential;
     } catch (e) {
-      print("Error during Google Sign-In: $e");
+      debugPrint("Error during Google Sign-In: $e");
       return null;
     }
   }

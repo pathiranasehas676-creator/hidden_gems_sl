@@ -7,6 +7,7 @@ import '../../data/datasources/trip_cache_service.dart';
 import '../../data/datasources/auth_service.dart';
 import '../widgets/batik_background.dart';
 import '../widgets/dynamic_light_wrapper.dart';
+import 'scanner_screen.dart';
 import 'saved_plans_screen.dart';
 import 'trip_form_screen.dart';
 import '../admin/admin_shell.dart';
@@ -143,6 +144,9 @@ class HomeScreen extends StatelessWidget {
              Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPlansScreen()));
           }),
         ),
+        _glassActionIcon(Icons.camera_enhance_outlined, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ScannerScreen()));
+        }),
         _glassActionIcon(Icons.shield_outlined, () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminShell()));
         }),

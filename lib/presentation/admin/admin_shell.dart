@@ -4,6 +4,8 @@ import '../../core/theme/app_theme.dart';
 import 'admin_dashboard_screen.dart';
 import 'kb_manager_screen.dart';
 import 'ai_monitoring_screen.dart';
+import 'user_management_screen.dart';
+import 'plan_inspector_screen.dart';
 
 class AdminShell extends StatefulWidget {
   const AdminShell({super.key});
@@ -19,8 +21,8 @@ class _AdminShellState extends State<AdminShell> {
     const AdminDashboardScreen(),
     const KBManagerScreen(),
     const AIMonitoringScreen(),
-    const Center(child: Text("User Management Module")),
-    const Center(child: Text("Settings Module")),
+    const UserManagementScreen(),
+    const PlanInspectorScreen(),
   ];
 
   @override
@@ -141,7 +143,7 @@ class _AdminShellState extends State<AdminShell> {
         _sidebarItem(1, Icons.auto_stories_outlined, "Knowledge Base"),
         _sidebarItem(2, Icons.analytics_outlined, "AI Monitoring"),
         _sidebarItem(3, Icons.people_outline, "User Management"),
-        _sidebarItem(4, Icons.settings_outlined, "System Settings"),
+        _sidebarItem(4, Icons.fact_check_outlined, "Plan Inspector"),
         const Spacer(),
         Padding(
           padding: const EdgeInsets.all(32.0),

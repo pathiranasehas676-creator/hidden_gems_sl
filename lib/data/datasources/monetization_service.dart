@@ -31,10 +31,10 @@ class MonetizationService {
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
-        onAdLoaded: (ad) => print("Ad Loaded: ${ad.adUnitId}"),
+        onAdLoaded: (ad) => debugPrint("Ad Loaded: ${ad.adUnitId}"),
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
-          print("Ad Failed to Load: $error");
+          debugPrint("Ad Failed to Load: $error");
         },
       ),
     );
@@ -61,7 +61,7 @@ class MonetizationService {
             },
           );
         },
-        onAdFailedToLoad: (err) => print("Interstitial failed: $err"),
+        onAdFailedToLoad: (err) => debugPrint("Interstitial failed: $err"),
       ),
     );
   }
@@ -84,7 +84,7 @@ class MonetizationService {
         onAdLoaded: (ad) {
           _rewardedAd = ad;
         },
-        onAdFailedToLoad: (err) => print("Rewarded failed: $err"),
+        onAdFailedToLoad: (err) => debugPrint("Rewarded failed: $err"),
       ),
     );
   }

@@ -13,6 +13,10 @@ import '../../data/models/trip_plan_model.dart';
 import '../widgets/offline_highlights_widget.dart';
 import '../widgets/batik_background.dart';
 import '../widgets/dynamic_light_wrapper.dart';
+import 'map_route_screen.dart';
+import '../../core/analytics/analytics_service.dart';
+import '../../core/rating/rating_service.dart';
+import '../../data/datasources/user_preference_service.dart';
 
 class ResultsScreen extends StatefulWidget {
   final TripPlan plan;
@@ -51,6 +55,23 @@ class _ResultsScreenState extends State<ResultsScreen>
     });
 
     _initBanner();
+    _triggerPostGenerationEvents();
+  }
+
+  void _triggerPostGenerationEvents() async {
+    // 1. Log Analytics
+    await AnalyticsService().logPlanGenerated(
+      destination: widget.plan.destination,
+      style: widget.plan.tripSummary.style,
+      days: widget.plan.itinerary.length,
+      verifiedScore: widget.plan.verifiedScore,
+    );
+
+    // 2. Increment Trip Count for User DNA
+    await UserPreferenceService.addTrip();
+
+    // 3. Check for Rating Prompt (Milestone trigger)
+    await RatingService().checkAndRequestReview();
   }
 
   void _initBanner() async {
@@ -94,6 +115,13 @@ class _ResultsScreenState extends State<ResultsScreen>
                   ),
                   actions: [
                     _buildSaveButton(plan),
+                    IconButton(
+                      icon: const Icon(Icons.public, color: Colors.white),
+                      tooltip: "View Visual Route",
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => MapRouteScreen(plan: plan)));
+                      },
+                    ),
                     IconButton(
                       icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white),
                       onPressed: () {
@@ -216,17 +244,28 @@ class _ResultsScreenState extends State<ResultsScreen>
             ),
           ),
           
-          // Ad Banner at bottom
+          // Ad Banner at bottom (Optimized & Polished)
           if (!isPremium && _isBannerLoaded)
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
               child: Container(
-                color: Colors.white,
-                width: _bannerAd!.size.width.toDouble(),
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(top: BorderSide(color: AppTheme.silkPearl.withValues(alpha: 0.1), width: 1)),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))
+                  ],
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: SizedBox(
+                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd!.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd!),
+                  ),
+                ),
               ),
             ),
 

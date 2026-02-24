@@ -8,8 +8,9 @@ import 'data/datasources/trip_cache_service.dart';
 import 'data/datasources/user_preference_service.dart';
 import 'data/datasources/monetization_service.dart';
 import 'data/datasources/premium_service.dart';
-import 'data/datasources/pdf_service.dart';
 import 'data/datasources/voice_service.dart';
+import 'core/analytics/analytics_service.dart';
+import 'core/notifications/notification_service.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/home_screen.dart';
 
@@ -20,18 +21,28 @@ void main() async {
   await TripCacheService.init();
   await UserPreferenceService.init();
   
-  // Initialize Firebase & Ads
+  // Initialize Firebase, Ads, Analytics, Notifications
   try {
     await Firebase.initializeApp();
     await MobileAds.instance.initialize();
+    await NotificationService().init();
+    await AnalyticsService().logEvent('app_opened');
   } catch (e) {
-    debugPrint("Firebase/Ads init failed: $e. Config files might be missing.");
+    debugPrint("Firebase/Init failed: $e. Non-fatal but features restricted.");
   }
 
   // Pre-load ads & Voice
   MonetizationService().loadInterstitialAd();
   MonetizationService().loadRewardedAd();
   await VoiceService().init();
+
+  // Global Error Boundary
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    AnalyticsService().logEvent('runtime_error', parameters: {
+      'exception': details.exceptionAsString(),
+    });
+  };
 
   runApp(
     MultiProvider(

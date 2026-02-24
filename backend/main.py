@@ -57,10 +57,13 @@ app = FastAPI(title="Serendib Oracle API", version="1.0.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5000,http://localhost:8080").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -82,13 +85,18 @@ except Exception as e:
     logger.warning("[Firebase] Admin SDK init failed: %s. Admin routes will be restricted.", e)
 
 # ─── API Key Auth ─────────────────────────────────────────────────────────────
+# ─── API Key Auth (Production Ready) ──────────────────────────────────────────
+VALID_API_KEYS = TRIPME_API_KEY.split(",") if "," in TRIPME_API_KEY else [TRIPME_API_KEY]
+
 def verify_api_key(x_tripme_key: Optional[str] = Header(default=None)):
-    if TRIPME_API_KEY == "dev-key-local":
+    if "dev-key-local" in VALID_API_KEYS and os.getenv("ENVIRONMENT") != "production":
         return
-    if x_tripme_key != TRIPME_API_KEY:
+        
+    if not x_tripme_key or x_tripme_key not in VALID_API_KEYS:
+        logger.warning(f"Unauthorized API access attempt from {get_remote_address}")
         raise HTTPException(
             status_code=401,
-            detail={"error_code": "UNAUTHORIZED", "message": "Invalid X-TripMe-Key header."}
+            detail={"error_code": "UNAUTHORIZED", "message": "Invalid or missing X-TripMe-Key. Please refresh session."}
         )
 
 async def get_current_admin(authorization: str = Header(None)):
@@ -279,13 +287,17 @@ def _build_plan(request: TripRequest) -> TripPlanResponse:
     # 2. Transit Grounding
     transit_fact = get_transit_grounding(request.origin, request.destination)
 
-    # 3. Personalization Context
+    # 3. Real-Time Weather Advisory (Phase 5)
+    from weather_service import get_weather_advisory
+    weather_advisory = get_weather_advisory(request.destination)
+
+    # 4. Personalization Context
     user_context_text = "None"
     if request.user_context:
         ctx = request.user_context
         user_context_text = f"Vibe: {ctx.vibe}, Visited: {ctx.visitedPlaces}, PrefStyles: {ctx.preferredStyles}"
 
-    # 4. RAG Context
+    # 5. RAG Context
     relevant_facts_text = ""
     citations = ["KB-CORE-SL"]
     vr = get_retrieval()
@@ -310,7 +322,8 @@ Tone: warm, cultured, slightly witty, empathetic, concise.
 HARD FACTS (DO NOT HALLUCINATE):
 1. SEASON: {seasonal_context}
 2. TRANSIT: {transit_fact}
-3. KB CONTEXT: {relevant_facts_text}
+3. WEATHER: {weather_advisory}
+4. KB CONTEXT: {relevant_facts_text}
 
 USER DNA:
 {user_context_text}
