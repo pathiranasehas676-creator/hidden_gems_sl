@@ -5,3 +5,4 @@ slowapi
 qdrant-client
 sentence-transformers
 python-dotenv
+firebase-admin

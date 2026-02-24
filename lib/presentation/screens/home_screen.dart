@@ -1,12 +1,15 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/trip_cache_service.dart';
+import '../../data/datasources/auth_service.dart';
 import '../widgets/batik_background.dart';
 import '../widgets/dynamic_light_wrapper.dart';
 import 'saved_plans_screen.dart';
 import 'trip_form_screen.dart';
+import '../admin/admin_shell.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -92,10 +95,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-import 'package:firebase_auth/firebase_auth.dart';
-import '../../data/datasources/auth_service.dart';
-
-// ... (in _HomeScreenState or HomeScreen)
   Widget _buildAppBar(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     return SliverAppBar(
@@ -144,6 +143,9 @@ import '../../data/datasources/auth_service.dart';
              Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPlansScreen()));
           }),
         ),
+        _glassActionIcon(Icons.shield_outlined, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminShell()));
+        }),
         _glassActionIcon(Icons.logout_rounded, () async {
           await AuthService().signOut();
         }),

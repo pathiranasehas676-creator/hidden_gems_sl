@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/trip_cache_service.dart';
+import '../../data/datasources/monetization_service.dart';
+import '../../data/datasources/premium_service.dart';
+import '../../data/datasources/pdf_service.dart';
 import '../../data/models/trip_plan_model.dart';
 import '../widgets/offline_highlights_widget.dart';
 import '../widgets/batik_background.dart';
@@ -28,6 +33,9 @@ class _ResultsScreenState extends State<ResultsScreen>
   late TabController _tabController;
   bool _isSaved = false;
   bool _isInit = false;
+  bool _planBUnlocked = false;
+  BannerAd? _bannerAd;
+  bool _isBannerLoaded = false;
 
   @override
   void initState() {
@@ -41,16 +49,31 @@ class _ResultsScreenState extends State<ResultsScreen>
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) setState(() => _isInit = true);
     });
+
+    _initBanner();
+  }
+
+  void _initBanner() async {
+    final isPremium = Provider.of<PremiumService>(context, listen: false).isPremium;
+    if (!isPremium) {
+      _bannerAd = await MonetizationService().createBannerAd();
+      setState(() => _isBannerLoaded = true);
+    }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isPremium = Provider.of<PremiumService>(context).isPremium;
+    final plan = widget.plan;
+
+    return Scaffold(
       backgroundColor: AppTheme.silkPearl,
       body: Stack(
         children: [
@@ -71,6 +94,19 @@ class _ResultsScreenState extends State<ResultsScreen>
                   ),
                   actions: [
                     _buildSaveButton(plan),
+                    IconButton(
+                      icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white),
+                      onPressed: () {
+                        if (isPremium) {
+                          PdfService.generateAndShareTripPdf(plan);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("PDF Export is a Premium feature.")),
+                          );
+                          _tabController.animateTo(2); // Jump to Plan B / Premium CTA
+                        }
+                      },
+                    ),
                     _buildConfidenceBadge(plan.verifiedScore),
                     const SizedBox(width: 8),
                   ],
@@ -172,13 +208,28 @@ class _ResultsScreenState extends State<ResultsScreen>
                   children: [
                     _buildItineraryTab(plan),
                     _buildStyleTab(plan),
-                    _buildPlanBTab(plan),
+                    _buildPlanBTab(plan, isPremium),
                     _buildTipsTab(plan),
                   ],
                 ),
               ),
             ),
           ),
+          
+          // Ad Banner at bottom
+          if (!isPremium && _isBannerLoaded)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                color: Colors.white,
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            ),
+
           // Time-Aware Dynamic Overlay
           IgnorePointer(
             child: Container(
@@ -187,6 +238,35 @@ class _ResultsScreenState extends State<ResultsScreen>
           ),
         ],
       ),
+    );
+  }
+
+import '../../data/datasources/voice_service.dart';
+
+// ... in _ResultsScreenState
+  Widget _buildVoiceButton(TripPlan plan, bool isPremium) {
+    return IconButton(
+      icon: Icon(
+        VoiceService().isPlaying ? Icons.stop_circle_outlined : Icons.play_circle_fill,
+        color: AppTheme.accentOchre,
+        size: 28,
+      ),
+      onPressed: () async {
+        if (!isPremium) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Voice Guide is a Premium feature.")),
+          );
+          _tabController.animateTo(2);
+          return;
+        }
+
+        if (VoiceService().isPlaying) {
+          await VoiceService().stop();
+        } else {
+          await VoiceService().speak(plan.humanText);
+        }
+        setState(() {}); // Refresh icon
+      },
     );
   }
 
@@ -248,10 +328,44 @@ class _ResultsScreenState extends State<ResultsScreen>
   // TAB 1 – ITINERARY
   // ═══════════════════════════════════════════════════════════════════
   Widget _buildItineraryTab(TripPlan plan) {
+    final isPremium = Provider.of<PremiumService>(context, listen: false).isPremium;
+
     return Column(
       children: [
         if (widget.cacheState != CacheReadResult.fresh)
           OfflineHighlightsWidget(destination: plan.destination),
+        
+        // Oracle's Summary & Voice Guide
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: AppTheme.glassDecoration(opacity: 0.1, radius: BorderRadius.circular(24)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.auto_awesome, color: AppTheme.accentOchre, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      "ORACLE'S VISION",
+                      style: GoogleFonts.outfit(color: AppTheme.accentOchre, fontWeight: FontWeight.bold, letterSpacing: 2, fontSize: 12),
+                    ),
+                    const Spacer(),
+                    _buildVoiceButton(plan, isPremium),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  plan.humanText,
+                  style: GoogleFonts.inter(color: AppTheme.primaryBlue, height: 1.6, fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+        ),
+
         Expanded(
           child: AnimationLimiter(
             child: ListView.builder(
@@ -524,22 +638,26 @@ class _ResultsScreenState extends State<ResultsScreen>
   // ═══════════════════════════════════════════════════════════════════
   // TAB 3 – PLAN B (RAIN)
   // ═══════════════════════════════════════════════════════════════════
-  Widget _buildPlanBTab(TripPlan plan) {
+  Widget _buildPlanBTab(TripPlan plan, bool isPremium) {
+    if (!isPremium && !_planBUnlocked) {
+      return _buildRewardedGate();
+    }
+
     final item = plan.planB;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 80),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.blueGrey.shade800,
+              color: AppTheme.primaryBlue.withOpacity(0.9),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               children: [
-                const Icon(Icons.umbrella, color: Colors.white, size: 28),
+                const Icon(Icons.umbrella, color: AppTheme.accentOchre, size: 28),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -555,6 +673,95 @@ class _ResultsScreenState extends State<ResultsScreen>
           ),
           const SizedBox(height: 20),
           _buildPlanBCard(item),
+          const SizedBox(height: 40),
+          _buildPremiumCTA(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRewardedGate() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppTheme.accentOchre.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.lock_outline, color: AppTheme.accentOchre, size: 48),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Oracle's Vault",
+              style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "The rainy-day alternative is locked for free travelers.\nWatch a short video to unlock it for this trip.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(color: Colors.black54),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () {
+                MonetizationService().showRewardedAd(onRewardEarned: (reward) {
+                  setState(() => _planBUnlocked = true);
+                });
+              },
+              icon: const Icon(Icons.play_circle_fill),
+              label: const Text("UNLOCK WITH AD"),
+              style: AppTheme.primaryButtonStyle(context),
+            ),
+            TextButton(
+              onPressed: () => Provider.of<PremiumService>(context, listen: false).buyPremium(),
+              child: const Text("Go Premium for Ad-Free Experience"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPremiumCTA() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [AppTheme.primaryBlue, AppTheme.primaryBlue.withOpacity(0.8)]),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: AppTheme.premiumShadow,
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.stars, color: AppTheme.accentOchre, size: 40),
+          const SizedBox(height: 16),
+          Text(
+            "TRIPME PREMIUM",
+            style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Unlimited Plans • No Ads • PDF Exports • Voice Guide",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Provider.of<PremiumService>(context, listen: false).buyPremium(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.accentOchre,
+                foregroundColor: AppTheme.primaryBlue,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text("UPGRADE NOW", style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
         ],
       ),
     );

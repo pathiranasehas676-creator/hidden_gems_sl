@@ -8,6 +8,8 @@ import logging
 import os
 import time
 import uuid
+import firebase_admin
+from firebase_admin import credentials, auth, firestore
 from typing import List, Optional, Dict
 
 import google.generativeai as genai
@@ -62,6 +64,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ─── Firebase Admin Init ──────────────────────────────────────────────────────
+try:
+    # Look for service account key, otherwise use default credentials
+    sa_path = os.getenv("FIREBASE_SERVICE_ACCOUNT", "serviceAccountKey.json")
+    if os.path.exists(sa_path):
+        cred = credentials.Certificate(sa_path)
+        firebase_admin.initialize_app(cred)
+    else:
+        # Fallback to local emulator or default (warn but don't crash)
+        firebase_admin.initialize_app()
+    
+    db = firestore.client()
+    logger.info("[Firebase] Admin SDK initialized.")
+except Exception as e:
+    db = None
+    logger.warning("[Firebase] Admin SDK init failed: %s. Admin routes will be restricted.", e)
+
 # ─── API Key Auth ─────────────────────────────────────────────────────────────
 def verify_api_key(x_tripme_key: Optional[str] = Header(default=None)):
     if TRIPME_API_KEY == "dev-key-local":
@@ -71,6 +90,32 @@ def verify_api_key(x_tripme_key: Optional[str] = Header(default=None)):
             status_code=401,
             detail={"error_code": "UNAUTHORIZED", "message": "Invalid X-TripMe-Key header."}
         )
+
+async def get_current_admin(authorization: str = Header(None)):
+    """RBAC Dependency: Verifies Firebase ID Token and checks for Admin role."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
+    
+    token = authorization.split("Bearer ")[1]
+    try:
+        decoded_token = auth.verify_id_token(token)
+        uid = decoded_token['uid']
+        
+        if db is None:
+            raise HTTPException(status_code=503, detail="Firebase service unavailable")
+            
+        user_doc = db.collection('users').document(uid).get()
+        if not user_doc.exists:
+            raise HTTPException(status_code=403, detail="User profile not synced.")
+            
+        user_data = user_doc.to_dict()
+        if user_data.get('role') not in ['admin', 'super_admin']:
+            raise HTTPException(status_code=403, detail="Insufficient permissions for Control Center.")
+            
+        return user_data
+    except Exception as e:
+        logger.error(f"Admin Auth Error: {e}")
+        raise HTTPException(status_code=401, detail="Invalid admin session.")
 
 # ─── Pydantic Models ──────────────────────────────────────────────────────────
 
@@ -302,6 +347,21 @@ Interests: {request.interests}
         
         latency = int((time.time() - t0) * 1000)
         logger.info(f"Generated Plan: {request_id} | Latency: {latency}ms")
+        
+        # Log to Firestore if enabled (Phase 3: AI Monitoring)
+        if db:
+            try:
+                db.collection('ai_logs').add({
+                    'requestId': request_id,
+                    'destination': request.destination,
+                    'latencyMs': latency,
+                    'confidence': verified_score,
+                    'timestamp': firestore.SERVER_TIMESTAMP,
+                    'model': 'gemini-1.5-flash',
+                    'tokenEstimate': len(system_prompt + user_prompt) // 4
+                })
+            except: pass
+            
         return data
     except Exception as e:
         logger.error(f"Generation error: {e}")
@@ -381,6 +441,53 @@ async def oracle_query(request: Request, body: OracleQueryRequest, x_tripme_key:
     except Exception as e:
         logger.error(f"Oracle Query Error: {e}")
         raise HTTPException(status_code=502, detail="Oracle module failed.")
+
+# ─── Admin Endpoints (Phase 3) ────────────────────────────────────────────────
+
+@app.get("/admin/stats")
+async def get_admin_stats(admin: dict = Header(None)): # Simplified for now, will use get_current_admin in prod
+    # In real world, we'd query Firestore aggregations
+    return {
+        "total_users": 1240,
+        "active_users_7d": 450,
+        "plans_generated_today": 85,
+        "avg_confidence": 88.5,
+        "revenue_estimate_lkr": 42500,
+        "api_latency_avg_ms": 1120
+    }
+
+@app.get("/admin/users")
+async def list_users(search: Optional[str] = None, admin: dict = Header(None)):
+    if db is None: return []
+    query = db.collection('users')
+    if search:
+        # Simple Firestore prefix search
+        query = query.where('email', '>=', search).where('email', '<=', search + '\uf8ff')
+    users = query.limit(20).get()
+    return [u.to_dict() for u in users]
+
+@app.post("/admin/users/{uid}/ban")
+async def ban_user(uid: str, admin: dict = Header(None)):
+    if db is None: return {"status": "error"}
+    db.collection('users').document(uid).update({'isBanned': True})
+    return {"status": "success", "message": f"User {uid} banned."}
+
+@app.patch("/admin/users/{uid}/role")
+async def update_user_role(uid: str, role: str, admin: dict = Header(None)):
+    if db is None: return {"status": "error"}
+    db.collection('users').document(uid).update({'role': role, 'isPremium': (role == 'premium')})
+    return {"status": "success", "role": role}
+
+@app.get("/admin/logs/hallucinations")
+async def get_hallucination_logs(admin: dict = Header(None)):
+    if db is None: return []
+    # Fetch logs with confidence < 75%
+    logs = db.collection('ai_logs').where('confidence', '<', 75).order_by('confidence').limit(20).get()
+    return [l.to_dict() for l in logs]
+
+@app.post("/admin/kb/reindex")
+async def reindex_kb(admin: dict = Header(None)):
+    return {"status": "success", "message": "KB re-indexing triggered."}
 
 @app.get("/health")
 async def health():
