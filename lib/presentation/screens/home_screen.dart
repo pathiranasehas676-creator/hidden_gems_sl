@@ -12,10 +12,12 @@ import '../widgets/dynamic_light_wrapper.dart';
 import 'scanner_screen.dart';
 import 'saved_plans_screen.dart';
 import 'trip_form_screen.dart';
+import 'profile_screen.dart';
 import '../admin/admin_shell.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final bool isOffline;
+  const HomeScreen({super.key, this.isOffline = false});
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +47,14 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             _journalUnfold(child: _buildWelcomeCard()),
                             const SizedBox(height: 32),
+                            if (isOffline) ...[
+                              _buildSectionHeader("Local Gems (Offline)"),
+                              const SizedBox(height: 16),
+                              _buildLocalGemsScroller(),
+                              const SizedBox(height: 32),
+                            ],
                             _buildSectionHeader("Oracle's Choice"),
-                            const SizedBox(width: 8), // Replaces former layout gap
+                            const SizedBox(width: 8),
                           ],
                         ),
                       ),
@@ -62,6 +70,7 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
+          if (isOffline) _buildOfflineBadge(),
           // Time-Aware Dynamic Overlay
           IgnorePointer(
             child: Container(
@@ -99,7 +108,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildAppBar(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = isOffline ? null : FirebaseAuth.instance.currentUser;
     return SliverAppBar(
       expandedHeight: 320,
       pinned: true,
@@ -152,16 +161,47 @@ class HomeScreen extends StatelessWidget {
         _glassActionIcon(Icons.shield_outlined, () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminShell()));
         }),
-        _glassActionIcon(Icons.logout_rounded, () async {
-          await AuthService().signOut();
+        _glassActionIcon(Icons.person_outline, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
         }),
         const SizedBox(width: 8),
       ],
     );
   }
 
+  Widget _buildOfflineBadge() {
+    return Positioned(
+      top: 60,
+      right: 20,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.redAccent.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: AppTheme.softShadow,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_off_rounded, color: Colors.white, size: 14),
+            const SizedBox(width: 6),
+            Text(
+              "OFFLINE MODE",
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildWelcomeCard() {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = isOffline ? null : FirebaseAuth.instance.currentUser;
     final name = user?.displayName?.split(" ").first ?? "Traveler";
 
     return DynamicLightWrapper(
@@ -345,27 +385,83 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _navIcon(Icons.explore_outlined, "Explore", true),
-            _navIcon(Icons.map_outlined, "Plan", false),
+            _navIcon(Icons.map_outlined, "Plan", false, onTap: () {
+               Navigator.push(context, MaterialPageRoute(builder: (_) => const TripFormScreen()));
+            }),
             const SizedBox(width: 40),
-            _navIcon(Icons.bookmark_border, "Saved", false),
-            _navIcon(Icons.person_outline, "Profile", false),
+            _navIcon(Icons.bookmark_border, "Saved", false, onTap: () {
+               Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPlansScreen()));
+            }),
+            _navIcon(Icons.person_outline, "Profile", false, onTap: () {
+               Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+            }),
           ],
         ),
       ),
     );
   }
 
-  Widget _navIcon(IconData icon, String label, bool active) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: active ? AppTheme.primaryBlue : Colors.grey.shade400, size: 24),
-        Text(label, style: TextStyle(
-          color: active ? AppTheme.primaryBlue : Colors.grey.shade400,
-          fontSize: 10,
-          fontWeight: active ? FontWeight.bold : FontWeight.normal,
-        )),
-      ],
+  Widget _navIcon(IconData icon, String label, bool active, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: active ? AppTheme.primaryBlue : Colors.grey.shade400, size: 24),
+          Text(label, style: TextStyle(
+            color: active ? AppTheme.primaryBlue : Colors.grey.shade400,
+            fontSize: 10,
+            fontWeight: active ? FontWeight.bold : FontWeight.normal,
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocalGemsScroller() {
+    // Basic extraction from our local KB for offline access
+    final gems = [
+      ("Pahanthudawa", "Ratnapura", "4.8"),
+      ("Narangala", "Badulla", "4.9"),
+      ("Sera Ella", "Matale", "4.7"),
+      ("Mandaramnuwara", "N. Eliya", "4.9"),
+    ];
+
+    return SizedBox(
+      height: 140,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: gems.length,
+        itemBuilder: (context, i) {
+          final gem = gems[i];
+          return Container(
+            width: 140,
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: AppTheme.softShadow,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.accentOchre),
+                    Text(gem.$3, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const Spacer(),
+                Text(gem.$1, style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold), maxLines: 1),
+                Text(gem.$2, style: GoogleFonts.inter(fontSize: 10, color: Colors.black54)),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

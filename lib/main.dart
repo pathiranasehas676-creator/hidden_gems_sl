@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
+import 'dart:io' show Platform, File;
 import 'core/theme/app_theme.dart';
 import 'data/datasources/trip_cache_service.dart';
 import 'data/datasources/user_preference_service.dart';
@@ -14,27 +15,63 @@ import 'core/notifications/notification_service.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/widgets/graceful_error_widget.dart';
+import 'firebase_options.dart';
 
 class InitializationResult {
-  final bool success;
+  final bool hiveSuccess;
+  final bool firebaseSuccess;
   final String? error;
-  InitializationResult({required this.success, this.error});
+
+  InitializationResult({
+    required this.hiveSuccess,
+    required this.firebaseSuccess,
+    this.error,
+  });
+
+  bool get canProceed => hiveSuccess;
 }
 
 Future<InitializationResult> performInitialization() async {
+  bool hiveStatus = false;
+  bool firebaseStatus = false;
+  String? errorMessage;
+
   try {
-    // 1. Initialize Essential Local Storage (Hive) first
+    // 1. Initialize Essential Local Storage (Hive) - MANDATORY
     await TripCacheService.init();
     await UserPreferenceService.init();
-
-    // 2. Initialize Firebase (Increased timeout to 15 seconds)
-    await Firebase.initializeApp().timeout(const Duration(seconds: 15));
-
-    return InitializationResult(success: true);
+    hiveStatus = true;
   } catch (e) {
-    debugPrint("Critical Init Error: $e");
-    return InitializationResult(success: false, error: e.toString());
+    debugPrint("Critical Local Init Error: $e");
+    errorMessage = "Local database failure: $e";
   }
+
+  if (hiveStatus) {
+    // Helpful Debug Check for Firebase Config
+    if (Platform.isAndroid) {
+      final configExists = await File('android/app/google-services.json').exists().catchError((_) => false);
+      if (!configExists) {
+        debugPrint("CRITICAL WARNING: android/app/google-services.json is MISSING. Firebase will not initialize.");
+      }
+    }
+
+    try {
+      // 2. Initialize Firebase (Optional/Timeout)
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ).timeout(const Duration(seconds: 15));
+      firebaseStatus = true;
+    } catch (e) {
+      debugPrint("Firebase optional init error: $e");
+      // Not fatal if Hive is ready
+    }
+  }
+
+  return InitializationResult(
+    hiveSuccess: hiveStatus,
+    firebaseSuccess: firebaseStatus,
+    error: errorMessage,
+  );
 }
 
 void main() async {
@@ -42,7 +79,7 @@ void main() async {
   
   final initResult = await performInitialization();
 
-  if (initResult.success) {
+  if (initResult.firebaseSuccess) {
     _initializeOtherServices();
   }
 
@@ -98,12 +135,15 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> {
   Future<void> _retryInit() async {
     setState(() {
       // Temporary state to show loader during retry
-      _currentInitResult = InitializationResult(success: true); 
+      _currentInitResult = InitializationResult(
+        hiveSuccess: true, 
+        firebaseSuccess: true,
+      ); 
     });
     
     final result = await performInitialization();
     
-    if (result.success) {
+    if (result.firebaseSuccess) {
       _initializeOtherServices();
     }
     
@@ -124,14 +164,19 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> {
   }
 
   Widget _buildHomeModule() {
-    if (!_currentInitResult.success) {
+    if (!_currentInitResult.canProceed) {
       return Scaffold(
         backgroundColor: AppTheme.primaryBlue,
         body: GracefulErrorWidget(
           onRetry: _retryInit,
-          errorMessage: "Unable to connect to the travel Oracle. Please check your internet and try again.",
+          errorMessage: "Critical storage error. The Oracle cannot start.",
         ),
       );
+    }
+
+    // If Hive is ready but Firebase failed, go to Home in Offline Mode
+    if (!_currentInitResult.firebaseSuccess) {
+      return const HomeScreen(isOffline: true);
     }
 
     return StreamBuilder<User?>(

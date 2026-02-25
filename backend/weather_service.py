@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
+OPENWEATHER_API_KEY = os.getenv("73f0558a4c57b6da922c30b9b1960018", "")
 
 def get_weather_advisory(city: str) -> str:
     """

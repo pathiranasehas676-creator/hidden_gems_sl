@@ -55,15 +55,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            
-            // Content
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Brand Icon/Logo
+  
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
