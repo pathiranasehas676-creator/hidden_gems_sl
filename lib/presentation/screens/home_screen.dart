@@ -79,7 +79,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: _buildBottomNav(context),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           HapticFeedback.mediumImpact();
@@ -374,7 +374,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomNav() {
+  Widget _buildBottomNav(BuildContext context) {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       notchMargin: 10,

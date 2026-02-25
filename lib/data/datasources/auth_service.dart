@@ -40,8 +40,47 @@ class AuthService {
     }
   }
 
+  // Sign up with Email
+  Future<UserCredential?> signUpWithEmail(String email, String password, String name) async {
+    try {
+      final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (userCredential.user != null) {
+        // Update display name
+        await userCredential.user!.updateDisplayName(name);
+        // Sync to Firestore
+        await _syncUserData(userCredential.user!, name: name);
+      }
+      return userCredential;
+    } catch (e) {
+      debugPrint("Error during Email Sign-Up: $e");
+      rethrow;
+    }
+  }
+
+  // Sign in with Email
+  Future<UserCredential?> signInWithEmail(String email, String password) async {
+    try {
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      
+      if (userCredential.user != null) {
+        await _syncUserData(userCredential.user!);
+      }
+      return userCredential;
+    } catch (e) {
+      debugPrint("Error during Email Sign-In: $e");
+      rethrow;
+    }
+  }
+
   // Sync user data to Firestore
-  Future<void> _syncUserData(User user) async {
+  Future<void> _syncUserData(User user, {String? name}) async {
     final userDoc = _firestore.collection('users').doc(user.uid);
     
     final docSnapshot = await userDoc.get();
@@ -50,7 +89,7 @@ class AuthService {
       // Create new user document
       await userDoc.set({
         'uid': user.uid,
-        'displayName': user.displayName,
+        'displayName': name ?? user.displayName,
         'email': user.email,
         'photoURL': user.photoURL,
         'planCount': 0,
