@@ -119,9 +119,9 @@ class HomeScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withValues(alpha: 0.6),
+                    AppTheme.primaryBlue.withOpacity(0.6),
                     Colors.transparent,
-                    AppTheme.primaryBlue.withValues(alpha: 0.4),
+                    AppTheme.primaryBlue.withOpacity(0.4),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -316,7 +316,7 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: color)),

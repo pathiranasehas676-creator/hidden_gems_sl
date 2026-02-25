@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   center: Alignment.center,
                   radius: 1.5,
                   colors: [
-                    AppTheme.primaryBlue.withValues(alpha: 0.8),
+                    AppTheme.primaryBlue.withOpacity(0.8),
                     AppTheme.primaryBlue,
                   ],
                 ),
@@ -67,12 +67,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: AppTheme.accentOchre.withValues(alpha: 0.1),
+                        color: AppTheme.accentOchre.withOpacity(0.1),
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.2)),
+                        border: Border.all(color: AppTheme.accentOchre.withOpacity(0.2)),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.accentOchre.withValues(alpha: 0.2),
+                            color: AppTheme.accentOchre.withOpacity(0.2),
                             blurRadius: 40,
                             spreadRadius: 10,
                           )

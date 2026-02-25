@@ -460,7 +460,7 @@ class _ResultsScreenState extends State<ResultsScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: AppTheme.glassDecoration(opacity: 0.1, radius: BorderRadius.circular(20)).copyWith(
-          border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
+          border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.1)),
         ),
         child: Row(
           children: [
@@ -524,7 +524,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                 decoration: BoxDecoration(
                   color: typeInfo.color,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: typeInfo.color.withValues(alpha: 0.3), blurRadius: 10)],
+                  boxShadow: [BoxShadow(color: typeInfo.color.withOpacity(0.3), blurRadius: 10)],
                 ),
               ),
               Expanded(
@@ -550,7 +550,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                     Row(
                       children: [
                         Expanded(child: Text(item.title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.primaryBlue))),
-                        Icon(typeInfo.icon, size: 18, color: typeInfo.color.withValues(alpha: 0.5)),
+                        Icon(typeInfo.icon, size: 18, color: typeInfo.color.withOpacity(0.5)),
                       ],
                     ),
                     const SizedBox(height: 12),

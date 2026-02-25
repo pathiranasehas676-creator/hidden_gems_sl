@@ -57,11 +57,11 @@ class _GoldenTracerIndicatorState extends State<GoldenTracerIndicator>
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: AppTheme.accentOchre.withValues(alpha: opacity),
+            color: AppTheme.accentOchre.withOpacity(opacity),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppTheme.accentOchre.withValues(alpha: opacity * 0.5),
+                color: AppTheme.accentOchre.withOpacity(opacity * 0.5),
                 blurRadius: 8,
                 spreadRadius: progress * 2,
               )

@@ -169,10 +169,10 @@ class OfflineHighlightsWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.08),
+                      color: color.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                          color: color.withValues(alpha: 0.25), width: 1),
+                          color: color.withOpacity(0.25), width: 1),
                     ),
                     child: Text(item,
                         style: TextStyle(fontSize: 11, color: color)),

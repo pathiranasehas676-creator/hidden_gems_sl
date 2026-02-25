@@ -93,7 +93,7 @@ class _KBManagerScreenState extends State<KBManagerScreen> {
     Color color = score > 0.9 ? Colors.greenAccent : (score > 0.8 ? AppTheme.accentOchre : Colors.orangeAccent);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.3))),
       child: Text("${(score * 100).toInt()}%", style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
     );
   }

@@ -137,7 +137,7 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
+                      color: Colors.black.withOpacity(0.06),
                       blurRadius: 12,
                       offset: const Offset(0, 4))
                 ],
@@ -149,7 +149,7 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                      color: AppTheme.primaryBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.travel_explore,

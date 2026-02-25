@@ -129,7 +129,7 @@ class _StatCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, color: AppTheme.accentOchre.withValues(alpha: 0.5), size: 20),
+              Icon(icon, color: AppTheme.accentOchre.withOpacity(0.5), size: 20),
               const Spacer(),
               Text(
                 delta,

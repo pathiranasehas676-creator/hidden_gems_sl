@@ -15,8 +15,9 @@ class GracefulErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      padding: const EdgeInsets.all(32),
-      child: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(

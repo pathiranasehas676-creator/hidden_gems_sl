@@ -33,13 +33,17 @@ class PremiumService extends ChangeNotifier {
   }
 
   Future<void> _checkPremiumStatus() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      if (doc.exists) {
-        _isPremium = doc.data()?['isPremium'] ?? false;
-        notifyListeners();
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        if (doc.exists) {
+          _isPremium = doc.data()?['isPremium'] ?? false;
+          notifyListeners();
+        }
       }
+    } catch (e) {
+      debugPrint("Premium Status Check failed (Firebase might not be ready): $e");
     }
   }
 

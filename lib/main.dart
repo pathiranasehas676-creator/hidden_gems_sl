@@ -17,32 +17,24 @@ import 'presentation/screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Services
-  await TripCacheService.init();
-  await UserPreferenceService.init();
-  
-  // Initialize Firebase, Ads, Analytics, Notifications
+  // 1. Initialize Essential Local Storage (Hive) first
   try {
-    await Firebase.initializeApp();
-    await MobileAds.instance.initialize();
-    await NotificationService().init();
-    await AnalyticsService().logEvent('app_opened');
+    await TripCacheService.init();
+    await UserPreferenceService.init();
   } catch (e) {
-    debugPrint("Firebase/Init failed: $e. Non-fatal but features restricted.");
+    debugPrint("Critical Init Error (Local DB): $e");
   }
 
-  // Pre-load ads & Voice
-  MonetizationService().loadInterstitialAd();
-  MonetizationService().loadRewardedAd();
-  await VoiceService().init();
+  // 2. Initialize Firebase (Wait up to 8 seconds)
+  // This is required before accessing FirebaseAuth or Firestore.
+  try {
+    await Firebase.initializeApp().timeout(const Duration(seconds: 8));
+  } catch (e) {
+    debugPrint("Firebase Core Init Error: $e");
+  }
 
-  // Global Error Boundary
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    AnalyticsService().logEvent('runtime_error', parameters: {
-      'exception': details.exceptionAsString(),
-    });
-  };
+  // 3. Fire and Forget non-blocking services AFTER running the app
+  _initializeOtherServices();
 
   runApp(
     MultiProvider(
@@ -52,6 +44,28 @@ void main() async {
       child: const AdvanceTravelApp(),
     ),
   );
+}
+
+void _initializeOtherServices() {
+  // These don't need to block UI rendering
+  MobileAds.instance.initialize().catchError((e) => debugPrint("Ads Init Error: $e"));
+  NotificationService().init().catchError((e) => debugPrint("Notify Init Error: $e"));
+  AnalyticsService().logEvent('app_opened').catchError((e) => null);
+  
+  // Ads & Voice Pre-load
+  MonetizationService().loadInterstitialAd();
+  MonetizationService().loadRewardedAd();
+  VoiceService().init().catchError((e) => debugPrint("Voice Init Error: $e"));
+
+  // Global Error Boundary
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    try {
+      AnalyticsService().logEvent('runtime_error', parameters: {
+        'exception': details.exceptionAsString(),
+      });
+    } catch (_) {}
+  };
 }
 
 class AdvanceTravelApp extends StatelessWidget {
@@ -64,18 +78,40 @@ class AdvanceTravelApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
-          }
-          if (snapshot.hasData) {
-            return const HomeScreen();
-          }
-          return const LoginScreen();
-        },
-      ),
+      home: _buildHomeModule(),
+    );
+  }
+
+  Widget _buildHomeModule() {
+    // Basic check: If Firebase is not initialized, FirebaseAuth.instance might fail.
+    // However, most plugins now handle this better or throw specific errors.
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            body: Container(
+              color: AppTheme.silkPearl,
+              child: const Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryBlue),
+              ),
+            ),
+          );
+        }
+        
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text("Connection Error: ${snapshot.error}"),
+            ),
+          );
+        }
+
+        if (snapshot.hasData) {
+          return const HomeScreen();
+        }
+        return const LoginScreen();
+      },
     );
   }
 }

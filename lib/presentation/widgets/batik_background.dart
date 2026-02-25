@@ -35,7 +35,7 @@ class BatikPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppTheme.primaryBlue.withValues(alpha: opacity)
+      ..color = AppTheme.primaryBlue.withOpacity(opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 

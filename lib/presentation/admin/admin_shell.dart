@@ -53,7 +53,7 @@ class _AdminShellState extends State<AdminShell> {
                   child: ClipRRect(
                     borderRadius: const BorderRadius.only(topLeft: Radius.circular(30)),
                     child: Container(
-                      color: AppTheme.silkPearl.withValues(alpha: 0.02),
+                      color: AppTheme.silkPearl.withOpacity(0.02),
                       child: IndexedStack(
                         index: _selectedIndex,
                         children: _modules,
@@ -106,9 +106,9 @@ class _AdminShellState extends State<AdminShell> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Text(
         text,
@@ -165,7 +165,7 @@ class _AdminShellState extends State<AdminShell> {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.accentOchre.withValues(alpha: 0.1) : Colors.transparent,
+          color: isSelected ? AppTheme.accentOchre.withOpacity(0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

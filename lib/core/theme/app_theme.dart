@@ -121,8 +121,8 @@ class AppTheme {
       surface: const Color(0xFF0B1C2D),
     ),
     textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme).copyWith(
-      bodyLarge: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9)),
-      bodyMedium: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9)),
+      bodyLarge: GoogleFonts.inter(color: Colors.white.withOpacity(0.9)),
+      bodyMedium: GoogleFonts.inter(color: Colors.white.withOpacity(0.9)),
     ),
   );
 

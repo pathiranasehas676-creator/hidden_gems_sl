@@ -194,7 +194,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
               center: Alignment.center,
               radius: 1.5,
               colors: [
-                AppTheme.primaryBlue.withValues(alpha: 0.8),
+                AppTheme.primaryBlue.withOpacity(0.8),
                 AppTheme.primaryBlue,
               ],
             ),
@@ -227,7 +227,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
                   return CustomPaint(
                     painter: JourneyPathPainter(
                       progress: _mapController.value,
-                      color: AppTheme.accentOchre.withValues(alpha: 0.2),
+                      color: AppTheme.accentOchre.withOpacity(0.2),
                     ),
                   );
                 },
@@ -242,11 +242,11 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppTheme.accentOchre.withValues(alpha: 0.05),
+                      color: AppTheme.accentOchre.withOpacity(0.05),
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.2), width: 0.5),
+                      border: Border.all(color: AppTheme.accentOchre.withOpacity(0.2), width: 0.5),
                       boxShadow: [
-                        BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.1), blurRadius: 40, spreadRadius: 10),
+                        BoxShadow(color: AppTheme.accentOchre.withOpacity(0.1), blurRadius: 40, spreadRadius: 10),
                       ],
                     ),
                     child: Icon(
@@ -309,9 +309,9 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Colors.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -338,12 +338,22 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
           style: GoogleFonts.inter(color: Colors.white60, fontSize: 14)),
         const SizedBox(height: 48),
         ElevatedButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            setState(() {
+              _hasError = false;
+              _msgIndex = 0;
+            });
+            _generate();
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.accentOchre,
-            foregroundColor: Colors.white,
+            foregroundColor: AppTheme.primaryBlue,
           ),
-          child: const Text("Refine Request"),
+          child: const Text("TRY AGAIN"),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Refine Request", style: TextStyle(color: Colors.white70)),
         ),
       ],
     );
@@ -385,7 +395,7 @@ class JourneyPathPainter extends CustomPainter {
     path.close();
 
     // Draw background path
-    canvas.drawPath(path, paint..color = color.withValues(alpha: 0.1));
+    canvas.drawPath(path, paint..color = color.withOpacity(0.1));
 
     // Draw animated progress path
     final pathMetrics = path.computeMetrics().first;
@@ -396,7 +406,7 @@ class JourneyPathPainter extends CustomPainter {
     final pos = pathMetrics.getTangentForOffset(pathMetrics.length * progress)?.position;
     if (pos != null) {
       canvas.drawCircle(pos, 6, dotPaint);
-      canvas.drawCircle(pos, 12, dotPaint..color = AppTheme.accentOchre.withValues(alpha: 0.3));
+      canvas.drawCircle(pos, 12, dotPaint..color = AppTheme.accentOchre.withOpacity(0.3));
     }
   }
 
