@@ -13,35 +13,45 @@ import 'core/analytics/analytics_service.dart';
 import 'core/notifications/notification_service.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/widgets/graceful_error_widget.dart';
+
+class InitializationResult {
+  final bool success;
+  final String? error;
+  InitializationResult({required this.success, this.error});
+}
+
+Future<InitializationResult> performInitialization() async {
+  try {
+    // 1. Initialize Essential Local Storage (Hive) first
+    await TripCacheService.init();
+    await UserPreferenceService.init();
+
+    // 2. Initialize Firebase (Increased timeout to 15 seconds)
+    await Firebase.initializeApp().timeout(const Duration(seconds: 15));
+
+    return InitializationResult(success: true);
+  } catch (e) {
+    debugPrint("Critical Init Error: $e");
+    return InitializationResult(success: false, error: e.toString());
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // 1. Initialize Essential Local Storage (Hive) first
-  try {
-    await TripCacheService.init();
-    await UserPreferenceService.init();
-  } catch (e) {
-    debugPrint("Critical Init Error (Local DB): $e");
-  }
+  final initResult = await performInitialization();
 
-  // 2. Initialize Firebase (Wait up to 8 seconds)
-  // This is required before accessing FirebaseAuth or Firestore.
-  try {
-    await Firebase.initializeApp().timeout(const Duration(seconds: 8));
-  } catch (e) {
-    debugPrint("Firebase Core Init Error: $e");
+  if (initResult.success) {
+    _initializeOtherServices();
   }
-
-  // 3. Fire and Forget non-blocking services AFTER running the app
-  _initializeOtherServices();
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PremiumService()..init()),
       ],
-      child: const AdvanceTravelApp(),
+      child: AdvanceTravelApp(initResult: initResult),
     ),
   );
 }
@@ -68,8 +78,39 @@ void _initializeOtherServices() {
   };
 }
 
-class AdvanceTravelApp extends StatelessWidget {
-  const AdvanceTravelApp({super.key});
+class AdvanceTravelApp extends StatefulWidget {
+  final InitializationResult initResult;
+  const AdvanceTravelApp({super.key, required this.initResult});
+
+  @override
+  State<AdvanceTravelApp> createState() => _AdvanceTravelAppState();
+}
+
+class _AdvanceTravelAppState extends State<AdvanceTravelApp> {
+  late InitializationResult _currentInitResult;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentInitResult = widget.initResult;
+  }
+
+  Future<void> _retryInit() async {
+    setState(() {
+      // Temporary state to show loader during retry
+      _currentInitResult = InitializationResult(success: true); 
+    });
+    
+    final result = await performInitialization();
+    
+    if (result.success) {
+      _initializeOtherServices();
+    }
+    
+    setState(() {
+      _currentInitResult = result;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +124,16 @@ class AdvanceTravelApp extends StatelessWidget {
   }
 
   Widget _buildHomeModule() {
-    // Basic check: If Firebase is not initialized, FirebaseAuth.instance might fail.
-    // However, most plugins now handle this better or throw specific errors.
+    if (!_currentInitResult.success) {
+      return Scaffold(
+        backgroundColor: AppTheme.primaryBlue,
+        body: GracefulErrorWidget(
+          onRetry: _retryInit,
+          errorMessage: "Unable to connect to the travel Oracle. Please check your internet and try again.",
+        ),
+      );
+    }
+
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
