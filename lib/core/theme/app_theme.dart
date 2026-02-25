@@ -82,7 +82,7 @@ class AppTheme {
         textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
       ),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       color: Colors.white,

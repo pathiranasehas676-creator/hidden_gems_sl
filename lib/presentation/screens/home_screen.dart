@@ -45,7 +45,7 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             _journalUnfold(child: _buildWelcomeCard()),
                             const SizedBox(height: 32),
-                            _buildHeader("Oracle's Choice"),
+                            _buildSectionHeader("Oracle's Choice"),
                             const SizedBox(width: 8), // Replaces former layout gap
                           ],
                         ),

@@ -17,9 +17,11 @@ import 'map_route_screen.dart';
 import '../../core/analytics/analytics_service.dart';
 import '../../core/rating/rating_service.dart';
 import '../../data/datasources/user_preference_service.dart';
+import '../../data/datasources/voice_service.dart';
 
 class ResultsScreen extends StatefulWidget {
   final TripPlan plan;
+  final CacheReadResult cacheState;
 
   const ResultsScreen({
     super.key,
@@ -435,8 +437,8 @@ class _ResultsScreenState extends State<ResultsScreen>
                     child: FadeInAnimation(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                            _buildSectionHeader("Oracle's Choice"), // Assuming _buildSectionHeader is a defined method
+                          children: [
+                            _buildDayHeader(day),
                           const SizedBox(height: 12),
                           ...day.items.map((item) => _buildTimelineItem(item)),
                           const SizedBox(height: 16),
