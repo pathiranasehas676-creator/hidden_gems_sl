@@ -137,6 +137,23 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            Positioned(
+              top: 100,
+              left: 20,
+              child: RichText(
+                text: TextSpan(
+                  style: GoogleFonts.outfit(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
+                  ),
+                  children: [
+                    const TextSpan(text: "TripMe", style: TextStyle(color: Colors.white)),
+                    const TextSpan(text: ".ai", style: TextStyle(color: AppTheme.accentOchre)),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

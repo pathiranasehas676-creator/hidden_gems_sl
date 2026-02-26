@@ -130,13 +130,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
+                  RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.outfit(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                      children: [
+                        const TextSpan(text: "TripMe", style: TextStyle(color: Colors.white)),
+                        TextSpan(
+                          text: ".ai", 
+                          style: TextStyle(
+                            color: AppTheme.accentOchre,
+                            shadows: [
+                              Shadow(
+                                color: AppTheme.accentOchre.withOpacity(0.5),
+                                blurRadius: 10,
+                              )
+                            ]
+                          )
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Text(
-                    "TripMe.ai".toUpperCase(),
-                    style: GoogleFonts.outfit(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 4,
+                    "The Serendib Oracle Awaits",
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Colors.white70,
+                      letterSpacing: 1.2,
                     ),
                   ),
                   const SizedBox(height: 48),
