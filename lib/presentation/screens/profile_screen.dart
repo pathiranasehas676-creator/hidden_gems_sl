@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -66,9 +67,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         background: Stack(
           alignment: Alignment.center,
           children: [
-            Container(color: AppTheme.primaryBlue),
             if (isPremium)
-              const Icon(Icons.stars, color: AppTheme.accentOchre, size: 80)
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF0F2027), AppTheme.primaryBlue, AppTheme.accentOchre],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              )
+            else
+              Container(color: AppTheme.primaryBlue),
+            if (isPremium)
+              const Icon(Icons.stars, color: Colors.white30, size: 80)
             else
               const Icon(Icons.person_outline, color: Colors.white24, size: 80),
           ],
@@ -78,19 +90,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildStatsRow() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: AppTheme.glassDecoration(opacity: 0.9),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _statItem(profile.totalTripsGenerated.toString(), "TRIPS"),
-          _verticalDivider(),
-          _statItem(profile.visitedPlaces.length.toString(), "PLACES"),
-          _verticalDivider(),
-          _statItem("LVL 1", "RANK"),
-        ],
-      ),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          top: -20, left: 20,
+          child: Container(
+            width: 60, height: 60,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.accentOchre.withOpacity(0.3)),
+          ),
+        ),
+        Positioned(
+          bottom: -20, right: 20,
+          child: Container(
+            width: 80, height: 80,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.primaryBlue.withOpacity(0.2)),
+          ),
+        ),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white.withOpacity(0.5)),
+                boxShadow: AppTheme.premiumShadow,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _statItem(profile.totalTripsGenerated.toString(), "TRIPS"),
+                  _verticalDivider(),
+                  _statItem(profile.visitedPlaces.length.toString(), "PLACES"),
+                  _verticalDivider(),
+                  _statItem("LVL 1", "RANK"),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -195,14 +237,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: AppTheme.softShadow,
       ),
       child: ListTile(
-        leading: Icon(icon, color: AppTheme.primaryBlue, size: 20),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryBlue.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: AppTheme.primaryBlue, size: 20),
+        ),
         title: Text(
           title,
-          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
+          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
         ),
-        trailing: const Icon(Icons.chevron_right, size: 18),
+        trailing: const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
         onTap: () {},
       ),
     );

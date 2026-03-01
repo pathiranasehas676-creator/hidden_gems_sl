@@ -115,26 +115,40 @@ class _ResultsScreenState extends State<ResultsScreen>
                     },
                   ),
                   actions: [
-                    _buildSaveButton(plan),
-                    IconButton(
-                      icon: const Icon(Icons.public, color: Colors.white),
-                      tooltip: "View Visual Route",
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => MapRouteScreen(plan: plan)));
-                      },
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: AppTheme.glassDecoration(opacity: 0.2, radius: BorderRadius.circular(16)),
+                      child: _buildSaveButton(plan),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white),
-                      onPressed: () {
-                        if (isPremium) {
-                          PdfService.generateAndShareTripPdf(plan);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("PDF Export is a Premium feature.")),
-                          );
-                          _tabController.animateTo(2); // Jump to Plan B / Premium CTA
-                        }
-                      },
+                    const SizedBox(width: 8),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: AppTheme.glassDecoration(opacity: 0.2, radius: BorderRadius.circular(16)),
+                      child: IconButton(
+                        icon: const Icon(Icons.public, color: Colors.white),
+                        tooltip: "View Visual Route",
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => MapRouteScreen(plan: plan)));
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: AppTheme.glassDecoration(opacity: 0.2, radius: BorderRadius.circular(16)),
+                      child: IconButton(
+                        icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white),
+                        onPressed: () {
+                          if (isPremium) {
+                            PdfService.generateAndShareTripPdf(plan);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("PDF Export is a Premium feature.")),
+                            );
+                            _tabController.animateTo(2); // Jump to Plan B / Premium CTA
+                          }
+                        },
+                      ),
                     ),
                     _buildConfidenceBadge(plan.verifiedScore),
                     const SizedBox(width: 8),
@@ -229,10 +243,17 @@ class _ResultsScreenState extends State<ResultsScreen>
                       child: TabBar(
                         controller: _tabController,
                         isScrollable: true,
-                        indicatorColor: AppTheme.accentOchre,
-                        indicatorWeight: 3,
-                        labelColor: Colors.white,
-                        unselectedLabelColor: Colors.white38,
+                        dividerColor: Colors.transparent,
+                        indicator: BoxDecoration(
+                          color: AppTheme.accentOchre,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(color: AppTheme.accentOchre.withOpacity(0.6), blurRadius: 8, spreadRadius: 1)
+                          ],
+                        ),
+                        indicatorPadding: const EdgeInsets.symmetric(horizontal: -12, vertical: 4),
+                        labelColor: AppTheme.primaryBlue,
+                        unselectedLabelColor: Colors.white70,
                         labelStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold),
                         tabs: const [
                           Tab(text: "Itinerary"),
@@ -343,13 +364,15 @@ class _ResultsScreenState extends State<ResultsScreen>
 
   Widget _buildConfidenceBadge(int score) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: AppTheme.glassDecoration(opacity: 0.2, radius: BorderRadius.circular(16)),
       child: Stack(
         alignment: Alignment.center,
         children: [
           SizedBox(
-            width: 44,
-            height: 44,
+            width: 36,
+            height: 36,
             child: CircularProgressIndicator(
               value: score / 100,
               backgroundColor: Colors.white10,
@@ -360,8 +383,9 @@ class _ResultsScreenState extends State<ResultsScreen>
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("$score", style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-              Text("VERIFIED", style: GoogleFonts.inter(color: AppTheme.accentOchre, fontSize: 6, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 2),
+              Text("$score", style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+              Text("VERIFIED", style: GoogleFonts.inter(color: AppTheme.accentOchre, fontSize: 5, fontWeight: FontWeight.bold)),
             ],
           ),
         ],
@@ -519,16 +543,26 @@ class _ResultsScreenState extends State<ResultsScreen>
             children: [
               const SizedBox(height: 24),
               Container(
-                width: 12,
-                height: 12,
+                width: 14,
+                height: 14,
                 decoration: BoxDecoration(
                   color: typeInfo.color,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: typeInfo.color.withOpacity(0.3), blurRadius: 10)],
+                  boxShadow: [
+                    BoxShadow(color: typeInfo.color.withOpacity(0.5), blurRadius: 8, spreadRadius: 2),
+                    const BoxShadow(color: Colors.white, blurRadius: 2, spreadRadius: 1),
+                  ],
                 ),
               ),
               Expanded(
-                child: Container(width: 1, color: Colors.grey.shade300, margin: const EdgeInsets.symmetric(vertical: 8)),
+                child: Container(
+                  width: 2, 
+                  margin: const EdgeInsets.symmetric(vertical: 8), 
+                  decoration: BoxDecoration(
+                    color: typeInfo.color.withOpacity(0.5),
+                    boxShadow: [BoxShadow(color: typeInfo.color.withOpacity(0.3), blurRadius: 4)],
+                  )
+                ),
               ),
             ],
           ),
@@ -540,7 +574,8 @@ class _ResultsScreenState extends State<ResultsScreen>
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: AppTheme.softShadow,
+                border: Border(left: BorderSide(color: typeInfo.color, width: 4)),
+                boxShadow: AppTheme.premiumShadow,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),

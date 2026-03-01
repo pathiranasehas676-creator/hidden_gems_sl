@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
@@ -29,90 +30,149 @@ class _AdminShellState extends State<AdminShell> {
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width > 900;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A101D), // Ultra Dark Navy
-      body: Row(
-        children: [
-          // Sidebar
-          if (isDesktop)
-            Container(
-              width: 280,
-              decoration: const BoxDecoration(
-                color: Color(0xFF0F172A),
-                border: Border(right: BorderSide(color: Colors.white12)),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.topLeft,
+          radius: 1.5,
+          colors: [
+            Color(0xFF1A2235), // Subtle glow
+            Color(0xFF0F172A), // Slate Navy
+            Color(0xFF0A101D), // Ultra Dark Navy
+          ],
+          stops: [0.0, 0.5, 1.0],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Row(
+          children: [
+            // Sidebar
+            if (isDesktop)
+              ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    width: 280,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F172A).withOpacity(0.6),
+                      border: const Border(right: BorderSide(color: Colors.white10)),
+                    ),
+                    child: _buildSidebar(),
+                  ),
+                ),
               ),
-              child: _buildSidebar(),
-            ),
-          
-          // Content
-          Expanded(
-            child: Column(
-              children: [
-                _buildTopBar(),
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(30)),
-                    child: Container(
-                      color: AppTheme.silkPearl.withOpacity(0.02),
-                      child: IndexedStack(
-                        index: _selectedIndex,
-                        children: _modules,
+            
+            // Content
+            Expanded(
+              child: Column(
+                children: [
+                  _buildTopBar(),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(30)),
+                      child: Container(
+                        color: AppTheme.silkPearl.withOpacity(0.015),
+                        child: IndexedStack(
+                          index: _selectedIndex,
+                          children: _modules,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        drawer: !isDesktop ? Drawer(child: _buildSidebar()) : null,
       ),
-      drawer: !isDesktop ? Drawer(child: _buildSidebar()) : null,
     );
   }
 
   Widget _buildTopBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F172A),
-        border: Border(bottom: BorderSide(color: Colors.white12)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.shield_outlined, color: AppTheme.accentOchre, size: 20),
-          const SizedBox(width: 12),
-          Text(
-            "TRIPME CONTROL CENTER",
-            style: GoogleFonts.outfit(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
-              fontSize: 14,
-            ),
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A).withOpacity(0.5),
+            border: const Border(bottom: BorderSide(color: Colors.white10)),
           ),
-          const Spacer(),
-          _statusBadge("SERVER: ONLINE", Colors.green),
-          const SizedBox(width: 16),
-          const CircleAvatar(
-            radius: 16,
-            backgroundImage: NetworkImage("https://ui-avatars.com/api/?name=Admin"),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentOchre.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppTheme.accentOchre.withOpacity(0.3)),
+                  boxShadow: [
+                    BoxShadow(color: AppTheme.accentOchre.withOpacity(0.2), blurRadius: 10, spreadRadius: 1)
+                  ],
+                ),
+                child: const Icon(Icons.shield_outlined, color: AppTheme.accentOchre, size: 20),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                "TRIPME CONTROL CENTER",
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                  fontSize: 14,
+                ),
+              ),
+              const Spacer(),
+              _statusBadge("SERVER: ONLINE", Colors.greenAccent),
+              const SizedBox(width: 16),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white24, width: 2),
+                ),
+                child: const CircleAvatar(
+                  radius: 16,
+                  backgroundImage: NetworkImage("https://ui-avatars.com/api/?name=Admin&background=random"),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _statusBadge(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withOpacity(0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 8,
+            spreadRadius: 1,
+          )
+        ],
       ),
-      child: Text(
-        text,
-        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+          ),
+        ],
       ),
     );
   }
@@ -161,12 +221,20 @@ class _AdminShellState extends State<AdminShell> {
     final isSelected = _selectedIndex == index;
     return InkWell(
       onTap: () => setState(() => _selectedIndex = index),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.accentOchre.withOpacity(0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: [AppTheme.accentOchre.withOpacity(0.2), Colors.transparent],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(8),
+          border: isSelected ? const Border(left: BorderSide(color: AppTheme.accentOchre, width: 3)) : null,
         ),
         child: Row(
           children: [

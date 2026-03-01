@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -53,6 +54,9 @@ class HomeScreen extends StatelessWidget {
                               _buildLocalGemsScroller(),
                               const SizedBox(height: 32),
                             ],
+                            const SizedBox(height: 16),
+                            _buildCategoriesGrid(),
+                            const SizedBox(height: 32),
                             _buildSectionHeader("Oracle's Choice"),
                             const SizedBox(width: 8),
                           ],
@@ -222,35 +226,49 @@ class HomeScreen extends StatelessWidget {
     final name = user?.displayName?.split(" ").first ?? "Traveler";
 
     return DynamicLightWrapper(
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(24),
-        decoration: AppTheme.glassDecoration(opacity: 0.9).copyWith(
-          boxShadow: AppTheme.premiumShadow,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Ayubowan, $name!".toUpperCase(),
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: AppTheme.accentOchre,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 3,
-              ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppTheme.silkPearl.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppTheme.accentOchre.withOpacity(0.5), width: 1.5),
+              boxShadow: AppTheme.premiumShadow,
             ),
-            const SizedBox(height: 12),
-            Text(
-              "Where shall the\nOracle guide you?",
-              style: GoogleFonts.outfit(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryBlue,
-                height: 1.1,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [AppTheme.accentOchre, Colors.orangeAccent],
+                  ).createShader(bounds),
+                  child: Text(
+                    "Ayubowan, $name!".toUpperCase(),
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 3,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  "Where shall the\nOracle guide you?",
+                  style: GoogleFonts.outfit(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryBlue,
+                    height: 1.1,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -269,11 +287,11 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildCategoriesGrid() {
     final categories = [
-      ("Nature", Icons.forest_outlined),
-      ("Culture", Icons.temple_hindu_outlined),
-      ("Luxury", Icons.diamond_outlined),
-      ("Budget", Icons.wallet_outlined),
-      ("Adventure", Icons.explore_outlined),
+      ("Nature", Icons.forest_outlined, const [Color(0xFF2E7D5B), Color(0xFF1B5E20)]),
+      ("Culture", Icons.temple_hindu_outlined, const [Color(0xFFE2725B), Color(0xFFC62828)]),
+      ("Luxury", Icons.diamond_outlined, const [AppTheme.accentOchre, Color(0xFFF57F17)]),
+      ("Budget", Icons.wallet_outlined, const [Color(0xFF1565C0), Color(0xFF0D47A1)]),
+      ("Adventure", Icons.explore_outlined, const [Color(0xFF8E24AA), Color(0xFF4A148C)]),
     ];
 
     return SizedBox(
@@ -289,17 +307,28 @@ class HomeScreen extends StatelessWidget {
             width: 80,
             child: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
+                Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                  child: InkWell(
+                    onTap: () {},
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: AppTheme.softShadow,
+                    splashColor: Colors.white24,
+                    child: Ink(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: cat.$3, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(color: cat.$3[0].withOpacity(0.4), blurRadius: 12, spreadRadius: 0, offset: const Offset(0, 6))
+                        ],
+                      ),
+                      child: Icon(cat.$2, color: Colors.white, size: 24),
+                    ),
                   ),
-                  child: Icon(cat.$2, color: AppTheme.primaryBlue, size: 24),
                 ),
                 const SizedBox(height: 8),
-                Text(cat.$1, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500)),
+                Text(cat.$1, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
               ],
             ),
           );
@@ -320,51 +349,63 @@ class HomeScreen extends StatelessWidget {
   Widget _buildPlanCard(BuildContext context, String title, String desc, String duration) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
+      height: 140,
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.softShadow,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                image: const DecorationImage(
-                  image: NetworkImage("https://images.unsplash.com/photo-1546708973-b339540b5162?q=80&w=2670&auto=format&fit=crop"),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      _miniChip("MOST POPULAR", AppTheme.accentOchre),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
-                  Text(desc, style: GoogleFonts.inter(fontSize: 13, color: Colors.black54), maxLines: 1),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(duration, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppTheme.accentOchre)),
-                const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey),
-              ],
-            )
-          ],
+        boxShadow: AppTheme.premiumShadow,
+        image: const DecorationImage(
+          image: NetworkImage("https://images.unsplash.com/photo-1546708973-b339540b5162?q=80&w=2670&auto=format&fit=crop"),
+          fit: BoxFit.cover,
         ),
+      ),
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.black.withOpacity(0.1), Colors.black.withOpacity(0.8)],
+                stops: const [0.5, 1.0]
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _miniChip("MOST POPULAR", AppTheme.accentOchre),
+                          const SizedBox(height: 6),
+                          Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                          Text(desc, style: GoogleFonts.inter(fontSize: 12, color: Colors.white70), maxLines: 1),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white30),
+                      ),
+                      child: Text(duration, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12)),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

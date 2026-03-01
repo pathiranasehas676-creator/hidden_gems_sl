@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
@@ -7,99 +8,202 @@ class AdminDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = MediaQuery.of(context).size.width < 800;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(isMobile ? 16 : 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Good Morning, Admin", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                  const SizedBox(height: 4),
-                  Text("Here is what's happening with the Oracle today.", style: GoogleFonts.inter(color: Colors.white54)),
-                ],
-              ),
-              const Spacer(),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.download_outlined, size: 18),
-                label: const Text("Export Report"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.accentOchre,
-                  foregroundColor: AppTheme.primaryBlue,
-                ),
-              ),
-            ],
-          ),
+          if (isMobile)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeaderText(),
+                const SizedBox(height: 24),
+                _buildExportButton(),
+              ],
+            )
+          else
+            Row(
+              children: [
+                _buildHeaderText(),
+                const Spacer(),
+                _buildExportButton(),
+              ],
+            ),
           const SizedBox(height: 40),
           
           // Stats Row
-          const Row(
-            children: [
-              Expanded(child: _StatCard(label: "TOTAL USERS", value: "1,240", delta: "+12%", icon: Icons.people_alt_outlined)),
-              SizedBox(width: 24),
-              Expanded(child: _StatCard(label: "PLANS TODAY", value: "85", delta: "+5%", icon: Icons.auto_awesome_outlined)),
-              SizedBox(width: 24),
-              Expanded(child: _StatCard(label: "AVG CONFIDENCE", value: "88.5%", delta: "-2%", icon: Icons.verified_user_outlined)),
-              SizedBox(width: 24),
-              Expanded(child: _StatCard(label: "REVENUE (LKR)", value: "42,500", delta: "+18%", icon: Icons.payments_outlined)),
-            ],
-          ),
+          if (isMobile)
+            Column(
+              children: [
+                const _StatCard(label: "TOTAL USERS", value: "1,240", delta: "+12%", icon: Icons.people_alt_outlined, color: Colors.blueAccent),
+                const SizedBox(height: 16),
+                const _StatCard(label: "PLANS TODAY", value: "85", delta: "+5%", icon: Icons.auto_awesome_outlined, color: AppTheme.accentOchre),
+                const SizedBox(height: 16),
+                const _StatCard(label: "AVG CONFIDENCE", value: "88.5%", delta: "-2%", icon: Icons.verified_user_outlined, color: Colors.purpleAccent),
+                const SizedBox(height: 16),
+                const _StatCard(label: "REVENUE (LKR)", value: "42,500", delta: "+18%", icon: Icons.payments_outlined, color: Colors.greenAccent),
+              ],
+            )
+          else
+            const Row(
+              children: [
+                Expanded(child: _StatCard(label: "TOTAL USERS", value: "1,240", delta: "+12%", icon: Icons.people_alt_outlined, color: Colors.blueAccent)),
+                SizedBox(width: 24),
+                Expanded(child: _StatCard(label: "PLANS TODAY", value: "85", delta: "+5%", icon: Icons.auto_awesome_outlined, color: AppTheme.accentOchre)),
+                SizedBox(width: 24),
+                Expanded(child: _StatCard(label: "AVG CONFIDENCE", value: "88.5%", delta: "-2%", icon: Icons.verified_user_outlined, color: Colors.purpleAccent)),
+                SizedBox(width: 24),
+                Expanded(child: _StatCard(label: "REVENUE (LKR)", value: "42,500", delta: "+18%", icon: Icons.payments_outlined, color: Colors.greenAccent)),
+              ],
+            ),
           
           const SizedBox(height: 40),
           
           // Secondary level
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Latency Chart Placeholder
-              Expanded(
-                flex: 2,
-                child: _DashboardPanel(
+          if (isMobile)
+            Column(
+              children: [
+                _DashboardPanel(
                   title: "API Performance (Latency ms)",
                   child: Container(
                     height: 300,
-                    child: Center(
+                    child: const Center(
                       child: Text("Chart Placeholder: Latency Graph", style: TextStyle(color: Colors.white24)),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 24),
-              // Top Destinations
-              Expanded(
-                flex: 1,
-                child: _DashboardPanel(
+                const SizedBox(height: 24),
+                _DashboardPanel(
                   title: "Top Destinations",
                   child: Column(
                     children: [
-                      _destinationItem("Ella", 45),
-                      _destinationItem("Galle", 38),
-                      _destinationItem("Kandy", 32),
-                      _destinationItem("Sigiriya", 28),
-                      _destinationItem("Mirissa", 15),
+                      _destinationItem("Ella", 45, 50),
+                      _destinationItem("Galle", 38, 50),
+                      _destinationItem("Kandy", 32, 50),
+                      _destinationItem("Sigiriya", 28, 50),
+                      _destinationItem("Mirissa", 15, 50),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: _DashboardPanel(
+                    title: "API Performance (Latency ms)",
+                    child: Container(
+                      height: 300,
+                      child: const Center(
+                        child: Text("Chart Placeholder: Latency Graph", style: TextStyle(color: Colors.white24)),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  flex: 1,
+                  child: _DashboardPanel(
+                    title: "Top Destinations",
+                    child: Column(
+                      children: [
+                        _destinationItem("Ella", 45, 50),
+                        _destinationItem("Galle", 38, 50),
+                        _destinationItem("Kandy", 32, 50),
+                        _destinationItem("Sigiriya", 28, 50),
+                        _destinationItem("Mirissa", 15, 50),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );
   }
 
-  Widget _destinationItem(String name, int count) {
+  Widget _buildHeaderText() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Colors.white, Color(0xFFD9E9F2)],
+          ).createShader(bounds),
+          child: Text("Good Morning, Admin", style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
+        ),
+        const SizedBox(height: 6),
+        Text("Here is what's happening with the Oracle today.", style: GoogleFonts.inter(color: Colors.white60, fontSize: 16)),
+      ],
+    );
+  }
+
+  Widget _buildExportButton() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: AppTheme.accentOchre.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: () {},
+        icon: const Icon(Icons.download_outlined, size: 20),
+        label: const Text("Export Report", style: TextStyle(fontWeight: FontWeight.bold)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.accentOchre,
+          foregroundColor: AppTheme.primaryBlue,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          elevation: 0,
+        ),
+      ),
+    );
+  }
+
+  Widget _destinationItem(String name, int count, double maxCount) {
+    final double percentage = count / maxCount;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(name, style: const TextStyle(color: Colors.white70)),
-          const Spacer(),
-          Text("$count plans", style: const TextStyle(color: AppTheme.accentOchre, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+              const Spacer(),
+              Text("$count plans", style: const TextStyle(color: AppTheme.accentOchre, fontWeight: FontWeight.bold, fontSize: 13)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 6,
+            width: double.infinity,
+            decoration: BoxDecoration(
+               color: Colors.white10,
+               borderRadius: BorderRadius.circular(10),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: percentage,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [AppTheme.accentOchre, Colors.orangeAccent]),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(color: AppTheme.accentOchre.withOpacity(0.5), blurRadius: 6, spreadRadius: 0)
+                  ]
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -111,8 +215,9 @@ class _StatCard extends StatelessWidget {
   final String value;
   final String delta;
   final IconData icon;
+  final Color color;
 
-  const _StatCard({required this.label, required this.value, required this.delta, required this.icon});
+  const _StatCard({required this.label, required this.value, required this.delta, required this.icon, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -120,31 +225,66 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: const Color(0xFF1E293B).withOpacity(0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white10),
+        boxShadow: AppTheme.premiumShadow,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withOpacity(0.05),
+            Colors.transparent,
+          ],
+        )
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [
-              Icon(icon, color: AppTheme.accentOchre.withOpacity(0.5), size: 20),
+             children: [
+               Container(
+                 padding: const EdgeInsets.all(10),
+                 decoration: BoxDecoration(
+                   color: color.withOpacity(0.1),
+                   shape: BoxShape.circle,
+                   boxShadow: [BoxShadow(color: color.withOpacity(0.2), blurRadius: 12, spreadRadius: 2)],
+                 ),
+                 child: Icon(icon, color: color, size: 24),
+               ),
               const Spacer(),
-              Text(
-                delta,
-                style: TextStyle(
-                  color: isPositive ? Colors.greenAccent : Colors.redAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: (isPositive ? Colors.greenAccent : Colors.redAccent).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: (isPositive ? Colors.greenAccent : Colors.redAccent).withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isPositive ? Icons.arrow_upward : Icons.arrow_downward,
+                      color: isPositive ? Colors.greenAccent : Colors.redAccent,
+                      size: 12,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      delta,
+                      style: TextStyle(
+                        color: isPositive ? Colors.greenAccent : Colors.redAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          Text(value, style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+          Text(value, style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 4),
-          Text(label, style: GoogleFonts.inter(fontSize: 10, color: Colors.white54, letterSpacing: 1, fontWeight: FontWeight.bold)),
+          Text(label, style: GoogleFonts.inter(fontSize: 11, color: Colors.white54, letterSpacing: 1.2, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -159,20 +299,28 @@ class _DashboardPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title.toUpperCase(), style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white54, letterSpacing: 1.5)),
-          const SizedBox(height: 24),
-          child,
-        ],
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E293B).withOpacity(0.5),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white10),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 10))
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title.toUpperCase(), style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white54, letterSpacing: 1.5)),
+              const SizedBox(height: 24),
+              child,
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -127,14 +127,20 @@ class _TripFormScreenState extends State<TripFormScreen> {
   Widget _buildProgressBar() {
     return Container(
       width: 140,
-      height: 4,
-      decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(2)),
+      height: 6,
+      decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), borderRadius: BorderRadius.circular(3)),
       child: Stack(
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 400),
             width: 140 * ((_currentStep + 1) / _totalSteps),
-            decoration: BoxDecoration(color: AppTheme.accentOchre, borderRadius: BorderRadius.circular(2)),
+            decoration: BoxDecoration(
+              color: AppTheme.accentOchre, 
+              borderRadius: BorderRadius.circular(3),
+              boxShadow: [
+                BoxShadow(color: AppTheme.accentOchre.withOpacity(0.8), blurRadius: 10, spreadRadius: 1),
+              ],
+            ),
           ),
         ],
       ),
@@ -246,14 +252,15 @@ class _TripFormScreenState extends State<TripFormScreen> {
 
   Widget _premiumTextField({required String label, required String hint, required IconData icon, required Function(String) onChanged}) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: AppTheme.softShadow),
       child: TextFormField(
         style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
         decoration: InputDecoration(
           labelText: label, hintText: hint,
-          prefixIcon: Icon(icon, color: AppTheme.accentOchre),
+          prefixIcon: Icon(icon, color: AppTheme.primaryBlue),
           border: InputBorder.none,
+          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.accentOchre, width: 2)),
         ),
         onChanged: onChanged,
       ),
@@ -287,7 +294,8 @@ class _TripFormScreenState extends State<TripFormScreen> {
         _itemHeader(label),
         const SizedBox(height: 12),
         Wrap(
-          spacing: 10,
+          spacing: 12,
+          runSpacing: 12,
           children: options.map((opt) {
             final isSelected = current == opt;
             return ChoiceChip(
@@ -295,9 +303,21 @@ class _TripFormScreenState extends State<TripFormScreen> {
               selected: isSelected,
               onSelected: (_) => onSelect(opt),
               selectedColor: AppTheme.primaryBlue,
-              labelStyle: TextStyle(color: isSelected ? Colors.white : AppTheme.primaryBlue, fontWeight: FontWeight.bold, fontSize: 11),
+              labelStyle: TextStyle(
+                color: isSelected ? Colors.white : AppTheme.primaryBlue, 
+                fontWeight: FontWeight.bold, 
+                fontSize: 11,
+              ),
               backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: isSelected ? AppTheme.accentOchre : Colors.grey.shade300,
+                  width: isSelected ? 2 : 1,
+                ),
+              ),
+              elevation: isSelected ? 6 : 0,
+              shadowColor: AppTheme.accentOchre.withOpacity(0.5),
             );
           }).toList(),
         ),
