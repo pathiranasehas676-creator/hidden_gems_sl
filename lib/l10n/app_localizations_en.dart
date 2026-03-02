@@ -76,4 +76,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removePhoto => 'Remove Photo';
+
+  @override
+  String get discovery => 'Discovery';
+
+  @override
+  String get nearYou => 'Near You';
+
+  @override
+  String get aiReason => 'Why this place?';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get distance => 'Distance';
+
+  @override
+  String get openOnMap => 'Open on Map';
 }

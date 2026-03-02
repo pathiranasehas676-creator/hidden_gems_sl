@@ -21,5 +21,11 @@
   "uploadPhoto": "사진 업로드",
   "camera": "카메라",
   "gallery": "갤러리",
-  "removePhoto": "사진 삭제"
+  "removePhoto": "사진 삭제",
+  "discovery": "디스커버리",
+  "nearYou": "내 주변",
+  "aiReason": "이 장소의 매력",
+  "filters": "필터",
+  "distance": "거리",
+  "openOnMap": "지도에서 열기"
 }

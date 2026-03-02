@@ -21,5 +21,11 @@
   "uploadPhoto": "Загрузить фото",
   "camera": "Камера",
   "gallery": "Галерея",
-  "removePhoto": "Удалить фото"
+  "removePhoto": "Удалить фото",
+  "discovery": "Открытия",
+  "nearYou": "Рядом с вами",
+  "aiReason": "Почему это место?",
+  "filters": "Фильтры",
+  "distance": "Расстояние",
+  "openOnMap": "Открыть на карте"
 }

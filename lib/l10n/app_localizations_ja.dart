@@ -76,4 +76,22 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get removePhoto => '写真を削除';
+
+  @override
+  String get discovery => '発見';
+
+  @override
+  String get nearYou => 'あなたの近く';
+
+  @override
+  String get aiReason => 'なぜこの場所？';
+
+  @override
+  String get filters => 'フィルター';
+
+  @override
+  String get distance => '距離';
+
+  @override
+  String get openOnMap => '地図で開く';
 }

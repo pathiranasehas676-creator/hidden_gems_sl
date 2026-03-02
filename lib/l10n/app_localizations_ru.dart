@@ -76,4 +76,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get removePhoto => 'Удалить фото';
+
+  @override
+  String get discovery => 'Открытия';
+
+  @override
+  String get nearYou => 'Рядом с вами';
+
+  @override
+  String get aiReason => 'Почему это место?';
+
+  @override
+  String get filters => 'Фильтры';
+
+  @override
+  String get distance => 'Расстояние';
+
+  @override
+  String get openOnMap => 'Открыть на карте';
 }

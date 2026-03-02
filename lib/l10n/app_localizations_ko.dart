@@ -76,4 +76,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get removePhoto => '사진 삭제';
+
+  @override
+  String get discovery => '디스커버리';
+
+  @override
+  String get nearYou => '내 주변';
+
+  @override
+  String get aiReason => '이 장소의 매력';
+
+  @override
+  String get filters => '필터';
+
+  @override
+  String get distance => '거리';
+
+  @override
+  String get openOnMap => '지도에서 열기';
 }

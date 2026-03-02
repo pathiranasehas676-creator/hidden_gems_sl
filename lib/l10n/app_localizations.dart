@@ -243,6 +243,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove Photo'**
   String get removePhoto;
+
+  /// No description provided for @discovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Discovery'**
+  String get discovery;
+
+  /// No description provided for @nearYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Near You'**
+  String get nearYou;
+
+  /// No description provided for @aiReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why this place?'**
+  String get aiReason;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filters;
+
+  /// No description provided for @distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get distance;
+
+  /// No description provided for @openOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Open on Map'**
+  String get openOnMap;
 }
 
 class _AppLocalizationsDelegate

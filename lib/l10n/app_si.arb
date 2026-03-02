@@ -21,5 +21,11 @@
   "uploadPhoto": "ඡායාරූපය යාවත්කාලීන කරන්න",
   "camera": "කැමරාව",
   "gallery": "ගැලරිය",
-  "removePhoto": "ඡායාරූපය ඉවත් කරන්න"
+  "removePhoto": "ඡායාරූපය ඉවත් කරන්න",
+  "discovery": "ගවේෂණය",
+  "nearYou": "ඔබ අසල",
+  "aiReason": "මෙම ස්ථානය ඇයි?",
+  "filters": "පෙරහන්",
+  "distance": "දුර",
+  "openOnMap": "සිතියමේ විවෘත කරන්න"
 }

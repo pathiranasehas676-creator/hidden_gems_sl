@@ -76,4 +76,22 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get removePhoto => 'புகைப்படத்தை அகற்றவும்';
+
+  @override
+  String get discovery => 'கண்டுபிடிப்பு';
+
+  @override
+  String get nearYou => 'உங்கள் அருகில்';
+
+  @override
+  String get aiReason => 'இந்த இடம் ஏன்?';
+
+  @override
+  String get filters => 'வடிப்பான்கள்';
+
+  @override
+  String get distance => 'தூரம்';
+
+  @override
+  String get openOnMap => 'வரைபடத்தில் திறக்கவும்';
 }

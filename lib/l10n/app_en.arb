@@ -24,5 +24,11 @@
   "uploadPhoto": "Upload Photo",
   "camera": "Camera",
   "gallery": "Gallery",
-  "removePhoto": "Remove Photo"
+  "removePhoto": "Remove Photo",
+  "discovery": "Discovery",
+  "nearYou": "Near You",
+  "aiReason": "Why this place?",
+  "filters": "Filters",
+  "distance": "Distance",
+  "openOnMap": "Open on Map"
 }

@@ -76,4 +76,22 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get removePhoto => 'ඡායාරූපය ඉවත් කරන්න';
+
+  @override
+  String get discovery => 'ගවේෂණය';
+
+  @override
+  String get nearYou => 'ඔබ අසල';
+
+  @override
+  String get aiReason => 'මෙම ස්ථානය ඇයි?';
+
+  @override
+  String get filters => 'පෙරහන්';
+
+  @override
+  String get distance => 'දුර';
+
+  @override
+  String get openOnMap => 'සිතියමේ විවෘත කරන්න';
 }

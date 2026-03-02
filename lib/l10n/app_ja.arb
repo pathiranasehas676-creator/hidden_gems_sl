@@ -21,5 +21,11 @@
   "uploadPhoto": "写真をアップロード",
   "camera": "カメラ",
   "gallery": "ギャラリー",
-  "removePhoto": "写真を削除"
+  "removePhoto": "写真を削除",
+  "discovery": "発見",
+  "nearYou": "あなたの近く",
+  "aiReason": "なぜこの場所？",
+  "filters": "フィルター",
+  "distance": "距離",
+  "openOnMap": "地図で開く"
 }

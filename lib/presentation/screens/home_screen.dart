@@ -16,6 +16,7 @@ import '../widgets/dynamic_light_wrapper.dart';
 import 'scanner_screen.dart';
 import 'saved_plans_screen.dart';
 import 'trip_form_screen.dart';
+import 'discovery_screen.dart';
 import 'profile_screen.dart';
 import '../admin/admin_shell.dart';
 
@@ -475,11 +476,11 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _navItem(l10n.home, Icons.explore_rounded, 0, onTap: () {
+            _navItem(l10n.home, Icons.home_rounded, 0, onTap: () {
               setState(() => _selectedIndex = 0);
             }),
-            _navItem("Plan", Icons.map_outlined, -1, onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const TripFormScreen()));
+            _navItem(l10n.discovery, Icons.travel_explore_rounded, -1, onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryScreen()));
             }),
             const SizedBox(width: 40),
             _navItem("Saved", Icons.bookmark_border, -1, onTap: () {}),
