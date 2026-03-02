@@ -45,4 +45,16 @@ class UserPreferenceService {
       await saveProfile(profile);
     }
   }
+
+  static Future<void> updateLanguage(String languageCode) async {
+    final profile = getProfile();
+    profile.languageCode = languageCode;
+    await saveProfile(profile);
+  }
+
+  static Future<void> updateProfileImagePath(String? path) async {
+    final profile = getProfile();
+    profile.profileImagePath = path;
+    await saveProfile(profile);
+  }
 }

@@ -43,6 +43,7 @@ class AiTripService {
       "constraints": constraints,
       "must_include": mustInclude,
       "avoid": avoid,
+      "language_code": userProfile.languageCode ?? "en",
       "user_context": userProfile.toJson(),
     };
 

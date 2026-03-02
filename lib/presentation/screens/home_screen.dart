@@ -5,6 +5,9 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hidden_gems_sl/l10n/app_localizations.dart';
+import '../../core/localization/locale_provider.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/trip_cache_service.dart';
 import '../../data/datasources/auth_service.dart';
@@ -16,12 +19,21 @@ import 'trip_form_screen.dart';
 import 'profile_screen.dart';
 import '../admin/admin_shell.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final bool isOffline;
   const HomeScreen({super.key, this.isOffline = false});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0; // For bottom navigation
+
+  @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final isOffline = widget.isOffline;
     return Scaffold(
       backgroundColor: AppTheme.silkPearl,
       body: Stack(
@@ -57,7 +69,7 @@ class HomeScreen extends StatelessWidget {
                             const SizedBox(height: 16),
                             _buildCategoriesGrid(),
                             const SizedBox(height: 32),
-                            _buildSectionHeader("Oracle's Choice"),
+                            _buildSectionHeader(l10n.oraclesChoice),
                             const SizedBox(width: 8),
                           ],
                         ),
@@ -68,7 +80,7 @@ class HomeScreen extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: _buildRecentPlansList(context),
+                    child: _buildRecentPlansList(context, l10n),
                   ),
                 ),
               ],
@@ -83,7 +95,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNav(context),
+      bottomNavigationBar: _buildBottomNav(context, l10n),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           HapticFeedback.mediumImpact();
@@ -112,7 +124,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildAppBar(BuildContext context) {
-    final user = isOffline ? null : FirebaseAuth.instance.currentUser;
+    final user = widget.isOffline ? null : FirebaseAuth.instance.currentUser;
     return SliverAppBar(
       expandedHeight: 320,
       pinned: true,
@@ -222,7 +234,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildWelcomeCard() {
-    final user = isOffline ? null : FirebaseAuth.instance.currentUser;
+    final user = widget.isOffline ? null : FirebaseAuth.instance.currentUser;
     final name = user?.displayName?.split(" ").first ?? "Traveler";
 
     return DynamicLightWrapper(
@@ -295,53 +307,74 @@ class HomeScreen extends StatelessWidget {
     ];
 
     return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: categories.length,
-        itemBuilder: (context, i) {
-          final cat = categories[i];
-          return Container(
-            margin: const EdgeInsets.only(right: 16),
-            width: 80,
-            child: Column(
-              children: [
-                Material(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                  child: InkWell(
-                    onTap: () {},
-                    borderRadius: BorderRadius.circular(20),
-                    splashColor: Colors.white24,
-                    child: Ink(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: cat.$3, begin: Alignment.topLeft, end: Alignment.bottomRight),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(color: cat.$3[0].withOpacity(0.4), blurRadius: 12, spreadRadius: 0, offset: const Offset(0, 6))
-                        ],
-                      ),
-                      child: Icon(cat.$2, color: Colors.white, size: 24),
+      height: 120,
+      child: AnimationLimiter(
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          itemCount: categories.length,
+          itemBuilder: (context, i) {
+            final cat = categories[i];
+            return AnimationConfiguration.staggeredList(
+              position: i,
+              duration: const Duration(milliseconds: 600),
+              child: SlideAnimation(
+                horizontalOffset: 50.0,
+                child: FadeInAnimation(
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 16),
+                    width: 80,
+                    child: Column(
+                      children: [
+                        Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                          child: InkWell(
+                            onTap: () {},
+                            borderRadius: BorderRadius.circular(20),
+                            splashColor: Colors.white24,
+                            child: Ink(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(colors: cat.$3, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(color: cat.$3[0].withOpacity(0.4), blurRadius: 12, spreadRadius: 0, offset: const Offset(0, 6))
+                                ],
+                              ),
+                              child: Icon(cat.$2, color: Colors.white, size: 24),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(cat.$1, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(cat.$1, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
-              ],
-            ),
-          );
-        },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildRecentPlansList(BuildContext context) {
+  Widget _buildRecentPlansList(BuildContext context, AppLocalizations l10n) {
+    final cachedTrips = TripCacheService.getAllTrips();
+    if (cachedTrips.isEmpty) return const SizedBox.shrink();
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildPlanCard(context, "Cloud-Kissed Ella", "Photographer's Golden Hour Dream", "3 Days"),
-        _buildPlanCard(context, "Sigiriya Whispers", "Ancestral Majesty in the Jungle", "2 Days"),
+        _buildSectionHeader(l10n.recentPlans),
+        const SizedBox(height: 16),
+        ...cachedTrips.take(3).map((trip) => _buildPlanCard(
+          context, 
+          trip.destination, 
+          trip.humanText, 
+          "${trip.itinerary.length} Days"
+        )),
       ],
     );
   }
@@ -432,7 +465,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomNav(BuildContext context) {
+  Widget _buildBottomNav(BuildContext context, AppLocalizations l10n) {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       notchMargin: 10,
@@ -442,16 +475,16 @@ class HomeScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _navIcon(Icons.explore_outlined, "Explore", true),
-            _navIcon(Icons.map_outlined, "Plan", false, onTap: () {
-               Navigator.push(context, MaterialPageRoute(builder: (_) => const TripFormScreen()));
+            _navItem(l10n.home, Icons.explore_rounded, 0, onTap: () {
+              setState(() => _selectedIndex = 0);
+            }),
+            _navItem("Plan", Icons.map_outlined, -1, onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const TripFormScreen()));
             }),
             const SizedBox(width: 40),
-            _navIcon(Icons.bookmark_border, "Saved", false, onTap: () {
-               Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPlansScreen()));
-            }),
-            _navIcon(Icons.person_outline, "Profile", false, onTap: () {
-               Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+            _navItem("Saved", Icons.bookmark_border, -1, onTap: () {}),
+            _navItem(l10n.profile, Icons.person_rounded, 1, onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
             }),
           ],
         ),
@@ -459,7 +492,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _navIcon(IconData icon, String label, bool active, {VoidCallback? onTap}) {
+  Widget _navItem(String label, IconData icon, int index, {VoidCallback? onTap}) {
+    final bool active = _selectedIndex == index;
     return GestureDetector(
       onTap: onTap,
       child: Column(

@@ -120,6 +120,27 @@ class TripCacheService {
     }
   }
 
+  static List<TripPlan> getAllTrips() {
+    try {
+      final box = Hive.box<String>(_lastPlanBox);
+      final plans = <TripPlan>[];
+      for (final key in box.keys) {
+        final raw = box.get(key);
+        if (raw != null) {
+          try {
+            plans.add(TripPlan.fromJson(json.decode(raw)));
+          } catch (_) {}
+        }
+      }
+      // Newest first
+      plans.sort((a, b) => (b.cachedAt ?? DateTime(0)).compareTo(a.cachedAt ?? DateTime(0)));
+      return plans;
+    } catch (e) {
+      debugPrint('[TripCache] GetAll error (non-fatal): $e');
+      return [];
+    }
+  }
+
   static List<({String id, TripPlan plan})> getSavedPlans() {
     try {
       final box = Hive.box<String>(_savedPlansBox);

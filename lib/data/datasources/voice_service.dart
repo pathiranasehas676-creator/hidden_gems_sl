@@ -19,8 +19,21 @@ class VoiceService {
     });
   }
 
-  Future<void> speak(String text) async {
+  Future<void> speak(String text, {String languageCode = 'en-US'}) async {
     if (text.isEmpty) return;
+    
+    // Map app language codes to TTS language codes
+    String ttsLang = "en-US";
+    switch (languageCode) {
+      case 'si': ttsLang = "si-LK"; break;
+      case 'ta': ttsLang = "ta-LK"; break; // or ta-IN
+      case 'ja': ttsLang = "ja-JP"; break;
+      case 'ru': ttsLang = "ru-RU"; break;
+      case 'ko': ttsLang = "ko-KR"; break;
+      default: ttsLang = "en-US";
+    }
+
+    await _tts.setLanguage(ttsLang);
     _isPlaying = true;
     await _tts.speak(text);
   }

@@ -1,11 +1,16 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/user_preference_service.dart';
 import '../../data/datasources/premium_service.dart';
 import '../widgets/batik_background.dart';
+
+import 'package:hidden_gems_sl/l10n/app_localizations.dart';
+import '../../core/localization/locale_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,26 +22,157 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late var profile = UserPreferenceService.getProfile();
 
+  void _showLanguagePicker(BuildContext context) {
+    final languages = [
+      {'name': 'English', 'code': 'en', 'flag': '🇺🇸'},
+      {'name': 'සිංහල', 'code': 'si', 'flag': '🇱🇰'},
+      {'name': 'தமிழ்', 'code': 'ta', 'flag': '🇱🇰'},
+      {'name': '日本語', 'code': 'ja', 'flag': '🇯🇵'},
+      {'name': 'Русский', 'code': 'ru', 'flag': '🇷🇺'},
+      {'name': '한국어', 'code': 'ko', 'flag': '🇰🇷'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.selectLanguage,
+              style: GoogleFonts.outfit(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: languages.length,
+                itemBuilder: (context, index) {
+                  final lang = languages[index];
+                  return ListTile(
+                    leading: Text(lang['flag']!, style: const TextStyle(fontSize: 24)),
+                    title: Text(
+                      lang['name']!,
+                      style: GoogleFonts.inter(color: Colors.white),
+                    ),
+                    onTap: () {
+                      context.read<LocaleProvider>().setLocale(lang['code']!);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(AppLocalizations l10n) async {
+    final picker = ImagePicker();
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: AppTheme.primaryBlue,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l10n.uploadPhoto, style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _photoOption(Icons.camera_alt_outlined, l10n.camera, ImageSource.camera),
+                _photoOption(Icons.photo_library_outlined, l10n.gallery, ImageSource.gallery),
+              ],
+            ),
+            if (profile.profileImagePath != null) ...[
+              const SizedBox(height: 16),
+              TextButton.icon(
+                icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                label: Text(l10n.removePhoto, style: const TextStyle(color: Colors.redAccent)),
+                onPressed: () async {
+                  await UserPreferenceService.updateProfileImagePath(null);
+                  if (mounted) setState(() => profile = UserPreferenceService.getProfile());
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+
+    if (source != null) {
+      final XFile? image = await picker.pickImage(source: source, maxWidth: 800);
+      if (image != null) {
+        await UserPreferenceService.updateProfileImagePath(image.path);
+        if (mounted) setState(() => profile = UserPreferenceService.getProfile());
+      }
+    }
+  }
+
+  Widget _photoOption(IconData icon, String label, ImageSource source) {
+    return GestureDetector(
+      onTap: () => Navigator.pop(context, source),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(color: Colors.white10, shape: BoxShape.circle),
+            child: Icon(icon, color: Colors.white, size: 32),
+          ),
+          const SizedBox(height: 8),
+          Text(label, style: GoogleFonts.inter(color: Colors.white70, fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final premiumService = Provider.of<PremiumService>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppTheme.silkPearl,
       body: BatikBackground(
         child: CustomScrollView(
           slivers: [
-            _buildAppBar(premiumService.isPremium),
+            _buildAppBar(premiumService.isPremium, l10n),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      l10n.settings,
+                      style: GoogleFonts.outfit(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 24), // Added a SizedBox for spacing
                     _buildStatsRow(),
                     const SizedBox(height: 32),
                     _buildVibeSelector(),
                     const SizedBox(height: 32),
-                    _buildSettingsSection(),
+                    _buildSettingsSection(l10n),
                     const SizedBox(height: 100),
                   ],
                 ),
@@ -48,21 +184,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildAppBar(bool isPremium) {
+  Widget _buildAppBar(bool isPremium, AppLocalizations l10n) {
     return SliverAppBar(
-      expandedHeight: 180,
+      expandedHeight: 220,
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          "TRAVELER PROFILE",
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            letterSpacing: 2,
-            color: Colors.white,
-          ),
-        ),
         centerTitle: true,
         background: Stack(
           alignment: Alignment.center,
@@ -79,12 +206,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
               )
             else
               Container(color: AppTheme.primaryBlue),
-            if (isPremium)
-              const Icon(Icons.stars, color: Colors.white30, size: 80)
-            else
-              const Icon(Icons.person_outline, color: Colors.white24, size: 80),
+            
+            // Profile Image with Glow
+            GestureDetector(
+              onTap: () => _pickImage(l10n),
+              child: Hero(
+                tag: 'profile_pic',
+                child: Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: (isPremium ? AppTheme.accentOchre : Colors.white).withOpacity(0.3),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                      )
+                    ],
+                    border: Border.all(
+                      color: isPremium ? AppTheme.accentOchre : Colors.white,
+                      width: 3,
+                    ),
+                  ),
+                  child: ClipOval(
+                    child: profile.profileImagePath != null
+                        ? Image.file(
+                            File(profile.profileImagePath!),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => 
+                              _defaultAvatar(isPremium),
+                          )
+                        : _defaultAvatar(isPremium),
+                  ),
+                ),
+              ),
+            ),
+            
+            // Edit Overlay Icon
+            Positioned(
+              right: MediaQuery.of(context).size.width / 2 - 55,
+              bottom: 60,
+              child: GestureDetector(
+                onTap: () => _pickImage(l10n),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentOchre,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppTheme.primaryBlue, width: 2),
+                  ),
+                  child: const Icon(Icons.camera_alt, color: AppTheme.primaryBlue, size: 16),
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _defaultAvatar(bool isPremium) {
+    return Container(
+      color: Colors.white10,
+      child: Icon(
+        isPremium ? Icons.stars : Icons.person,
+        color: Colors.white70,
+        size: 50,
       ),
     );
   }
@@ -220,18 +408,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSettingsSection() {
+  Widget _buildSettingsSection(AppLocalizations l10n) {
     return Column(
       children: [
+        _settingsTile(
+          Icons.photo_camera_outlined, 
+          l10n.uploadPhoto,
+          onTap: () => _pickImage(l10n),
+        ),
         _settingsTile(Icons.notifications_active_outlined, "Notifications"),
-        _settingsTile(Icons.language_outlined, "Language (English/Sinhala)"),
+        _settingsTile(
+          Icons.language_outlined, 
+          l10n.language,
+          onTap: () => _showLanguagePicker(context),
+        ),
         _settingsTile(Icons.privacy_tip_outlined, "Privacy Policy"),
         _settingsTile(Icons.help_outline_rounded, "Support Center"),
       ],
     );
   }
 
-  Widget _settingsTile(IconData icon, String title) {
+  Widget _settingsTile(IconData icon, String title, {VoidCallback? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -253,7 +450,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         trailing: const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
-        onTap: () {},
+        onTap: onTap ?? () {},
       ),
     );
   }

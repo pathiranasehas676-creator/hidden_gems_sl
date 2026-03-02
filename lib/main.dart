@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'dart:io' show Platform, File;
 import 'core/theme/app_theme.dart';
+import 'core/localization/locale_provider.dart';
 import 'data/datasources/trip_cache_service.dart';
 import 'data/datasources/user_preference_service.dart';
 import 'data/datasources/monetization_service.dart';
@@ -14,6 +17,7 @@ import 'core/analytics/analytics_service.dart';
 import 'core/notifications/notification_service.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/language_selection_screen.dart';
 import 'presentation/widgets/graceful_error_widget.dart';
 import 'firebase_options.dart';
 
@@ -87,6 +91,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PremiumService()..init()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
       child: AdvanceTravelApp(initResult: initResult),
     ),
@@ -95,14 +100,31 @@ void main() async {
 
 void _initializeOtherServices() {
   // These don't need to block UI rendering
-  MobileAds.instance.initialize().catchError((e) => debugPrint("Ads Init Error: $e"));
-  NotificationService().init().catchError((e) => debugPrint("Notify Init Error: $e"));
-  AnalyticsService().logEvent('app_opened').catchError((e) => null);
+  try {
+    MobileAds.instance.initialize();
+  } catch (e) {
+    debugPrint("Ads Init Error: $e");
+  }
+
+  try {
+    NotificationService().init();
+  } catch (e) {
+    debugPrint("Notify Init Error: $e");
+  }
+
+  try {
+    AnalyticsService().logEvent('app_opened');
+  } catch (_) {}
   
   // Ads & Voice Pre-load
   MonetizationService().loadInterstitialAd();
   MonetizationService().loadRewardedAd();
-  VoiceService().init().catchError((e) => debugPrint("Voice Init Error: $e"));
+  
+  try {
+    VoiceService().init();
+  } catch (e) {
+    debugPrint("Voice Init Error: $e");
+  }
 
   // Global Error Boundary
   FlutterError.onError = (details) {
@@ -159,6 +181,21 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('si'),
+        Locale('ta'),
+        Locale('ja'),
+        Locale('ru'),
+        Locale('ko'),
+      ],
+      locale: context.watch<LocaleProvider>().locale,
       home: _buildHomeModule(),
     );
   }
@@ -172,6 +209,11 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> {
           errorMessage: "Critical storage error. The Oracle cannot start.",
         ),
       );
+    }
+
+    final profile = UserPreferenceService.getProfile();
+    if (profile.languageCode == null) {
+      return const LanguageSelectionScreen();
     }
 
     // If Hive is ready but Firebase failed, go to Home in Offline Mode

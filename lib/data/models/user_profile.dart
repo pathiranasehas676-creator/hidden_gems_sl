@@ -4,6 +4,8 @@ class UserProfile {
   List<String> visitedPlaces;
   String vibe; // "luxury", "explorer", "photographer", "budget"
   int totalTripsGenerated;
+  String? languageCode;
+  String? profileImagePath;
 
   UserProfile({
     required this.preferredStyles,
@@ -11,6 +13,8 @@ class UserProfile {
     required this.visitedPlaces,
     required this.vibe,
     this.totalTripsGenerated = 0,
+    this.languageCode,
+    this.profileImagePath,
   });
 
   factory UserProfile.defaultProfile() {
@@ -28,6 +32,8 @@ class UserProfile {
         'visitedPlaces': visitedPlaces,
         'vibe': vibe,
         'totalTripsGenerated': totalTripsGenerated,
+        'languageCode': languageCode,
+        'profileImagePath': profileImagePath,
       };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
@@ -36,5 +42,7 @@ class UserProfile {
         visitedPlaces: List<String>.from(json['visitedPlaces'] ?? []),
         vibe: json['vibe'] ?? 'explorer',
         totalTripsGenerated: json['totalTripsGenerated'] ?? 0,
+        languageCode: json['languageCode'],
+        profileImagePath: json['profileImagePath'],
       );
 }

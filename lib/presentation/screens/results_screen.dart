@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/localization/locale_provider.dart';
 import '../../data/datasources/trip_cache_service.dart';
 import '../../data/datasources/monetization_service.dart';
 import '../../data/datasources/premium_service.dart';
@@ -12,8 +13,11 @@ import '../../data/datasources/pdf_service.dart';
 import '../../data/models/trip_plan_model.dart';
 import '../widgets/offline_highlights_widget.dart';
 import '../widgets/batik_background.dart';
+import '../widgets/oracle_aura_widget.dart';
 import '../widgets/dynamic_light_wrapper.dart';
 import 'map_route_screen.dart';
+import 'package:hidden_gems_sl/l10n/app_localizations.dart';
+import 'dart:ui';
 import '../../core/analytics/analytics_service.dart';
 import '../../core/rating/rating_service.dart';
 import '../../data/datasources/user_preference_service.dart';
@@ -39,6 +43,7 @@ class _ResultsScreenState extends State<ResultsScreen>
   bool _isSaved = false;
   bool _isInit = false;
   bool _planBUnlocked = false;
+  bool _isListening = false;
   BannerAd? _bannerAd;
   bool _isBannerLoaded = false;
 
@@ -93,6 +98,7 @@ class _ResultsScreenState extends State<ResultsScreen>
   @override
   Widget build(BuildContext context) {
     final isPremium = Provider.of<PremiumService>(context).isPremium;
+    final l10n = AppLocalizations.of(context)!;
     final plan = widget.plan;
 
     return Scaffold(
@@ -255,11 +261,11 @@ class _ResultsScreenState extends State<ResultsScreen>
                         labelColor: AppTheme.primaryBlue,
                         unselectedLabelColor: Colors.white70,
                         labelStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold),
-                        tabs: const [
-                          Tab(text: "Itinerary"),
-                          Tab(text: "Style"),
-                          Tab(text: "Plan B"),
-                          Tab(text: "Tips"),
+                        tabs: [
+                          Tab(text: l10n.itinerary),
+                          Tab(text: l10n.style),
+                          Tab(text: l10n.planB),
+                          Tab(text: l10n.tips),
                         ],
                       ),
                     ),
@@ -274,7 +280,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildItineraryTab(plan),
+                    _buildItineraryTab(plan, l10n),
                     _buildStyleTab(plan),
                     _buildPlanBTab(plan, isPremium),
                     _buildTipsTab(plan),
@@ -283,6 +289,18 @@ class _ResultsScreenState extends State<ResultsScreen>
               ),
             ),
           ),
+
+          // Oracle Aura Overlay
+          if (_isListening)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black45,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: OracleAuraWidget(isVisible: _isListening),
+                ),
+              ),
+            ),
           
           // Ad Banner at bottom (Optimized & Polished)
           if (!isPremium && _isBannerLoaded)
@@ -322,9 +340,11 @@ class _ResultsScreenState extends State<ResultsScreen>
 
 
   Widget _buildVoiceButton(TripPlan plan, bool isPremium) {
+    final localeCode = Provider.of<LocaleProvider>(context, listen: false).locale?.languageCode ?? 'en';
+    
     return IconButton(
       icon: Icon(
-        VoiceService().isPlaying ? Icons.stop_circle_outlined : Icons.play_circle_fill,
+        _isListening ? Icons.stop_circle_outlined : Icons.play_circle_fill,
         color: AppTheme.accentOchre,
         size: 28,
       ),
@@ -337,12 +357,14 @@ class _ResultsScreenState extends State<ResultsScreen>
           return;
         }
 
-        if (VoiceService().isPlaying) {
+        if (_isListening) {
           await VoiceService().stop();
+          if (mounted) setState(() => _isListening = false);
         } else {
-          await VoiceService().speak(plan.humanText);
+          setState(() => _isListening = true);
+          await VoiceService().speak(plan.humanText, languageCode: localeCode);
+          if (mounted) setState(() => _isListening = false);
         }
-        setState(() {}); // Refresh icon
       },
     );
   }
@@ -407,7 +429,7 @@ class _ResultsScreenState extends State<ResultsScreen>
   // ═══════════════════════════════════════════════════════════════════
   // TAB 1 – ITINERARY
   // ═══════════════════════════════════════════════════════════════════
-  Widget _buildItineraryTab(TripPlan plan) {
+  Widget _buildItineraryTab(TripPlan plan, AppLocalizations l10n) {
     final isPremium = Provider.of<PremiumService>(context, listen: false).isPremium;
 
     return Column(
@@ -775,29 +797,37 @@ class _ResultsScreenState extends State<ResultsScreen>
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppTheme.accentOchre.withOpacity(0.1),
-                shape: BoxShape.circle,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: AppTheme.premiumShadow,
+            border: Border.all(color: AppTheme.accentOchre.withOpacity(0.3)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentOchre.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.lock_outline, color: AppTheme.accentOchre, size: 48),
               ),
-              child: const Icon(Icons.lock_outline, color: AppTheme.accentOchre, size: 48),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              "Oracle's Vault",
-              style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              "The rainy-day alternative is locked for free travelers.\nWatch a short video to unlock it for this trip.",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(color: Colors.black54),
-            ),
-            const SizedBox(height: 32),
+              const SizedBox(height: 24),
+              Text(
+                "Oracle's Vault",
+                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                "The rainy-day alternative is locked for free travelers.\nWatch a short video to unlock it for this trip.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(color: Colors.black54),
+              ),
+              const SizedBox(height: 32),
             ElevatedButton.icon(
               onPressed: () {
                 MonetizationService().showRewardedAd(onRewardEarned: (reward) {
@@ -815,44 +845,94 @@ class _ResultsScreenState extends State<ResultsScreen>
           ],
         ),
       ),
-    );
+    ),
+   );
   }
 
   Widget _buildPremiumCTA() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppTheme.primaryBlue, AppTheme.primaryBlue.withOpacity(0.8)]),
-        borderRadius: BorderRadius.circular(24),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
         boxShadow: AppTheme.premiumShadow,
+        border: Border.all(color: AppTheme.accentOchre.withOpacity(0.5), width: 2),
       ),
       child: Column(
         children: [
-          const Icon(Icons.stars, color: AppTheme.accentOchre, size: 40),
-          const SizedBox(height: 16),
-          Text(
-            "TRIPME PREMIUM",
-            style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "Unlimited Plans • No Ads • PDF Exports • Voice Guide",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70, fontSize: 12),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(Icons.stars, color: AppTheme.accentOchre.withOpacity(0.2), size: 80),
+              const Icon(Icons.rocket_launch_rounded, color: AppTheme.primaryBlue, size: 40),
+            ],
           ),
           const SizedBox(height: 20),
-          SizedBox(
+          Text(
+            "TRIPME LUXURY",
+            style: GoogleFonts.outfit(
+              color: AppTheme.primaryBlue, 
+              fontWeight: FontWeight.bold, 
+              letterSpacing: 4,
+              fontSize: 18,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "Go beyond the ordinary. Unlock the Oracle's full wisdom.",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(color: Colors.black54, fontSize: 13),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _premiumFeature(Icons.mic_none, "Voice"),
+              _premiumFeature(Icons.picture_as_pdf, "PDF"),
+              _premiumFeature(Icons.block, "No Ads"),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Container(
             width: double.infinity,
+            height: 56,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.accentOchre.withOpacity(0.4),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                )
+              ],
+            ),
             child: ElevatedButton(
               onPressed: () => Provider.of<PremiumService>(context, listen: false).buyPremium(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.accentOchre,
                 foregroundColor: AppTheme.primaryBlue,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text("UPGRADE NOW", style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(
+                "UNLEASH THE ORACLE", 
+                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1.5),
+              ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _premiumFeature(IconData icon, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        children: [
+          Icon(icon, color: AppTheme.primaryBlue, size: 20),
+          const SizedBox(height: 4),
+          Text(label, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
         ],
       ),
     );

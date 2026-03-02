@@ -2,12 +2,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
+import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bool isMobile = MediaQuery.of(context).size.width < 800;
 
     return SingleChildScrollView(
@@ -19,7 +21,7 @@ class AdminDashboardScreen extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeaderText(),
+                _buildHeaderText(l10n),
                 const SizedBox(height: 24),
                 _buildExportButton(),
               ],
@@ -27,7 +29,7 @@ class AdminDashboardScreen extends StatelessWidget {
           else
             Row(
               children: [
-                _buildHeaderText(),
+                _buildHeaderText(l10n),
                 const Spacer(),
                 _buildExportButton(),
               ],
@@ -38,25 +40,25 @@ class AdminDashboardScreen extends StatelessWidget {
           if (isMobile)
             Column(
               children: [
-                const _StatCard(label: "TOTAL USERS", value: "1,240", delta: "+12%", icon: Icons.people_alt_outlined, color: Colors.blueAccent),
+                _StatCard(label: l10n.totalUsers, value: "1,240", delta: "+12%", icon: Icons.people_alt_outlined, color: Colors.blueAccent),
                 const SizedBox(height: 16),
-                const _StatCard(label: "PLANS TODAY", value: "85", delta: "+5%", icon: Icons.auto_awesome_outlined, color: AppTheme.accentOchre),
+                _StatCard(label: l10n.plansToday, value: "85", delta: "+5%", icon: Icons.auto_awesome_outlined, color: AppTheme.accentOchre),
                 const SizedBox(height: 16),
-                const _StatCard(label: "AVG CONFIDENCE", value: "88.5%", delta: "-2%", icon: Icons.verified_user_outlined, color: Colors.purpleAccent),
+                _StatCard(label: l10n.avgConfidence, value: "88.5%", delta: "-2%", icon: Icons.verified_user_outlined, color: Colors.purpleAccent),
                 const SizedBox(height: 16),
-                const _StatCard(label: "REVENUE (LKR)", value: "42,500", delta: "+18%", icon: Icons.payments_outlined, color: Colors.greenAccent),
+                _StatCard(label: l10n.revenue, value: "42,500", delta: "+18%", icon: Icons.payments_outlined, color: Colors.greenAccent),
               ],
             )
           else
-            const Row(
+            Row(
               children: [
-                Expanded(child: _StatCard(label: "TOTAL USERS", value: "1,240", delta: "+12%", icon: Icons.people_alt_outlined, color: Colors.blueAccent)),
-                SizedBox(width: 24),
-                Expanded(child: _StatCard(label: "PLANS TODAY", value: "85", delta: "+5%", icon: Icons.auto_awesome_outlined, color: AppTheme.accentOchre)),
-                SizedBox(width: 24),
-                Expanded(child: _StatCard(label: "AVG CONFIDENCE", value: "88.5%", delta: "-2%", icon: Icons.verified_user_outlined, color: Colors.purpleAccent)),
-                SizedBox(width: 24),
-                Expanded(child: _StatCard(label: "REVENUE (LKR)", value: "42,500", delta: "+18%", icon: Icons.payments_outlined, color: Colors.greenAccent)),
+                Expanded(child: _StatCard(label: l10n.totalUsers, value: "1,240", delta: "+12%", icon: Icons.people_alt_outlined, color: Colors.blueAccent)),
+                const SizedBox(width: 24),
+                Expanded(child: _StatCard(label: l10n.plansToday, value: "85", delta: "+5%", icon: Icons.auto_awesome_outlined, color: AppTheme.accentOchre)),
+                const SizedBox(width: 24),
+                Expanded(child: _StatCard(label: l10n.avgConfidence, value: "88.5%", delta: "-2%", icon: Icons.verified_user_outlined, color: Colors.purpleAccent)),
+                const SizedBox(width: 24),
+                Expanded(child: _StatCard(label: l10n.revenue, value: "42,500", delta: "+18%", icon: Icons.payments_outlined, color: Colors.greenAccent)),
               ],
             ),
           
@@ -129,7 +131,7 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderText() {
+  Widget _buildHeaderText(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -137,10 +139,10 @@ class AdminDashboardScreen extends StatelessWidget {
           shaderCallback: (bounds) => const LinearGradient(
             colors: [Colors.white, Color(0xFFD9E9F2)],
           ).createShader(bounds),
-          child: Text("Good Morning, Admin", style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
+          child: Text(l10n.goodMorningAdmin, style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
         const SizedBox(height: 6),
-        Text("Here is what's happening with the Oracle today.", style: GoogleFonts.inter(color: Colors.white60, fontSize: 16)),
+        Text(l10n.oracleToday, style: GoogleFonts.inter(color: Colors.white60, fontSize: 16)),
       ],
     );
   }
