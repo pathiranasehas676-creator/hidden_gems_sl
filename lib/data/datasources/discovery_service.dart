@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 import '../../core/config/app_config.dart';
 import 'user_preference_service.dart';
 
@@ -110,51 +110,50 @@ class DiscoveryService {
     return places;
   }
 
-  static Future<List<DiscoveryPlace>> getAiRecommendations(List<DiscoveryPlace> nearbyPlaces) async {
+  static Future<List<DiscoveryPlace>> getAiRecommendations(List<DiscoveryPlace> nearbyPlaces, {String? customQuery}) async {
     if (nearbyPlaces.isEmpty) return [];
     
     final topNearest = nearbyPlaces.take(10).toList();
     final profile = UserPreferenceService.getProfile();
+    final vibeText = (customQuery != null && customQuery.trim().isNotEmpty) ? customQuery : profile.vibe;
     
-    final prompt = '''
-Here are some places near the user:
-\${topNearest.map((p) => "- [\${p.id}] \${p.name} (\${p.category}, \${p.distanceKm.toStringAsFixed(1)}km away)").join("\\n")}
-
-The user's vibe is "\${profile.vibe}".
-Rank exactly the top 3 places that best match their vibe and provide a short, enticing 1-sentence reason why they should visit.
-Return ONLY valid JSON in this exact format, with no markdown formatting or other text:
-[
-  {"id": "place_id", "reason": "reason here"}
-]
-''';
-
     try {
-      final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: AppConfig.apiKey,
+      final response = await http.post(
+        Uri.parse('\${AppConfig.nodeProxyUrl}/ai/recommendations'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'nearbyPlaces': topNearest.map((p) => {
+            'id': p.id,
+            'name': p.name,
+            'category': p.category,
+            'distanceKm': p.distanceKm
+          }).toList(),
+          'vibeText': vibeText
+        }),
       );
-      
-      final response = await model.generateContent([Content.text(prompt)]);
-      final text = response.text ?? "[]";
-      
-      final cleanJson = text.replaceAll('```json', '').replaceAll('```', '').trim();
-      final List<dynamic> aiResults = json.decode(cleanJson);
-      
-      final resultPlaces = <DiscoveryPlace>[];
-      for (var aiItem in aiResults) {
-        final placeId = aiItem['id'].toString();
-        try {
-          final place = topNearest.firstWhere((p) => p.id == placeId);
-          place.aiReason = aiItem['reason'].toString();
-          if (!resultPlaces.contains(place)) {
-            resultPlaces.add(place);
-          }
-        } catch (_) {}
-      }
-      
-      return resultPlaces.isEmpty ? topNearest.take(3).toList() : resultPlaces;
 
+      if (response.statusCode == 200) {
+        final List<dynamic> aiResults = json.decode(response.body);
+        
+        final resultPlaces = <DiscoveryPlace>[];
+        for (var aiItem in aiResults) {
+          final placeId = aiItem['id'].toString();
+          try {
+            final place = topNearest.firstWhere((p) => p.id == placeId);
+            place.aiReason = aiItem['reason'].toString();
+            if (!resultPlaces.contains(place)) {
+              resultPlaces.add(place);
+            }
+          } catch (_) {}
+        }
+        
+        return resultPlaces.isEmpty ? topNearest.take(3).toList() : resultPlaces;
+      } else {
+        print("Backend returned \${response.statusCode}: \${response.body}");
+        return topNearest.take(3).toList();
+      }
     } catch (e) {
+      print("Error fetching AI recommendations from Proxy: \$e");
       return topNearest.take(3).toList();
     }
   }

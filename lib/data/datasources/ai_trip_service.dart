@@ -7,7 +7,7 @@ import '../../core/config/app_config.dart';
 class AiTripService {
   static String get _baseUrl => AppConfig.baseUrl;
   static bool get ragEnabled => AppConfig.ragEnabled;
-  static String get _apiKey => AppConfig.apiKey;
+  static String get _apiKey => AppConfig.tripMeApiKey;
 
   static Future<TripPlan> generateTrip({
     required String origin,

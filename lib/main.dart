@@ -15,6 +15,7 @@ import 'data/datasources/premium_service.dart';
 import 'data/datasources/voice_service.dart';
 import 'core/analytics/analytics_service.dart';
 import 'core/notifications/notification_service.dart';
+import 'package:safe_device/safe_device.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/language_selection_screen.dart';
@@ -24,21 +25,45 @@ import 'firebase_options.dart';
 class InitializationResult {
   final bool hiveSuccess;
   final bool firebaseSuccess;
+  final bool isCompromised;
   final String? error;
 
   InitializationResult({
     required this.hiveSuccess,
     required this.firebaseSuccess,
+    this.isCompromised = false,
     this.error,
   });
 
-  bool get canProceed => hiveSuccess;
+  bool get canProceed => hiveSuccess && !isCompromised;
 }
 
 Future<InitializationResult> performInitialization() async {
   bool hiveStatus = false;
   bool firebaseStatus = false;
+  bool isCompromised = false;
   String? errorMessage;
+
+  try {
+    bool jailbroken = await SafeDevice.isJailBroken;
+    // SafeDevice also offers boolean checks for real device and fake locations if you want. 
+    // Usually we block jailbroken/rooted. Dev mode might just be a warning depending on strictness.
+    if (jailbroken) {
+      isCompromised = true;
+      errorMessage = "Compromised device detected. The Oracle cannot run in this environment.";
+    }
+  } catch (e) {
+    debugPrint("Jailbreak detection error: $e");
+  }
+
+  if (isCompromised) {
+    return InitializationResult(
+      hiveSuccess: false,
+      firebaseSuccess: false,
+      isCompromised: true,
+      error: errorMessage,
+    );
+  }
 
   try {
     // 1. Initialize Essential Local Storage (Hive) - MANDATORY
@@ -74,6 +99,7 @@ Future<InitializationResult> performInitialization() async {
   return InitializationResult(
     hiveSuccess: hiveStatus,
     firebaseSuccess: firebaseStatus,
+    isCompromised: isCompromised,
     error: errorMessage,
   );
 }
@@ -206,7 +232,7 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> {
         backgroundColor: AppTheme.primaryBlue,
         body: GracefulErrorWidget(
           onRetry: _retryInit,
-          errorMessage: "Critical storage error. The Oracle cannot start.",
+          errorMessage: _currentInitResult.error ?? "Critical storage error. The Oracle cannot start.",
         ),
       );
     }

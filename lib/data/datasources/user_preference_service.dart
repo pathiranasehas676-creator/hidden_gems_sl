@@ -1,13 +1,28 @@
 import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_profile.dart';
 
 class UserPreferenceService {
   static const String _boxName = 'user_preference_box';
   static const String _profileKey = 'current_profile';
+  static const _secureStorage = FlutterSecureStorage();
 
   static Future<void> init() async {
     await Hive.openBox<String>(_boxName);
+  }
+
+  // Example implementation of Secure Storage for Auth Tokens
+  static Future<void> saveAuthToken(String token) async {
+    await _secureStorage.write(key: 'auth_token', value: token);
+  }
+
+  static Future<String?> getAuthToken() async {
+    return await _secureStorage.read(key: 'auth_token');
+  }
+
+  static Future<void> clearAuthToken() async {
+    await _secureStorage.delete(key: 'auth_token');
   }
 
   static UserProfile getProfile() {
