@@ -15,6 +15,7 @@ import 'data/datasources/premium_service.dart';
 import 'data/datasources/voice_service.dart';
 import 'core/analytics/analytics_service.dart';
 import 'core/notifications/notification_service.dart';
+import 'core/network/secure_network.dart';
 import 'package:safe_device/safe_device.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/home_screen.dart';
@@ -106,6 +107,9 @@ Future<InitializationResult> performInitialization() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Apply Strict HTTPS Security and SSL Pinning configuration globally
+  HttpOverrides.global = SecureNetworkOverrides();
   
   final initResult = await performInitialization();
 

@@ -37,3 +37,7 @@
 
 # Keep attributes for reflection
 -keepattributes Signature,Exceptions,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod,InnerClasses
+
+# Rules for grpc and okhttp missing classes triggered by R8
+-dontwarn io.grpc.**
+-dontwarn com.squareup.okhttp.**
