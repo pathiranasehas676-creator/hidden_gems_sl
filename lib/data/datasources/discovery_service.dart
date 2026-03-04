@@ -120,7 +120,10 @@ class DiscoveryService {
     try {
       final response = await http.post(
         Uri.parse('\${AppConfig.nodeProxyUrl}/ai/recommendations'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer tripme-secure-token-123',
+        },
         body: json.encode({
           'nearbyPlaces': topNearest.map((p) => {
             'id': p.id,

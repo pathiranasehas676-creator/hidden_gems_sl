@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/trip_plan_model.dart';
+import '../../core/utils/secure_logger.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cache Read Result
@@ -36,8 +38,30 @@ class TripCacheService {
 
   static Future<void> init() async {
     await Hive.initFlutter();
-    await Hive.openBox<String>(_lastPlanBox);
-    await Hive.openBox<String>(_savedPlansBox);
+    
+    // Setup AES Encryption using Secure Storage
+    const secureStorage = FlutterSecureStorage();
+    String? encryptionKeyString = await secureStorage.read(key: 'tripme_hive_aes');
+    if (encryptionKeyString == null) {
+      final key = Hive.generateSecureKey();
+      await secureStorage.write(key: 'tripme_hive_aes', value: base64UrlEncode(key));
+      encryptionKeyString = base64UrlEncode(key);
+    }
+    
+    final encryptionKeyUint8List = base64Url.decode(encryptionKeyString);
+    final cipher = HiveAesCipher(encryptionKeyUint8List);
+
+    try {
+      await Hive.openBox<String>(_lastPlanBox, encryptionCipher: cipher);
+      await Hive.openBox<String>(_savedPlansBox, encryptionCipher: cipher);
+    } catch (e) {
+      SecureLogger.error("Failed to open encrypted Hive boxes. Deleting existing unencrypted data to upgrade.", e);
+      // If we attempt to open unencrypted databases with a cipher, it will crash. Purge for seamless upgrade.
+      await Hive.deleteBoxFromDisk(_lastPlanBox);
+      await Hive.deleteBoxFromDisk(_savedPlansBox);
+      await Hive.openBox<String>(_lastPlanBox, encryptionCipher: cipher);
+      await Hive.openBox<String>(_savedPlansBox, encryptionCipher: cipher);
+    }
   }
 
   // ─── Deterministic Cache Key ─────────────────────────────────────────────
@@ -72,7 +96,7 @@ class TripCacheService {
       final payload = json.encode(plan.toJson());
       await box.put(cacheKey, payload);
     } catch (e) {
-      debugPrint('[TripCache] Write error (non-fatal): $e');
+      SecureLogger.error('[TripCache] Write error (non-fatal)', e);
     }
   }
 
@@ -100,7 +124,7 @@ class TripCacheService {
 
       return CachedPlanResult(state: CacheReadResult.fresh, plan: plan);
     } catch (e) {
-      debugPrint('[TripCache] Read error (non-fatal): $e');
+      SecureLogger.error('[TripCache] Read error', e);
       return const CachedPlanResult(state: CacheReadResult.miss);
     }
   }
@@ -136,7 +160,7 @@ class TripCacheService {
       plans.sort((a, b) => (b.cachedAt ?? DateTime(0)).compareTo(a.cachedAt ?? DateTime(0)));
       return plans;
     } catch (e) {
-      debugPrint('[TripCache] GetAll error (non-fatal): $e');
+      SecureLogger.error('[TripCache] GetAll error', e);
       return [];
     }
   }
@@ -157,7 +181,7 @@ class TripCacheService {
           (b.plan.cachedAt ?? DateTime(0)).compareTo(a.plan.cachedAt ?? DateTime(0)));
       return entries;
     } catch (e) {
-      debugPrint('[TripCache] List error (non-fatal): $e');
+      SecureLogger.error('[TripCache] List error', e);
       return [];
     }
   }
@@ -166,7 +190,7 @@ class TripCacheService {
     try {
       await Hive.box<String>(_savedPlansBox).delete(id);
     } catch (e) {
-      debugPrint('[TripCache] Delete error (non-fatal): $e');
+      SecureLogger.error('[TripCache] Delete error', e);
     }
   }
 

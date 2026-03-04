@@ -16,16 +16,27 @@ const ai = new GoogleGenAI({
 app.use(cors());
 app.use(express.json());
 
+// Security: Verify App Authorization Token
+const requireAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const expectedToken = process.env.APP_SECRET || 'tripme-secure-token-123';
+
+  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== expectedToken) {
+    return res.status(401).json({ error: 'Unauthorized. Invalid or missing Bearer token.' });
+  }
+  next();
+};
+
 // Rate Limiting to prevent abuse (e.g. 50 requests per 15 minutes per IP)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 50, 
+  windowMs: 15 * 60 * 1000,
+  max: 50,
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-app.use('/api/', limiter);
+app.use('/api/', requireAuth, limiter);
 
 // Endpoints
 app.post('/api/ai/recommendations', async (req, res) => {
@@ -45,7 +56,7 @@ app.post('/api/ai/recommendations', async (req, res) => {
       model: 'gemini-1.5-flash',
       contents: prompt,
     });
-    
+
     let textResult = response.text || "[]";
     textResult = textResult.replace(/```json/g, '').replace(/```/g, '').trim();
 

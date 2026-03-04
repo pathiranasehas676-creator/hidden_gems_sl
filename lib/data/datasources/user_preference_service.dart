@@ -26,6 +26,7 @@ class UserPreferenceService {
   }
 
   static UserProfile getProfile() {
+    if (!Hive.isBoxOpen(_boxName)) return UserProfile.defaultProfile();
     final box = Hive.box<String>(_boxName);
     final raw = box.get(_profileKey);
     if (raw == null) return UserProfile.defaultProfile();
@@ -37,6 +38,7 @@ class UserPreferenceService {
   }
 
   static Future<void> saveProfile(UserProfile profile) async {
+    if (!Hive.isBoxOpen(_boxName)) await Hive.openBox<String>(_boxName);
     final box = Hive.box<String>(_boxName);
     await box.put(_profileKey, json.encode(profile.toJson()));
   }

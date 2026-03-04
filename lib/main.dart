@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
-import 'dart:io' show Platform, File;
+import 'dart:io' show Platform, File, HttpOverrides;
 import 'core/theme/app_theme.dart';
 import 'core/localization/locale_provider.dart';
 import 'data/datasources/trip_cache_service.dart';
@@ -16,9 +17,11 @@ import 'data/datasources/voice_service.dart';
 import 'core/analytics/analytics_service.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/network/secure_network.dart';
+import 'core/utils/secure_logger.dart';
 import 'package:safe_device/safe_device.dart';
 import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/splash_screen.dart';
 import 'presentation/screens/language_selection_screen.dart';
 import 'presentation/widgets/graceful_error_widget.dart';
 import 'firebase_options.dart';
@@ -39,83 +42,28 @@ class InitializationResult {
   bool get canProceed => hiveSuccess && !isCompromised;
 }
 
-Future<InitializationResult> performInitialization() async {
-  bool hiveStatus = false;
-  bool firebaseStatus = false;
-  bool isCompromised = false;
-  String? errorMessage;
-
-  try {
-    bool jailbroken = await SafeDevice.isJailBroken;
-    // SafeDevice also offers boolean checks for real device and fake locations if you want. 
-    // Usually we block jailbroken/rooted. Dev mode might just be a warning depending on strictness.
-    if (jailbroken) {
-      isCompromised = true;
-      errorMessage = "Compromised device detected. The Oracle cannot run in this environment.";
-    }
-  } catch (e) {
-    debugPrint("Jailbreak detection error: $e");
-  }
-
-  if (isCompromised) {
-    return InitializationResult(
-      hiveSuccess: false,
-      firebaseSuccess: false,
-      isCompromised: true,
-      error: errorMessage,
-    );
-  }
-
-  try {
-    // 1. Initialize Essential Local Storage (Hive) - MANDATORY
-    await TripCacheService.init();
-    await UserPreferenceService.init();
-    hiveStatus = true;
-  } catch (e) {
-    debugPrint("Critical Local Init Error: $e");
-    errorMessage = "Local database failure: $e";
-  }
-
-  if (hiveStatus) {
-    // Helpful Debug Check for Firebase Config
-    if (Platform.isAndroid) {
-      final configExists = await File('android/app/google-services.json').exists().catchError((_) => false);
-      if (!configExists) {
-        debugPrint("CRITICAL WARNING: android/app/google-services.json is MISSING. Firebase will not initialize.");
-      }
-    }
-
-    try {
-      // 2. Initialize Firebase (Optional/Timeout)
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ).timeout(const Duration(seconds: 15));
-      firebaseStatus = true;
-    } catch (e) {
-      debugPrint("Firebase optional init error: $e");
-      // Not fatal if Hive is ready
-    }
-  }
-
-  return InitializationResult(
-    hiveSuccess: hiveStatus,
-    firebaseSuccess: firebaseStatus,
-    isCompromised: isCompromised,
-    error: errorMessage,
-  );
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  debugPrint("Main Entry: Initializing core storage...");
+  
+  // 1. Initialize Essential Local Storage (Hive) - MUST be first
+  try {
+    await TripCacheService.init();
+    await UserPreferenceService.init();
+    debugPrint("Core storage ready.");
+  } catch (e) {
+    debugPrint("CRITICAL Hive Init Error: $e");
+  }
+
   // Apply Strict HTTPS Security and SSL Pinning configuration globally
   HttpOverrides.global = SecureNetworkOverrides();
-  
-  final initResult = await performInitialization();
 
-  if (initResult.firebaseSuccess) {
-    _initializeOtherServices();
-  }
+  // FLAG_SECURE is now handled directly in android/app/src/main/kotlin/com/hidden/gems/hidden_gems_sl/MainActivity.kt
+  // for better compatibility and build reliability.
+
+  // Kick off the rest of initialization in background — SplashScreen will wait for it.
+  final initFuture = performInitialization();
 
   runApp(
     MultiProvider(
@@ -123,23 +71,82 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PremiumService()..init()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
-      child: AdvanceTravelApp(initResult: initResult),
+      child: TripMeApp(initFuture: initFuture),
     ),
   );
 }
 
-void _initializeOtherServices() {
+Future<InitializationResult> performInitialization() async {
+  bool firebaseStatus = false;
+  bool isCompromised = false;
+  String? errorMessage;
+
+  debugPrint("Background initialization started. Web mode: $kIsWeb");
+
+  try {
+    if (!kIsWeb) {
+      bool jailbroken = await SafeDevice.isJailBroken;
+      if (jailbroken) {
+        isCompromised = true;
+        errorMessage = "Compromised device detected. The Oracle cannot run in this environment.";
+      }
+    }
+  } catch (e) {
+    debugPrint("Jailbreak detection error: $e");
+  }
+
+  if (isCompromised) {
+    return InitializationResult(
+      hiveSuccess: true, // Hive was already opened in main
+      firebaseSuccess: false,
+      isCompromised: true,
+      error: errorMessage,
+    );
+  }
+
+  try {
+    debugPrint("Initializing Firebase...");
+    FirebaseOptions? options;
+    try {
+      options = DefaultFirebaseOptions.currentPlatform;
+    } catch (e) {
+      debugPrint("Firebase config not available for this platform: $e");
+    }
+
+    if (options != null) {
+      await Firebase.initializeApp(
+        options: options,
+      ).timeout(const Duration(seconds: 15));
+      firebaseStatus = true;
+      debugPrint("Firebase initialized successfully.");
+    } else {
+      debugPrint("Skipping Firebase initialization due to missing config.");
+    }
+  } catch (e) {
+    debugPrint("Firebase optional init error: $e");
+  }
+
+  debugPrint("Background initialization complete. Firebase: $firebaseStatus");
+  return InitializationResult(
+    hiveSuccess: true, // Core Hive is pre-initialized in main
+    firebaseSuccess: firebaseStatus,
+    isCompromised: isCompromised,
+    error: errorMessage,
+  );
+}
+
+void initializeOtherServices() {
   // These don't need to block UI rendering
   try {
     MobileAds.instance.initialize();
   } catch (e) {
-    debugPrint("Ads Init Error: $e");
+    SecureLogger.error("Ads Init Error: $e");
   }
 
   try {
     NotificationService().init();
   } catch (e) {
-    debugPrint("Notify Init Error: $e");
+    SecureLogger.error("Notify Init Error: $e");
   }
 
   try {
@@ -167,6 +174,39 @@ void _initializeOtherServices() {
   };
 }
 
+// The thin root MaterialApp — just theming + localization, routes to Splash
+class TripMeApp extends StatelessWidget {
+  final Future<InitializationResult> initFuture;
+  const TripMeApp({super.key, required this.initFuture});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'TripMe.ai',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('si'),
+        Locale('ta'),
+        Locale('ja'),
+        Locale('ru'),
+        Locale('ko'),
+      ],
+      locale: context.watch<LocaleProvider>().locale,
+      home: SplashScreen(initFuture: initFuture),
+    );
+  }
+}
+
+// Keep AdvanceTravelApp for the post-splash routing logic
 class AdvanceTravelApp extends StatefulWidget {
   final InitializationResult initResult;
   const AdvanceTravelApp({super.key, required this.initResult});
@@ -196,7 +236,7 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> {
     final result = await performInitialization();
     
     if (result.firebaseSuccess) {
-      _initializeOtherServices();
+      initializeOtherServices();
     }
     
     setState(() {

@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/user_preference_service.dart';
@@ -21,6 +23,53 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late var profile = UserPreferenceService.getProfile();
+  final LocalAuthentication auth = LocalAuthentication();
+  bool _isAuthenticated = false;
+  bool _isAuthenticating = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBiometricAuth();
+  }
+
+  Future<void> _checkBiometricAuth() async {
+    try {
+      final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
+      final bool canAuthenticate = canAuthenticateWithBiometrics || await auth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        setState(() {
+          _isAuthenticated = true;
+          _isAuthenticating = false;
+        });
+        return;
+      }
+
+      final bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'Verify your identity to access User Details',
+      );
+
+      if (mounted) {
+        if (didAuthenticate) {
+          setState(() {
+            _isAuthenticated = true;
+            _isAuthenticating = false;
+          });
+        } else {
+          // Authentication failed or canceled. Send them out of this screen gracefully
+          setState(() => _isAuthenticating = false);
+        }
+      }
+    } on PlatformException catch (_) {
+      if (mounted) {
+        setState(() {
+          _isAuthenticated = true; // Fallback to accessible if crash
+          _isAuthenticating = false;
+        });
+      }
+    }
+  }
 
   void _showLanguagePicker(BuildContext context) {
     final languages = [
@@ -144,7 +193,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final premiumService = Provider.of<PremiumService>(context);
+    if (_isAuthenticating) {
+      return const Scaffold(
+        backgroundColor: AppTheme.silkPearl,
+        body: Center(child: CircularProgressIndicator(color: AppTheme.primaryBlue)),
+      );
+    }
+
+    if (!_isAuthenticated) {
+      return Scaffold(
+        backgroundColor: AppTheme.silkPearl,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.lock_outline, size: 80, color: AppTheme.primaryBlue),
+              const SizedBox(height: 20),
+              Text(
+                "Access Denied",
+                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _checkBiometricAuth,
+                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentOchre),
+                child: Text("Retry Authentication", style: GoogleFonts.inter(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final premiumService = context.watch<PremiumService>();
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
