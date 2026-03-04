@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
-import 'dart:io' show Platform, File, HttpOverrides;
+import 'dart:io' show HttpOverrides;
 import 'core/theme/app_theme.dart';
 import 'core/localization/locale_provider.dart';
 import 'data/datasources/trip_cache_service.dart';
@@ -215,13 +215,45 @@ class AdvanceTravelApp extends StatefulWidget {
   State<AdvanceTravelApp> createState() => _AdvanceTravelAppState();
 }
 
-class _AdvanceTravelAppState extends State<AdvanceTravelApp> {
+class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBindingObserver {
   late InitializationResult _currentInitResult;
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  bool _isSplashShowing = false;
 
   @override
   void initState() {
     super.initState();
     _currentInitResult = widget.initResult;
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_isSplashShowing) {
+      _showSplashScreen();
+    }
+  }
+
+  void _showSplashScreen() {
+    if (navigatorKey.currentState == null) return;
+    _isSplashShowing = true;
+    navigatorKey.currentState!.push(
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (context, _, __) => SplashScreen(
+          initFuture: Future.value(_currentInitResult),
+          isResume: true,
+        ),
+      ),
+    ).then((_) {
+      _isSplashShowing = false;
+    });
   }
 
   Future<void> _retryInit() async {
@@ -247,6 +279,7 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'TripMe.ai',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

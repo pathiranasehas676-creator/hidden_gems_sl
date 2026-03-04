@@ -154,7 +154,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 label: Text(l10n.removePhoto, style: const TextStyle(color: Colors.redAccent)),
                 onPressed: () async {
                   await UserPreferenceService.updateProfileImagePath(null);
-                  if (mounted) setState(() => profile = UserPreferenceService.getProfile());
+                  if (!context.mounted) return;
+                  setState(() => profile = UserPreferenceService.getProfile());
                   Navigator.pop(context);
                 },
               ),
