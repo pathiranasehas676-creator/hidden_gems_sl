@@ -3,11 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // --- Serendib Oracle Luxury Palette ---
-  static const Color primaryBlue = Color(0xFF0B1C2D); // Deep Space Navy
-  static const Color accentOchre = Color(0xFFC89B3C); // Sri Lankan Ochre Gold
+  static const Color primaryBlue = Color(0xFF091F2C); // Deep Ocean Blue
+  static const Color accentOchre = Color(0xFFD4AF37); // Sigiriya Gold
   static const Color silkPearl = Color(0xFFF8F6F1);   // Silk Pearl
   static const Color softBlue = Color(0xFFD9E9F2);
-  static const Color successGreen = Color(0xFF2E7D5B); // Tropical Leaf Green
+  static const Color successGreen = Color(0xFF1B4332); // Tropical Jungle Green
   static const Color warningOrange = Color(0xFFE2725B); // Sunset Coral
   static const Color backgroundGray = Color(0xFFF1F0EA);
 
