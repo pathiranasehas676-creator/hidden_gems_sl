@@ -6,6 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/localization/locale_provider.dart';
+import '../../data/datasources/user_preference_service.dart';
 import '../../data/datasources/trip_cache_service.dart';
 import '../../data/datasources/monetization_service.dart';
 import '../../data/datasources/premium_service.dart';
@@ -20,8 +21,9 @@ import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 import 'dart:ui';
 import '../../core/analytics/analytics_service.dart';
 import '../../core/rating/rating_service.dart';
-import '../../data/datasources/user_preference_service.dart';
 import '../../data/datasources/voice_service.dart';
+import '../../core/utils/screenshot_service.dart';
+import 'package:screenshot/screenshot.dart';
 
 class ResultsScreen extends StatefulWidget {
   final TripPlan plan;
@@ -46,6 +48,7 @@ class _ResultsScreenState extends State<ResultsScreen>
   bool _isListening = false;
   BannerAd? _bannerAd;
   bool _isBannerLoaded = false;
+  final ScreenshotService _screenshotService = ScreenshotService();
 
   @override
   void initState() {
@@ -102,10 +105,14 @@ class _ResultsScreenState extends State<ResultsScreen>
     final plan = widget.plan;
 
     return Scaffold(
-      backgroundColor: AppTheme.silkPearl,
-      body: Stack(
-        children: [
-          NestedScrollView(
+      backgroundColor: Colors.transparent, // Background handled by BatikBackground
+      body: Screenshot(
+        controller: _screenshotService.controller,
+        child: Container(
+          color: AppTheme.primaryBlue, // Ensure background is captured
+          child: Stack(
+            children: [
+              NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
                 SliverAppBar(
@@ -156,6 +163,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                         },
                       ),
                     ),
+                    const SizedBox(width: 8),
                     _buildConfidenceBadge(plan.verifiedScore),
                     const SizedBox(width: 8),
                   ],
@@ -214,7 +222,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                             // For now, to fix the "critical compilation errors" and ensure syntactic correctness,
                             // the original structure for `errorBuilder`'s child is preserved.
                             child: Center(
-                              child: Icon(Icons.landscape, size: 100, color: Colors.white.withOpacity(0.1)),
+                              child: Icon(Icons.landscape, size: 100, color: Colors.white.withValues(alpha: 0.1)),
                             ),
                           ),
                         ),
@@ -335,8 +343,10 @@ class _ResultsScreenState extends State<ResultsScreen>
           ),
         ],
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
 
   Widget _buildVoiceButton(TripPlan plan, bool isPremium) {
@@ -461,7 +471,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                 const SizedBox(height: 12),
                 Text(
                   plan.humanText,
-                  style: GoogleFonts.inter(color: AppTheme.primaryBlue, height: 1.6, fontSize: 14),
+                  style: GoogleFonts.inter(color: Colors.white, height: 1.6, fontSize: 14),
                 ),
               ],
             ),
@@ -525,7 +535,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                     style: GoogleFonts.inter(color: AppTheme.accentOchre, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 2)),
                   if (day.dayTheme.isNotEmpty)
                     Text(day.dayTheme, 
-                      style: GoogleFonts.outfit(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold, fontSize: 20)),
+                      style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
                 ],
               ),
             ),
@@ -581,8 +591,8 @@ class _ResultsScreenState extends State<ResultsScreen>
                   width: 2, 
                   margin: const EdgeInsets.symmetric(vertical: 8), 
                   decoration: BoxDecoration(
-                    color: typeInfo.color.withOpacity(0.5),
-                    boxShadow: [BoxShadow(color: typeInfo.color.withOpacity(0.3), blurRadius: 4)],
+                    color: typeInfo.color.withValues(alpha: 0.5),
+                    boxShadow: [BoxShadow(color: typeInfo.color.withValues(alpha: 0.3), blurRadius: 4)],
                   )
                 ),
               ),
@@ -593,11 +603,8 @@ class _ResultsScreenState extends State<ResultsScreen>
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+              decoration: AppTheme.glassDecoration().copyWith(
                 border: Border(left: BorderSide(color: typeInfo.color, width: 4)),
-                boxShadow: AppTheme.premiumShadow,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -606,8 +613,8 @@ class _ResultsScreenState extends State<ResultsScreen>
                   children: [
                     Row(
                       children: [
-                        Expanded(child: Text(item.title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.primaryBlue))),
-                        Icon(typeInfo.icon, size: 18, color: typeInfo.color.withOpacity(0.5)),
+                        Expanded(child: Text(item.title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white))),
+                        Icon(typeInfo.icon, size: 18, color: typeInfo.color.withValues(alpha: 0.5)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -622,7 +629,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                     ),
                     if (item.notes.isNotEmpty) ...[
                       const SizedBox(height: 16),
-                      Text(item.notes, style: GoogleFonts.inter(fontSize: 13, color: Colors.black54, height: 1.5)),
+                      Text(item.notes, style: GoogleFonts.inter(fontSize: 13, color: Colors.white70, height: 1.5)),
                     ],
                   ],
                 ),
@@ -657,30 +664,25 @@ class _ResultsScreenState extends State<ResultsScreen>
   Widget _buildOracleIntro(TripPlan plan) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppTheme.premiumShadow,
-        border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.1)),
-      ),
+      decoration: AppTheme.glassDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               const CircleAvatar(
-                backgroundColor: AppTheme.primaryBlue,
+                backgroundColor: Colors.white10,
                 child: Icon(Icons.auto_awesome, color: AppTheme.accentOchre, size: 20),
               ),
               const SizedBox(width: 12),
               Text("Oracle's Perspective", 
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.primaryBlue)),
+                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
             ],
           ),
           const SizedBox(height: 16),
           Text(
             plan.humanText,
-            style: GoogleFonts.inter(fontSize: 14, color: Colors.black87, height: 1.6, fontStyle: FontStyle.italic),
+            style: GoogleFonts.inter(fontSize: 14, color: Colors.white70, height: 1.6, fontStyle: FontStyle.italic),
           ),
         ],
       ),
@@ -730,18 +732,14 @@ class _ResultsScreenState extends State<ResultsScreen>
   Widget _buildCard(String text, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
-      ),
+      decoration: AppTheme.glassDecoration(),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: AppTheme.primaryBlue.withOpacity(0.5), size: 32),
+            Icon(icon, color: AppTheme.accentOchre.withValues(alpha: 0.5), size: 32),
             const SizedBox(height: 16),
-            Text(text, style: GoogleFonts.inter(fontSize: 14, height: 1.6, color: Colors.black87)),
+            Text(text, style: GoogleFonts.inter(fontSize: 14, height: 1.6, color: Colors.white70)),
           ],
         ),
       ),
@@ -799,11 +797,8 @@ class _ResultsScreenState extends State<ResultsScreen>
         padding: const EdgeInsets.all(32.0),
         child: Container(
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(32),
-            boxShadow: AppTheme.premiumShadow,
-            border: Border.all(color: AppTheme.accentOchre.withOpacity(0.3)),
+          decoration: AppTheme.glassDecoration().copyWith(
+            border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -819,13 +814,13 @@ class _ResultsScreenState extends State<ResultsScreen>
               const SizedBox(height: 24),
               Text(
                 "Oracle's Vault",
-                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 12),
               Text(
                 "The rainy-day alternative is locked for free travelers.\nWatch a short video to unlock it for this trip.",
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(color: Colors.black54),
+                style: GoogleFonts.inter(color: Colors.white70),
               ),
               const SizedBox(height: 32),
             ElevatedButton.icon(
@@ -840,7 +835,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             ),
             TextButton(
               onPressed: () => Provider.of<PremiumService>(context, listen: false).buyPremium(),
-              child: const Text("Go Premium for Ad-Free Experience"),
+              child: const Text("Go Premium for Ad-Free Experience", style: TextStyle(color: Colors.white70)),
             ),
           ],
         ),
@@ -852,11 +847,8 @@ class _ResultsScreenState extends State<ResultsScreen>
   Widget _buildPremiumCTA() {
     return Container(
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: AppTheme.premiumShadow,
-        border: Border.all(color: AppTheme.accentOchre.withOpacity(0.5), width: 2),
+      decoration: AppTheme.glassDecoration().copyWith(
+        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.5), width: 2),
       ),
       child: Column(
         children: [
@@ -871,7 +863,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           Text(
             "TRIPME LUXURY",
             style: GoogleFonts.outfit(
-              color: AppTheme.primaryBlue, 
+              color: Colors.white, 
               fontWeight: FontWeight.bold, 
               letterSpacing: 4,
               fontSize: 18,
@@ -881,7 +873,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           Text(
             "Go beyond the ordinary. Unlock the Oracle's full wisdom.",
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(color: Colors.black54, fontSize: 13),
+            style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
           ),
           const SizedBox(height: 24),
           Row(
@@ -910,7 +902,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               onPressed: () => Provider.of<PremiumService>(context, listen: false).buyPremium(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.accentOchre,
-                foregroundColor: AppTheme.primaryBlue,
+                foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
@@ -930,9 +922,9 @@ class _ResultsScreenState extends State<ResultsScreen>
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         children: [
-          Icon(icon, color: AppTheme.primaryBlue, size: 20),
+          Icon(icon, color: Colors.white70, size: 20),
           const SizedBox(height: 4),
-          Text(label, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+          Text(label, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white54)),
         ],
       ),
     );
@@ -943,23 +935,24 @@ class _ResultsScreenState extends State<ResultsScreen>
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Colors.grey.shade200),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
       ),
+      color: Colors.white.withValues(alpha: 0.05),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(item.title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.primaryBlue)),
+            Text(item.title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
             const SizedBox(height: 12),
-            Text(item.reason, style: GoogleFonts.inter(fontSize: 14, color: Colors.black87, height: 1.5)),
+            Text(item.reason, style: GoogleFonts.inter(fontSize: 14, color: Colors.white70, height: 1.5)),
             const SizedBox(height: 20),
             Row(
               children: [
                 const Icon(Icons.location_on, color: Colors.redAccent, size: 16),
                 const SizedBox(width: 4),
                 Text("${item.lat.toStringAsFixed(4)}, ${item.lng.toStringAsFixed(4)}", 
-                  style: GoogleFonts.inter(fontSize: 12, color: Colors.grey)),
+                  style: GoogleFonts.inter(fontSize: 12, color: Colors.white54)),
                 const Spacer(),
                 TextButton.icon(
                   onPressed: () {},
@@ -984,7 +977,7 @@ class _ResultsScreenState extends State<ResultsScreen>
       children: [
         _buildSafetyHero(plan.safetyTip),
         const SizedBox(height: 24),
-        Text("Verification Sources", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text("Verification Sources", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -992,7 +985,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           children: plan.kbCitations.map((c) => _sourceChip(c)).toList(),
         ),
         const SizedBox(height: 32),
-        const Text("💡 Pro Tips for Sri Lanka", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+        const Text("💡 Pro Tips for Sri Lanka", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white70)),
         const SizedBox(height: 12),
         ...plan.tips.map((t) => _tipItem(t)),
       ],
@@ -1003,9 +996,9 @@ class _ResultsScreenState extends State<ResultsScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: Colors.orange.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.orange.withOpacity(0.2)),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1018,7 +1011,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             ],
           ),
           const SizedBox(height: 12),
-          Text(tip, style: GoogleFonts.inter(fontSize: 15, color: Colors.orange.shade900, fontWeight: FontWeight.w500)),
+          Text(tip, style: GoogleFonts.inter(fontSize: 15, color: Colors.orangeAccent, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -1028,11 +1021,11 @@ class _ResultsScreenState extends State<ResultsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.05),
+        color: Colors.white10,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.withOpacity(0.1)),
+        border: Border.all(color: Colors.white24),
       ),
-      child: Text(label, style: GoogleFonts.inter(fontSize: 11, color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+      child: Text(label, style: GoogleFonts.inter(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -1047,7 +1040,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             child: Icon(Icons.check_circle, size: 16, color: AppTheme.accentOchre),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Text(tip, style: GoogleFonts.inter(fontSize: 13, color: Colors.black87))),
+          Expanded(child: Text(tip, style: GoogleFonts.inter(fontSize: 13, color: Colors.white70))),
         ],
       ),
     );

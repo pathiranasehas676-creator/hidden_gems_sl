@@ -29,100 +29,145 @@ class AppTheme {
         ),
       ];
 
+  // --- Premium Gradients ---
+  static const LinearGradient oceanGradient = LinearGradient(
+    colors: [primaryBlue, Color(0xFF0F2B3D)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient jungleGradient = LinearGradient(
+    colors: [successGreen, Color(0xFF143324)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   // --- Glassmorphism Utils ---
   static BoxDecoration glassDecoration({
-    double opacity = 0.6, 
-    double blur = 15,
+    double opacity = 0.12, 
+    double blur = 25,
     BorderRadius? radius,
+    Color? color,
   }) {
     return BoxDecoration(
-      color: Colors.white.withOpacity(opacity),
+      color: (color ?? Colors.white).withValues(alpha: opacity),
       borderRadius: radius ?? BorderRadius.circular(24),
-      border: Border.all(color: Colors.white.withOpacity(0.2)),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+      boxShadow: softShadow,
     );
   }
 
-  static ThemeData lightTheme = ThemeData(
-    useMaterial3: true,
-    scaffoldBackgroundColor: silkPearl,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryBlue,
-      primary: primaryBlue,
-      secondary: accentOchre,
-      surface: silkPearl,
-      onPrimary: Colors.white,
-    ),
-    // Premium Typography: Outfit for Headings, Inter for Body
-    textTheme: GoogleFonts.outfitTextTheme().copyWith(
-      bodyLarge: GoogleFonts.inter(color: Colors.black87, fontSize: 16),
-      bodyMedium: GoogleFonts.inter(color: Colors.black87, fontSize: 14),
-      displayLarge: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: primaryBlue, fontSize: 32),
-      displayMedium: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: primaryBlue, fontSize: 24),
-      titleLarge: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: primaryBlue, fontSize: 18),
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent,
-      foregroundColor: primaryBlue,
-      elevation: 0,
-      centerTitle: true,
-      titleTextStyle: TextStyle(
-        fontFamily: 'Outfit',
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: primaryBlue,
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primaryBlue,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        elevation: 0,
-        textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
-    ),
-    cardTheme: CardThemeData(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      color: Colors.white,
-    ),
-  );
-
-  // --- Specialized Text Styles ---
-  static TextStyle get budgetEmphasis => GoogleFonts.outfit(
-        fontSize: 28,
-        fontWeight: FontWeight.w600,
-        color: accentOchre,
-      );
-
-  // --- Ultra-Cinematic Time-Aware Logic ---
+  // --- Dynamic Time-Aware Overlay ---
   static Color getDynamicOverlay() {
     final hour = DateTime.now().hour;
-    if (hour >= 17 && hour <= 19) {
-      // Golden Hour: Subtle amber warmth
-      return Colors.orangeAccent.withOpacity(0.03);
-    } else if (hour >= 20 || hour <= 5) {
-      // Night Mode: Subtle cool indigo
-      return Colors.indigoAccent.withOpacity(0.05);
+    if (hour >= 18 || hour < 6) {
+      return Colors.black.withValues(alpha: 0.2); // Night mode tint
     }
     return Colors.transparent;
   }
 
+  // --- Premium Component Styles ---
+  static TextStyle get budgetEmphasis => GoogleFonts.outfit(
+    fontSize: 24,
+    fontWeight: FontWeight.w900,
+    color: accentOchre,
+    letterSpacing: 1,
+  );
+
+  static ThemeData lightTheme = ThemeData(
+    useMaterial3: true,
+    scaffoldBackgroundColor: primaryBlue, // Base background is now Ocean Blue
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: primaryBlue,
+      primary: primaryBlue,
+      secondary: accentOchre,
+      surface: const Color(0xFF0F2B3D), // Slightly lighter blue for surfaces
+      onPrimary: Colors.white,
+      onSurface: Colors.white,
+      error: warningOrange,
+    ),
+    // Premium Typography
+    textTheme: GoogleFonts.outfitTextTheme().copyWith(
+      bodyLarge: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9), fontSize: 16),
+      bodyMedium: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
+      displayLarge: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 32),
+      displayMedium: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 24),
+      titleLarge: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 18),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: true,
+      iconTheme: const IconThemeData(color: Colors.white),
+      titleTextStyle: GoogleFonts.outfit(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: accentOchre, // Buttons pop with Gold
+        foregroundColor: primaryBlue,
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 12,
+        shadowColor: accentOchre.withValues(alpha: 0.3),
+        textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1),
+      ),
+    ),
+    cardTheme: CardThemeData(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      color: Colors.white.withValues(alpha: 0.05), // Glassy cards
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: primaryBlue,
+      selectedItemColor: accentOchre,
+      unselectedItemColor: Colors.white54,
+      elevation: 0,
+      type: BottomNavigationBarType.fixed,
+    ),
+  );
+
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: const Color(0xFF030C16), // Deeper space
+    scaffoldBackgroundColor: const Color(0xFF020810), // Ultra-deep space
     colorScheme: ColorScheme.fromSeed(
       seedColor: primaryBlue,
       brightness: Brightness.dark,
       primary: primaryBlue,
       secondary: accentOchre,
-      surface: const Color(0xFF0B1C2D),
+      surface: const Color(0xFF030C16),
+      onSurface: Colors.white,
     ),
     textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme).copyWith(
-      bodyLarge: GoogleFonts.inter(color: Colors.white.withOpacity(0.9)),
-      bodyMedium: GoogleFonts.inter(color: Colors.white.withOpacity(0.9)),
+      bodyLarge: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9)),
+      bodyMedium: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.8)),
+      displayLarge: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white),
+      titleLarge: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Colors.white),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      centerTitle: true,
+      titleTextStyle: GoogleFonts.outfit(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+    ),
+    cardTheme: CardThemeData(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      color: Colors.white.withValues(alpha: 0.03),
     ),
   );
 

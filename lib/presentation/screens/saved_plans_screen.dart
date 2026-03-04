@@ -45,8 +45,12 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.primaryBlue, // Base Oceanic Background
       appBar: AppBar(
-        title: const Text('Saved Plans'),
+        title: const Text('Saved Plans', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           if (_plans.isNotEmpty)
             TextButton.icon(
@@ -87,18 +91,18 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.bookmark_border,
-              size: 72, color: Colors.grey.shade400),
+          const Icon(Icons.bookmark_border,
+              size: 72, color: Colors.white54),
           const SizedBox(height: 16),
-          Text('No saved plans yet',
+          const Text('No saved plans yet',
               style: TextStyle(
                   fontSize: 18,
-                  color: Colors.grey.shade600,
+                  color: Colors.white,
                   fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
-          Text('Tap the  🔖  icon on any plan to save it offline.',
+          const Text('Tap the  🔖  icon on any plan to save it offline.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade400)),
+              style: TextStyle(fontSize: 13, color: Colors.white70)),
         ],
       ),
     );
@@ -132,16 +136,7 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
             onTap: () => _openPlan(plan),
             child: Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4))
-                ],
-              ),
+              decoration: AppTheme.glassDecoration(),
               child: Row(
                 children: [
                   // Destination icon chip
@@ -149,11 +144,11 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withOpacity(0.1),
+                      color: Colors.white10,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.travel_explore,
-                        color: AppTheme.primaryBlue, size: 24),
+                        color: Colors.white, size: 24),
                   ),
                   const SizedBox(width: 12),
                   // Plan info
@@ -164,7 +159,7 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                         Text(
                           '${summary.fromCity} → ${summary.destinationCity}',
                           style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15),
+                              fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
                         ),
                         const SizedBox(height: 4),
                         Wrap(
@@ -180,14 +175,14 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                         const SizedBox(height: 6),
                         Text(
                           'Saved $cachedAgo',
-                          style: TextStyle(
-                              fontSize: 11, color: Colors.grey.shade500),
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.white54),
                         ),
                       ],
                     ),
                   ),
                   const Icon(Icons.chevron_right,
-                      color: AppTheme.primaryBlue),
+                      color: Colors.white54),
                 ],
               ),
             ),
@@ -201,10 +196,10 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 11, color: Colors.grey.shade500),
+        Icon(icon, size: 11, color: Colors.white70),
         const SizedBox(width: 3),
         Text(label,
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+            style: const TextStyle(fontSize: 11, color: Colors.white70)),
       ],
     );
   }

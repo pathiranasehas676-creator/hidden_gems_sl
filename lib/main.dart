@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
@@ -25,6 +26,8 @@ import 'presentation/screens/splash_screen.dart';
 import 'presentation/screens/language_selection_screen.dart';
 import 'presentation/widgets/graceful_error_widget.dart';
 import 'firebase_options.dart';
+import 'package:screenshot/screenshot.dart';
+import 'core/utils/screenshot_service.dart';
 
 class InitializationResult {
   final bool hiveSuccess;
@@ -202,6 +205,7 @@ class TripMeApp extends StatelessWidget {
       ],
       locale: context.watch<LocaleProvider>().locale,
       home: SplashScreen(initFuture: initFuture),
+      builder: (context, child) => GlobalScreenshotWrapper(child: child!),
     );
   }
 }
@@ -243,13 +247,19 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
   void _showSplashScreen() {
     if (navigatorKey.currentState == null) return;
     _isSplashShowing = true;
+    
+    // Use push to put Splash on top of everything
     navigatorKey.currentState!.push(
       PageRouteBuilder(
-        opaque: false,
-        pageBuilder: (context, _, __) => SplashScreen(
+        opaque: true, // Make it opaque for full-screen feel
+        transitionDuration: const Duration(milliseconds: 800),
+        pageBuilder: (context, animation, secondaryAnimation) => SplashScreen(
           initFuture: Future.value(_currentInitResult),
           isResume: true,
         ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
       ),
     ).then((_) {
       _isSplashShowing = false;
@@ -300,6 +310,7 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
       ],
       locale: context.watch<LocaleProvider>().locale,
       home: _buildHomeModule(),
+      builder: (context, child) => GlobalScreenshotWrapper(child: child!),
     );
   }
 
@@ -351,6 +362,59 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
         }
         return const LoginScreen();
       },
+    );
+  }
+}
+
+class GlobalScreenshotWrapper extends StatefulWidget {
+  final Widget child;
+  const GlobalScreenshotWrapper({super.key, required this.child});
+
+  @override
+  State<GlobalScreenshotWrapper> createState() => _GlobalScreenshotWrapperState();
+}
+
+class _GlobalScreenshotWrapperState extends State<GlobalScreenshotWrapper> {
+  final ScreenshotService _screenshotService = ScreenshotService();
+
+  @override
+  Widget build(BuildContext context) {
+    return Screenshot(
+      controller: _screenshotService.controller,
+      child: Stack(
+        children: [
+          widget.child,
+          Positioned(
+            right: 20,
+            bottom: 110,
+            child: SafeArea(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    _screenshotService.captureAndShare(context);
+                  },
+                  borderRadius: BorderRadius.circular(30),
+                  child: Container(
+                    width: 52,
+                    height: 52,
+                    decoration: AppTheme.glassDecoration(opacity: 0.15, blur: 25).copyWith(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppTheme.accentOchre.withOpacity(0.4), width: 1.5),
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_outlined,
+                      color: AppTheme.accentOchre,
+                      size: 26,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

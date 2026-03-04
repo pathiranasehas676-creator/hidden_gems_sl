@@ -157,9 +157,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppTheme.silkPearl,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
+      backgroundColor: Colors.transparent, // Background handled by BatikBackground
+      body: BatikBackground(
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
         slivers: [
           _buildLocationHeader(),
           SliverToBoxAdapter(
@@ -176,6 +177,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           else
             _buildListView(l10n),
         ],
+        ),
       ),
     );
   }
@@ -208,11 +210,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               Container(
                 height: 50,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: AppTheme.softShadow,
-                ),
+                decoration: AppTheme.glassDecoration(),
                 child: Row(
                   children: [
                     Icon(Icons.auto_awesome, color: AppTheme.accentOchre.withOpacity(0.7), size: 20),
@@ -224,10 +222,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         textInputAction: TextInputAction.search,
                         decoration: InputDecoration(
                           hintText: "What's your vibe today?",
-                          hintStyle: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 14),
+                          hintStyle: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
                           border: InputBorder.none,
                           isDense: true,
                         ),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
@@ -259,14 +258,14 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               selected: isSelected,
               onSelected: (_) => _onFilterChanged(filter),
               selectedColor: AppTheme.accentOchre,
-              backgroundColor: Colors.white,
+              backgroundColor: AppTheme.glassDecoration().color,
               labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
+                color: isSelected ? AppTheme.primaryBlue : Colors.white70,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 fontSize: 12,
               ),
               side: BorderSide(
-                color: isSelected ? AppTheme.accentOchre : Colors.grey.shade300,
+                color: isSelected ? AppTheme.accentOchre : Colors.white24,
               ),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
@@ -315,9 +314,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 child: Icon(Icons.search_off, size: 40, color: Colors.grey.shade400),
               ),
               const SizedBox(height: 16),
-              Text("No matches nearby", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+              Text("No matches nearby", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
               const SizedBox(height: 8),
-              Text("Try increasing distance or removing filters.", style: GoogleFonts.inter(color: Colors.grey, fontSize: 14)),
+              Text("Try increasing distance or removing filters.", style: GoogleFonts.inter(color: Colors.white70, fontSize: 14)),
             ],
           ),
         ),
@@ -355,9 +354,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Row(
         children: [
-          Icon(icon, color: AppTheme.primaryBlue, size: 20),
+          Icon(icon, color: Colors.white, size: 20),
           const SizedBox(width: 8),
-          Text(title, style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+          Text(title, style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
         ],
       ),
     );
@@ -378,12 +377,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             child: Container(
               width: isOracle ? 240 : 160,
               margin: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: AppTheme.softShadow,
-                border: isOracle ? Border.all(color: AppTheme.accentOchre, width: 2) : null,
-              ),
+              decoration: isOracle 
+                ? AppTheme.glassDecoration().copyWith(border: Border.all(color: AppTheme.accentOchre, width: 2))
+                : AppTheme.glassDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -405,15 +401,15 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(place.name, style: GoogleFonts.outfit(fontSize: isOracle ? 16 : 14, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(place.name, style: GoogleFonts.outfit(fontSize: isOracle ? 16 : 14, fontWeight: FontWeight.bold, color: Colors.white), maxLines: 1, overflow: TextOverflow.ellipsis),
                           const SizedBox(height: 4),
                           Row(
                             children: [
                               const Icon(Icons.location_on, size: 12, color: AppTheme.accentOchre),
                               const SizedBox(width: 4),
-                              Text("\${place.distanceKm.toStringAsFixed(1)}km", style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+                              Text("\${place.distanceKm.toStringAsFixed(1)}km", style: GoogleFonts.inter(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.bold)),
                               const Spacer(),
-                              Text(place.ticketRange, style: GoogleFonts.inter(fontSize: 10, color: Colors.green.shade700, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              Text(place.ticketRange, style: GoogleFonts.inter(fontSize: 10, color: Colors.greenAccent, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                           if (isOracle && place.aiReason.isNotEmpty) ...[
@@ -422,12 +418,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.accentOchre.withOpacity(0.1),
+                                  color: AppTheme.accentOchre.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
                                 ),
                                 child: Text(
                                   place.aiReason,
-                                  style: GoogleFonts.inter(fontSize: 10, fontStyle: FontStyle.italic, color: Colors.black87),
+                                  style: GoogleFonts.inter(fontSize: 10, fontStyle: FontStyle.italic, color: Colors.white),
                                   maxLines: 2, overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -451,18 +448,14 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       onTap: () => _openPlaceDetails(place),
       child: Container(
         height: 140,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: AppTheme.softShadow,
-        ),
+        decoration: AppTheme.glassDecoration(),
         child: Row(
           children: [
             SizedBox(
               width: 120,
               height: 140,
               child: ClipRRect(
-                borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(24)),
                 child: Image.network(
                   "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
                   fit: BoxFit.cover,
@@ -481,23 +474,23 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         Expanded(
                           child: Text(
                             place.name, 
-                            style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue, height: 1.1), 
+                            style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white, height: 1.1), 
                             maxLines: 2, 
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Icon(Icons.bookmark_border, size: 20, color: Colors.grey)
+                        const Icon(Icons.bookmark_border, size: 20, color: Colors.white70)
                       ],
                     ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.category, size: 12, color: Colors.grey),
+                        const Icon(Icons.category, size: 12, color: Colors.white70),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             place.category, 
-                            style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600), 
+                            style: GoogleFonts.inter(fontSize: 10, color: Colors.white70), 
                             maxLines: 1, 
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -511,20 +504,21 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppTheme.accentOchre.withOpacity(0.1),
+                            color: AppTheme.accentOchre.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             children: [
                               const Icon(Icons.location_on, size: 10, color: AppTheme.accentOchre),
                               const SizedBox(width: 4),
-                              Text("\${place.distanceKm.toStringAsFixed(1)}km", style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+                              Text("\${place.distanceKm.toStringAsFixed(1)}km", style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
                             ],
                           ),
                         ),
                         Text(
                           place.ticketRange, 
-                          style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+                          style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.greenAccent),
                         ),
                       ],
                     ),

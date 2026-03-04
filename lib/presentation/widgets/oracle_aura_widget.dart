@@ -59,8 +59,8 @@ class _OracleAuraWidgetState extends State<OracleAuraWidget>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      widget.baseColor.withOpacity(0.3),
-                      widget.baseColor.withOpacity(0.1),
+                      widget.baseColor.withValues(alpha: 0.3),
+                      widget.baseColor.withValues(alpha: 0.1),
                       Colors.transparent,
                     ],
                   ),
@@ -74,7 +74,7 @@ class _OracleAuraWidgetState extends State<OracleAuraWidget>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: widget.baseColor.withOpacity(0.5),
+                      color: widget.baseColor.withValues(alpha: 0.5),
                       blurRadius: 30,
                       spreadRadius: 10,
                     ),
@@ -82,7 +82,7 @@ class _OracleAuraWidgetState extends State<OracleAuraWidget>
                   gradient: LinearGradient(
                     colors: [
                       widget.baseColor,
-                      widget.baseColor.withOpacity(0.7),
+                      widget.baseColor.withValues(alpha: 0.7),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -107,7 +107,7 @@ class _OracleAuraWidgetState extends State<OracleAuraWidget>
                     width: 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: widget.baseColor.withOpacity(0.6),
+                      color: widget.baseColor.withValues(alpha: 0.6),
                       shape: BoxShape.circle,
                     ),
                   ),

@@ -230,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppTheme.silkPearl,
+      backgroundColor: Colors.transparent, // Let Batik ocean gradient show
       body: BatikBackground(
         child: CustomScrollView(
           slivers: [
@@ -246,10 +246,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: GoogleFonts.outfit(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryBlue,
+                        color: Colors.white, // Pop against dark background
                       ),
                     ),
-                    const SizedBox(height: 24), // Added a SizedBox for spacing
+                    const SizedBox(height: 24),
                     _buildStatsRow(),
                     const SizedBox(height: 32),
                     _buildVibeSelector(),
@@ -367,14 +367,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           top: -20, left: 20,
           child: Container(
             width: 60, height: 60,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.accentOchre.withOpacity(0.3)),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.accentOchre.withValues(alpha: 0.3)),
           ),
         ),
         Positioned(
           bottom: -20, right: 20,
           child: Container(
             width: 80, height: 80,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.primaryBlue.withOpacity(0.2)),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.primaryBlue.withValues(alpha: 0.8)),
           ),
         ),
         ClipRRect(
@@ -383,12 +383,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white.withOpacity(0.5)),
-                boxShadow: AppTheme.premiumShadow,
-              ),
+              decoration: AppTheme.glassDecoration(),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -414,14 +409,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: AppTheme.primaryBlue,
+            color: Colors.white,
           ),
         ),
         Text(
           label,
           style: GoogleFonts.inter(
             fontSize: 10,
-            color: Colors.black54,
+            color: Colors.white70,
             fontWeight: FontWeight.bold,
             letterSpacing: 1,
           ),
@@ -431,7 +426,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _verticalDivider() {
-    return Container(height: 30, width: 1, color: Colors.black12);
+    return Container(height: 30, width: 1, color: Colors.white24);
   }
 
   Widget _buildVibeSelector() {
@@ -445,6 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontSize: 14,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 16),
@@ -470,10 +466,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue : Colors.white,
+          color: isSelected ? AppTheme.accentOchre : AppTheme.glassDecoration().color,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryBlue : Colors.black12,
+            color: isSelected ? AppTheme.accentOchre : Colors.white24,
           ),
           boxShadow: isSelected ? AppTheme.premiumShadow : AppTheme.softShadow,
         ),
@@ -482,7 +478,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.white : Colors.black87,
+            color: isSelected ? AppTheme.primaryBlue : Colors.white70,
             letterSpacing: 1,
           ),
         ),
@@ -513,25 +509,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _settingsTile(IconData icon, String title, {VoidCallback? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
-      ),
+      decoration: AppTheme.glassDecoration(),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: Colors.white10,
             shape: BoxShape.circle,
+            border: Border.all(color: Colors.white24),
           ),
-          child: Icon(icon, color: AppTheme.primaryBlue, size: 20),
+          child: Icon(icon, color: Colors.white, size: 20),
         ),
         title: Text(
           title,
-          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
         ),
-        trailing: const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
+        trailing: const Icon(Icons.chevron_right, size: 18, color: Colors.white54),
         onTap: onTap ?? () {},
       ),
     );

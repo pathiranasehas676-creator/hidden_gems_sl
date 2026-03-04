@@ -17,8 +17,13 @@ class BatikBackground extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: CustomPaint(
-            painter: BatikPainter(opacity: opacity),
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: AppTheme.oceanGradient,
+            ),
+            child: CustomPaint(
+              painter: BatikPainter(opacity: opacity),
+            ),
           ),
         ),
         child,
