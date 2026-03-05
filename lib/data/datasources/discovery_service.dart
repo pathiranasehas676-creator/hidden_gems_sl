@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import '../../core/config/app_config.dart';
 import 'user_preference_service.dart';
+import '../../core/utils/secure_logger.dart';
+import '../../core/config/app_config.dart';
 
 class DiscoveryPlace {
   final String id;
@@ -88,8 +89,27 @@ class DiscoveryService {
     double? userLng,
     String? filterCategory,
   }) async {
-    final String response = await rootBundle.loadString('assets/places.json');
-    final List<dynamic> data = json.decode(response);
+    List<dynamic> data = [];
+    
+    try {
+      // 1. Try fetching from the Real-time API
+      final response = await http.get(
+        Uri.parse('${AppConfig.baseUrl}/discovery/places'),
+        headers: {'X-TripMe-Key': AppConfig.tripMeApiKey},
+      ).timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        data = json.decode(response.body);
+        SecureLogger.info("Discovery data fetched from Real-time API.");
+      } else {
+        throw Exception("API returned ${response.statusCode}");
+      }
+    } catch (e) {
+      // 2. Fallback to local assets if API fails
+      SecureLogger.error("API fetch failed, falling back to local assets", e);
+      final String localResponse = await rootBundle.loadString('assets/places.json');
+      data = json.decode(localResponse);
+    }
     
     List<DiscoveryPlace> places = data.map((json) => DiscoveryPlace.fromJson(json)).toList();
 
@@ -152,11 +172,11 @@ class DiscoveryService {
         
         return resultPlaces.isEmpty ? topNearest.take(3).toList() : resultPlaces;
       } else {
-        print("Backend returned \${response.statusCode}: \${response.body}");
+        SecureLogger.error("Backend returned \${response.statusCode}", response.body);
         return topNearest.take(3).toList();
       }
     } catch (e) {
-      print("Error fetching AI recommendations from Proxy: \$e");
+      SecureLogger.error("Error fetching AI recommendations from Proxy", e);
       return topNearest.take(3).toList();
     }
   }

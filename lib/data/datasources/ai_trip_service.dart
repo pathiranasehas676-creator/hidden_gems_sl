@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import '../models/trip_plan_model.dart';
 import '../datasources/user_preference_service.dart';
 import '../../core/config/app_config.dart';
+import 'live_events_service.dart';
+import 'dynamic_content_service.dart';
 
 class AiTripService {
   static String get _baseUrl => AppConfig.baseUrl;
@@ -28,6 +30,9 @@ class AiTripService {
   }) async {
     final url = Uri.parse("$_baseUrl/trip/plan");
     final userProfile = UserPreferenceService.getProfile();
+    
+    // 1. Fetch dynamic events for real-time AI grounding
+    final dynamicEvents = await DynamicContentService.fetchEvents();
 
     final body = {
       "origin": origin,
@@ -44,7 +49,14 @@ class AiTripService {
       "must_include": mustInclude,
       "avoid": avoid,
       "language_code": userProfile.languageCode ?? "en",
-      "user_context": userProfile.toJson(),
+      "user_context": {
+        ...userProfile.toJson(),
+        "live_cultural_events": LiveEventsService.getEventsForDates(
+          startDate, 
+          days, 
+          dynamicEvents: dynamicEvents
+        ),
+      },
     };
 
     int retryCount = 0;

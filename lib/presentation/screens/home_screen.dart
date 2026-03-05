@@ -9,12 +9,14 @@ import '../../core/theme/app_theme.dart';
 import '../../data/datasources/trip_cache_service.dart';
 import '../widgets/batik_background.dart';
 import '../widgets/dynamic_light_wrapper.dart';
+import '../widgets/custom_buttons.dart';
 import 'scanner_screen.dart';
 import 'saved_plans_screen.dart';
 import 'trip_form_screen.dart';
 import 'discovery_screen.dart';
 import 'profile_screen.dart';
 import '../admin/admin_shell.dart';
+import '../../data/datasources/live_events_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isOffline;
@@ -26,6 +28,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0; // For bottom navigation
+  
+  List<Map<String, dynamic>> _todayEvents = [];
+  bool _showEventBanner = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkTodayEvents();
+  }
+
+  void _checkTodayEvents() {
+    final events = LiveEventsService.getTodayEvents();
+    if (events.isNotEmpty && mounted) {
+      setState(() {
+        _todayEvents = events;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +76,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           children: [
                             _journalUnfold(child: _buildWelcomeCard()),
+                            const SizedBox(height: 24),
+                            OchreButton(
+                              label: "Plan New Trip",
+                              icon: Icons.auto_awesome,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const TripFormScreen()),
+                                );
+                              },
+                            ),
                             const SizedBox(height: 32),
+                            if (_todayEvents.isNotEmpty && _showEventBanner) ...[
+                               _buildTodayEventBanner(),
+                               const SizedBox(height: 24),
+                            ],
                             if (isOffline) ...[
                               _buildSectionHeader("Local Gems (Offline)"),
                               const SizedBox(height: 16),
@@ -105,6 +140,80 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.auto_awesome, color: AppTheme.primaryBlue),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+  Widget _buildTodayEventBanner() {
+    final event = _todayEvents.first;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: AppTheme.glassDecoration(opacity: 0.15, blur: 20).copyWith(
+        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.5), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Stack(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentOchre.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.celebration, color: AppTheme.accentOchre, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Today in Sri Lanka 🇱🇰",
+                      style: GoogleFonts.outfit(
+                        color: AppTheme.accentOchre,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      event['name'] ?? "Special Event",
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    if (event['description'] != null)
+                      Text(
+                        event['description'],
+                        style: GoogleFonts.inter(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            top: -10,
+            right: -10,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white54, size: 18),
+              onPressed: () {
+                setState(() => _showEventBanner = false);
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -161,8 +270,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     letterSpacing: 1,
                   ),
                   children: [
-                    const TextSpan(text: "TripMe", style: TextStyle(color: Colors.white)),
-                    const TextSpan(text: ".ai", style: TextStyle(color: AppTheme.accentOchre)),
+                    const TextSpan(text: "AdvanceTravel", style: TextStyle(color: Colors.white)),
+                    const TextSpan(text: ".me", style: TextStyle(color: AppTheme.sigiriyaOchre)),
                   ],
                 ),
               ),

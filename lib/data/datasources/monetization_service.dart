@@ -7,7 +7,6 @@ class MonetizationService {
   factory MonetizationService() => _instance;
   MonetizationService._internal();
 
-  BannerAd? _bannerAd;
   InterstitialAd? _interstitialAd;
   RewardedAd? _rewardedAd;
 

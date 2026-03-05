@@ -51,8 +51,8 @@ class PremiumService extends ChangeNotifier {
     final bool available = await _iap.isAvailable();
     if (!available) return;
 
-    const Set<String> _kIds = <String>{premiumId};
-    final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
+    const Set<String> kIds = <String>{premiumId};
+    final ProductDetailsResponse response = await _iap.queryProductDetails(kIds);
 
     if (response.notFoundIDs.isNotEmpty) {
       // Handle missing products

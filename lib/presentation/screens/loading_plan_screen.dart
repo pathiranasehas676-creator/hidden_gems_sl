@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/ai_trip_service.dart';
 import '../../data/datasources/trip_cache_service.dart';
 import '../../data/models/trip_plan_model.dart';
 import '../widgets/batik_background.dart';
-import '../widgets/dynamic_light_wrapper.dart';
 import '../widgets/golden_tracer_indicator.dart';
 import 'results_screen.dart';
 
@@ -92,6 +90,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
 
   @override
   void dispose() {
+    _mapController.dispose();
     _pulseController.dispose();
     super.dispose();
   }
@@ -194,7 +193,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
               center: Alignment.center,
               radius: 1.5,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.8),
+                AppTheme.primaryBlue.withValues(alpha: 0.8),
                 AppTheme.primaryBlue,
               ],
             ),
@@ -227,7 +226,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
                   return CustomPaint(
                     painter: JourneyPathPainter(
                       progress: _mapController.value,
-                      color: AppTheme.accentOchre.withOpacity(0.2),
+                      color: AppTheme.accentOchre.withValues(alpha: 0.2),
                     ),
                   );
                 },
@@ -242,11 +241,11 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppTheme.accentOchre.withOpacity(0.05),
+                      color: AppTheme.accentOchre.withValues(alpha: 0.05),
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.accentOchre.withOpacity(0.2), width: 0.5),
+                      border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.2), width: 0.5),
                       boxShadow: [
-                        BoxShadow(color: AppTheme.accentOchre.withOpacity(0.1), blurRadius: 40, spreadRadius: 10),
+                        BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.1), blurRadius: 40, spreadRadius: 10),
                       ],
                     ),
                     child: Icon(
@@ -309,9 +308,9 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -358,13 +357,6 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
       ],
     );
   }
-
-  String _formatBudget(int n) {
-    if (n >= 1000) {
-      return "${(n / 1000).toStringAsFixed(0)}K";
-    }
-    return n.toString();
-  }
 }
 
 /// 🎨 Custom JourneyPainter for the premium loading effect
@@ -395,7 +387,7 @@ class JourneyPathPainter extends CustomPainter {
     path.close();
 
     // Draw background path
-    canvas.drawPath(path, paint..color = color.withOpacity(0.1));
+    canvas.drawPath(path, paint..color = color.withValues(alpha: 0.1));
 
     // Draw animated progress path
     final pathMetrics = path.computeMetrics().first;
@@ -406,7 +398,7 @@ class JourneyPathPainter extends CustomPainter {
     final pos = pathMetrics.getTangentForOffset(pathMetrics.length * progress)?.position;
     if (pos != null) {
       canvas.drawCircle(pos, 6, dotPaint);
-      canvas.drawCircle(pos, 12, dotPaint..color = AppTheme.accentOchre.withOpacity(0.3));
+      canvas.drawCircle(pos, 12, dotPaint..color = AppTheme.accentOchre.withValues(alpha: 0.3));
     }
   }
 

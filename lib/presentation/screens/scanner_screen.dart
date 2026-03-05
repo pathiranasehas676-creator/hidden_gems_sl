@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/premium_service.dart';
+import '../widgets/custom_buttons.dart';
+import '../widgets/batik_background.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
@@ -35,7 +37,7 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
 
     _controller = CameraController(
       cameras.first,
-      ResolutionPreset.medium,
+      ResolutionPreset.high,
       enableAudio: false,
     );
 
@@ -58,15 +60,10 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final CameraController? cameraController = _controller;
-
-    // App state changed before we got the chance to initialize.
-    if (cameraController == null || !cameraController.value.isInitialized) {
-      return;
-    }
+    if (_controller == null || !_controller!.value.isInitialized) return;
 
     if (state == AppLifecycleState.inactive) {
-      cameraController.dispose();
+      _controller?.dispose();
     } else if (state == AppLifecycleState.resumed) {
       _initCamera();
     }
@@ -83,10 +80,12 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
     // Simulate "Oracle" high-fidelity processing
     await Future.delayed(const Duration(seconds: 3));
 
-    setState(() {
-      _isScanning = false;
-      _result = "Sigiriya Rock Fortress Identified.\n\nBuilt by King Kasyapa (477–495 CE), Sigiriya is a UNESCO World Heritage site known as the 'Lion Rock'. Highlights include the mirror wall, ancient frescoes, and the symmetrical water gardens at the base.";
-    });
+    if (mounted) {
+      setState(() {
+        _isScanning = false;
+        _result = "Sigiriya Rock Fortress Identified.\n\nBuilt by King Kasyapa (477–495 CE), Sigiriya is a UNESCO World Heritage site known as the 'Lion Rock'. Highlights include the mirror wall, ancient frescoes, and the symmetrical water gardens at the base.";
+      });
+    }
   }
 
   @override
@@ -95,107 +94,125 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
 
     return Scaffold(
       backgroundColor: AppTheme.primaryBlue,
-      appBar: AppBar(
-        title: Text("Oracle Vision", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
+      body: BatikBackground(
+        child: Stack(
           children: [
-            if (!isPremium)
-              _buildPremiumGateToast(),
-            const SizedBox(height: 32),
-            Expanded(
-              child: Center(
+            // Full Screen Camera or Placeholder
+            Positioned.fill(
+              child: _isInit && _controller != null
+                ? CameraPreview(_controller!)
+                : Container(
+                    color: AppTheme.primaryBlue,
+                    child: Center(
+                      child: Icon(Icons.photo_camera_outlined, color: Colors.white.withValues(alpha: 0.1), size: 120),
+                    ),
+                  ),
+            ),
+            
+            // Scrim for readability
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.7),
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.8),
+                    ],
+                    stops: const [0.0, 0.4, 1.0],
+                  ),
+                ),
+              ),
+            ),
+
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildViewfinder(),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        Text(
+                          "ORACLE VISION",
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 4,
+                            fontSize: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 48), // Spacer
+                      ],
+                    ),
+                    const Spacer(),
+                    if (!isPremium) _buildPremiumGate(),
+                    if (isPremium && _result != null) _buildResultCard(),
+                    const SizedBox(height: 48),
+                    if (isPremium)
+                      OchreButton(
+                        label: _isScanning ? "PROCESSING..." : "SCAN LANDMARK",
+                        icon: Icons.filter_center_focus_rounded,
+                        isLoading: _isScanning,
+                        onPressed: _startScan,
+                      ),
                     const SizedBox(height: 40),
-                    if (_result == null)
-                      Text(
-                        "Point your camera at any\nSri Lankan Landmark",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(color: Colors.white70, fontSize: 18),
-                      )
-                    else
-                      _buildResultCard(),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            _buildScanButton(isPremium),
+            
+            // Scanner Animation
+            if (_isScanning) 
+              Center(
+                child: Container(
+                  width: double.infinity,
+                  height: 300,
+                  margin: const EdgeInsets.symmetric(horizontal: 32),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.5), width: 2),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: _ScanningOverlay(),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPremiumGateToast() {
+  Widget _buildPremiumGate() {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-      child: Row(
+      padding: const EdgeInsets.all(28),
+      decoration: AppTheme.glassDecoration(opacity: 0.2),
+      child: Column(
         children: [
-          const Icon(Icons.lock, color: Colors.redAccent, size: 16),
-          const SizedBox(width: 12),
-          Expanded(child: Text("Landmark Scanner is a Premium Feature.", style: GoogleFonts.inter(color: Colors.redAccent, fontSize: 12))),
+          const Icon(Icons.lock_person_outlined, color: AppTheme.accentOchre, size: 48),
+          const SizedBox(height: 24),
+          Text(
+            "Vision Reserved",
+            style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            "Unlock landmark identification, historical deep-dives, and AR-guided tours with TripMe Luxury.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white70, height: 1.5, fontSize: 13),
+          ),
+          const SizedBox(height: 32),
+          OchreButton(
+            label: "Explore Premium",
+            onPressed: () => Provider.of<PremiumService>(context, listen: false).buyPremium(),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildViewfinder() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          width: 280,
-          height: 280,
-          decoration: BoxDecoration(
-            border: Border.all(color: AppTheme.accentOchre.withOpacity(0.3), width: 2),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(28),
-            child: _isInit && _controller != null
-              ? AspectRatio(
-                  aspectRatio: 1,
-                  child: CameraPreview(_controller!),
-                )
-              : Center(
-                  child: Icon(Icons.photo_camera_outlined, color: Colors.white.withOpacity(0.1), size: 100),
-                ),
-          ),
-        ),
-        if (_isScanning) _ScanningOverlay(),
-      ],
-    );
-  }
-
-  Widget _buildScanButton(bool isPremium) {
-    return SizedBox(
-      width: double.infinity,
-      height: 60,
-      child: ElevatedButton(
-        onPressed: (isPremium && !_isScanning) ? _startScan : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.accentOchre,
-          foregroundColor: AppTheme.primaryBlue,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          disabledBackgroundColor: Colors.white10,
-        ),
-        child: Text(
-          _isScanning ? "IDENTIFYING..." : "SCAN LANDMARK",
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, letterSpacing: 1.5),
-        ),
       ),
     );
   }
@@ -203,10 +220,8 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
   Widget _buildResultCard() {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.accentOchre.withOpacity(0.2)),
+      decoration: AppTheme.glassDecoration(opacity: 0.2).copyWith(
+        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,12 +229,23 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
           Row(
             children: [
               const Icon(Icons.verified, color: AppTheme.accentOchre, size: 20),
-              const SizedBox(width: 8),
-              Text("ORACLE IDENTIFIED", style: GoogleFonts.outfit(color: AppTheme.accentOchre, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 2)),
+              const SizedBox(width: 12),
+              Text(
+                "ORACLE IDENTIFIED",
+                style: GoogleFonts.outfit(
+                  color: AppTheme.accentOchre,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  letterSpacing: 2,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          Text(_result!, style: GoogleFonts.inter(color: Colors.white, height: 1.5)),
+          Text(
+            _result!,
+            style: GoogleFonts.inter(color: Colors.white, height: 1.6, fontSize: 14),
+          ),
         ],
       ),
     );
@@ -251,14 +277,27 @@ class _ScanningOverlayState extends State<_ScanningOverlay> with SingleTickerPro
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return Container(
-          width: 280,
-          height: 2,
-          margin: EdgeInsets.only(top: _controller.value * 280),
-          decoration: BoxDecoration(
-            color: AppTheme.accentOchre,
-            boxShadow: [BoxShadow(color: AppTheme.accentOchre.withOpacity(0.5), blurRadius: 10, spreadRadius: 2)],
-          ),
+        return Stack(
+          children: [
+            Positioned(
+              top: _controller.value * 300,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 2,
+                decoration: BoxDecoration(
+                  color: AppTheme.accentOchre,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.accentOchre.withValues(alpha: 0.6),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

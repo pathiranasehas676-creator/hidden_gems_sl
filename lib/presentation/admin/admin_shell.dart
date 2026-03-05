@@ -55,7 +55,7 @@ class _AdminShellState extends State<AdminShell> {
                   child: Container(
                     width: 280,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A).withOpacity(0.6),
+                      color: const Color(0xFF0F172A).withValues(alpha: 0.6),
                       border: const Border(right: BorderSide(color: Colors.white10)),
                     ),
                     child: _buildSidebar(),
@@ -72,7 +72,7 @@ class _AdminShellState extends State<AdminShell> {
                     child: ClipRRect(
                       borderRadius: const BorderRadius.only(topLeft: Radius.circular(30)),
                       child: Container(
-                        color: AppTheme.silkPearl.withOpacity(0.015),
+                        color: AppTheme.silkPearl.withValues(alpha: 0.015),
                         child: IndexedStack(
                           index: _selectedIndex,
                           children: _modules,
@@ -97,7 +97,7 @@ class _AdminShellState extends State<AdminShell> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFF0F172A).withOpacity(0.5),
+            color: const Color(0xFF0F172A).withValues(alpha: 0.5),
             border: const Border(bottom: BorderSide(color: Colors.white10)),
           ),
           child: Row(
@@ -105,11 +105,11 @@ class _AdminShellState extends State<AdminShell> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentOchre.withOpacity(0.1),
+                  color: AppTheme.accentOchre.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppTheme.accentOchre.withOpacity(0.3)),
+                  border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
                   boxShadow: [
-                    BoxShadow(color: AppTheme.accentOchre.withOpacity(0.2), blurRadius: 10, spreadRadius: 1)
+                    BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.2), blurRadius: 10, spreadRadius: 1)
                   ],
                 ),
                 child: const Icon(Icons.shield_outlined, color: AppTheme.accentOchre, size: 20),
@@ -148,12 +148,12 @@ class _AdminShellState extends State<AdminShell> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             blurRadius: 8,
             spreadRadius: 1,
           )
@@ -228,7 +228,7 @@ class _AdminShellState extends State<AdminShell> {
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
-                  colors: [AppTheme.accentOchre.withOpacity(0.2), Colors.transparent],
+                  colors: [AppTheme.accentOchre.withValues(alpha: 0.2), Colors.transparent],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 )

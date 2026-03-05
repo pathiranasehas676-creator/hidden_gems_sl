@@ -1,9 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 import '../../core/theme/app_theme.dart';
@@ -213,7 +211,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 decoration: AppTheme.glassDecoration(),
                 child: Row(
                   children: [
-                    Icon(Icons.auto_awesome, color: AppTheme.accentOchre.withOpacity(0.7), size: 20),
+                    Icon(Icons.auto_awesome, color: AppTheme.accentOchre.withValues(alpha: 0.7), size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: TextField(
@@ -307,9 +305,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: AppTheme.softShadow,
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                 ),
                 child: Icon(Icons.search_off, size: 40, color: Colors.grey.shade400),
               ),

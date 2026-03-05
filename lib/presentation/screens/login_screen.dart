@@ -98,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 center: Alignment.center,
                 radius: 1.5,
                 colors: [
-                  AppTheme.primaryBlue.withOpacity(0.8),
+                  AppTheme.primaryBlue.withValues(alpha: 0.8),
                   AppTheme.primaryBlue,
                 ],
               ),
@@ -113,12 +113,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppTheme.accentOchre.withOpacity(0.1),
+                      color: AppTheme.accentOchre.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.accentOchre.withOpacity(0.2)),
+                      border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.2)),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.accentOchre.withOpacity(0.2),
+                          color: AppTheme.accentOchre.withValues(alpha: 0.2),
                           blurRadius: 40,
                           spreadRadius: 10,
                         )
@@ -146,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: AppTheme.accentOchre,
                             shadows: [
                               Shadow(
-                                color: AppTheme.accentOchre.withOpacity(0.5),
+                                color: AppTheme.accentOchre.withValues(alpha: 0.5),
                                 blurRadius: 10,
                               )
                             ]
@@ -233,12 +233,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 24),
                   Row(
                     children: [
-                      Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                      Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.2))),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: Text("OR", style: TextStyle(color: Colors.white24, fontSize: 12)),
                       ),
-                      Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                      Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.2))),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -249,7 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: OutlinedButton.icon(
                       onPressed: _isLoading ? null : _handleGoogleSignIn,
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                        side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -290,7 +290,7 @@ class _LoginScreenState extends State<LoginScreen> {
         prefixIcon: Icon(icon, color: AppTheme.accentOchre, size: 20),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -298,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         errorStyle: const TextStyle(color: Colors.redAccent),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
+        fillColor: Colors.white.withValues(alpha: 0.05),
       ),
     );
   }

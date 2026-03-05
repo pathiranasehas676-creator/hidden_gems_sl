@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
+import 'manage_places_screen.dart';
+import 'manage_events_screen.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -64,15 +66,42 @@ class AdminDashboardScreen extends StatelessWidget {
           
           const SizedBox(height: 40),
           
+          // Management Sections
+          Text("DATABASE MANAGEMENT", style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white54, letterSpacing: 1.5)),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionCard(
+                  title: "Hidden Gems",
+                  subtitle: "Manage places & gems",
+                  icon: Icons.map_outlined,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManagePlacesScreen())),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _QuickActionCard(
+                  title: "Events & Festivals",
+                  subtitle: "Update live calendar",
+                  icon: Icons.event_note_outlined,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageEventsScreen())),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 40),
+          
           // Secondary level
           if (isMobile)
             Column(
               children: [
                 _DashboardPanel(
                   title: "API Performance (Latency ms)",
-                  child: Container(
+                  child: const SizedBox(
                     height: 300,
-                    child: const Center(
+                    child: Center(
                       child: Text("Chart Placeholder: Latency Graph", style: TextStyle(color: Colors.white24)),
                     ),
                   ),
@@ -100,9 +129,9 @@ class AdminDashboardScreen extends StatelessWidget {
                   flex: 2,
                   child: _DashboardPanel(
                     title: "API Performance (Latency ms)",
-                    child: Container(
+                    child: const SizedBox(
                       height: 300,
-                      child: const Center(
+                      child: Center(
                         child: Text("Chart Placeholder: Latency Graph", style: TextStyle(color: Colors.white24)),
                       ),
                     ),
@@ -152,7 +181,7 @@ class AdminDashboardScreen extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: AppTheme.accentOchre.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 8)),
+          BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8)),
         ],
       ),
       child: ElevatedButton.icon(
@@ -200,7 +229,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   gradient: const LinearGradient(colors: [AppTheme.accentOchre, Colors.orangeAccent]),
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
-                    BoxShadow(color: AppTheme.accentOchre.withOpacity(0.5), blurRadius: 6, spreadRadius: 0)
+                    BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.5), blurRadius: 6, spreadRadius: 0)
                   ]
                 ),
               ),
@@ -227,7 +256,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B).withOpacity(0.5),
+        color: const Color(0xFF1E293B).withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white10),
         boxShadow: AppTheme.premiumShadow,
@@ -235,7 +264,7 @@ class _StatCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withOpacity(0.05),
+            Colors.white.withValues(alpha: 0.05),
             Colors.transparent,
           ],
         )
@@ -248,9 +277,9 @@ class _StatCard extends StatelessWidget {
                Container(
                  padding: const EdgeInsets.all(10),
                  decoration: BoxDecoration(
-                   color: color.withOpacity(0.1),
+                   color: color.withValues(alpha: 0.1),
                    shape: BoxShape.circle,
-                   boxShadow: [BoxShadow(color: color.withOpacity(0.2), blurRadius: 12, spreadRadius: 2)],
+                   boxShadow: [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 12, spreadRadius: 2)],
                  ),
                  child: Icon(icon, color: color, size: 24),
                ),
@@ -258,9 +287,9 @@ class _StatCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isPositive ? Colors.greenAccent : Colors.redAccent).withOpacity(0.15),
+                  color: (isPositive ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: (isPositive ? Colors.greenAccent : Colors.redAccent).withOpacity(0.3)),
+                  border: Border.all(color: (isPositive ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -293,6 +322,55 @@ class _StatCard extends StatelessWidget {
   }
 }
 
+class _QuickActionCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _QuickActionCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.accentOchre.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_forward_ios, size: 14, color: AppTheme.accentOchre),
+            ),
+            const SizedBox(height: 16),
+            Icon(icon, color: Colors.white, size: 30),
+            const SizedBox(height: 12),
+            Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 4),
+            Text(subtitle, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _DashboardPanel extends StatelessWidget {
   final String title;
   final Widget child;
@@ -307,11 +385,11 @@ class _DashboardPanel extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E293B).withOpacity(0.5),
+            color: const Color(0xFF1E293B).withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: Colors.white10),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 10))
+              BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 10))
             ],
           ),
           child: Column(

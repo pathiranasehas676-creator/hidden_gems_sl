@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
+import '../../data/datasources/admin_api_service.dart';
 
 class KBManagerScreen extends StatefulWidget {
   const KBManagerScreen({super.key});
@@ -10,12 +11,27 @@ class KBManagerScreen extends StatefulWidget {
 }
 
 class _KBManagerScreenState extends State<KBManagerScreen> {
+  bool _isIndexing = false;
   final List<Map<String, dynamic>> _destinations = [
     {"name": "Ella", "category": "Nature", "trust": 0.95, "lastSync": "2 hrs ago"},
     {"name": "Galle", "category": "Cultural", "trust": 0.92, "lastSync": "5 hrs ago"},
     {"name": "Kandy", "category": "Religious", "trust": 0.88, "lastSync": "1 day ago"},
     {"name": "Sigiriya", "category": "History", "trust": 0.98, "lastSync": "10 mins ago"},
   ];
+
+  Future<void> _handleReindex() async {
+    setState(() => _isIndexing = true);
+    final success = await AdminApiService.reindexKB();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success ? "KB Re-indexing started!" : "Re-indexing failed."),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+      setState(() => _isIndexing = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +59,9 @@ class _KBManagerScreenState extends State<KBManagerScreen> {
               ),
               const SizedBox(width: 16),
               OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.sync, size: 18),
-                label: const Text("Re-index Vector DB"),
+                onPressed: _isIndexing ? null : _handleReindex,
+                icon: _isIndexing ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accentOchre)) : const Icon(Icons.sync, size: 18),
+                label: Text(_isIndexing ? "Indexing..." : "Re-index Vector DB"),
                 style: OutlinedButton.styleFrom(side: const BorderSide(color: AppTheme.accentOchre), foregroundColor: AppTheme.accentOchre),
               ),
             ],
@@ -93,7 +109,7 @@ class _KBManagerScreenState extends State<KBManagerScreen> {
     Color color = score > 0.9 ? Colors.greenAccent : (score > 0.8 ? AppTheme.accentOchre : Colors.orangeAccent);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.3))),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
       child: Text("${(score * 100).toInt()}%", style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
     );
   }

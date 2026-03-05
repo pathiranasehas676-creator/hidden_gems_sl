@@ -2,44 +2,53 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // --- Serendib Oracle Luxury Palette ---
-  static const Color primaryBlue = Color(0xFF091F2C); // Deep Ocean Blue
-  static const Color accentOchre = Color(0xFFD4AF37); // Sigiriya Gold
-  static const Color silkPearl = Color(0xFFF8F6F1);   // Silk Pearl
-  static const Color softBlue = Color(0xFFD9E9F2);
-  static const Color successGreen = Color(0xFF1B4332); // Tropical Jungle Green
-  static const Color warningOrange = Color(0xFFE2725B); // Sunset Coral
-  static const Color backgroundGray = Color(0xFFF1F0EA);
+  // --- AdvanceTravel.Me Premium Palette ---
+  static const Color ceylonBlue = Color(0xFF003B5C); // Deep Ceylon Blue
+  static const Color sigiriyaOchre = Color(0xFFC19A6B); // Sigiriya Ochre
+  
+  static const Color surfaceWhite = Color(0xFFFAFAFA);
+  static const Color backgroundGray = Color(0xFFF2F3F5);
+  static const Color borderGray = Color(0xFFE0E0E0);
+  static const Color textPrimary = Color(0xFF1A1A2E);
+  static const Color textSecondary = Color(0xFF6B7280);
+  static const Color silkPearl = Color(0xFFF8F9FA); // Background Accent
+  
+  // Semantic
+  static const Color successGreen = Color(0xFF2E7D32);
+  static const Color warningAmber = Color(0xFFF59E0B);
+  static const Color errorRed = Color(0xFFDC2626);
 
-  // --- Luxury Concierge Shadows ---
+  // Dark mode surfaces
+  static const Color darkSurface = Color(0xFF1A1D1C);
+  static const Color darkCard = Color(0xFF262B2A);
+  static const Color darkBorder = Color(0xFF3A3F3E);
+
+  // --- Aliases for compatibility ---
+  static const Color primaryBlue = ceylonBlue;
+  static const Color accentOchre = sigiriyaOchre;
+
+  // --- Luxury Shadows ---
   static List<BoxShadow> get premiumShadow => [
         BoxShadow(
-          color: primaryBlue.withOpacity(0.05),
-          blurRadius: 30,
-          spreadRadius: 0,
-          offset: const Offset(0, 10),
-        ),
-      ];
-
-  static List<BoxShadow> get softShadow => [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.03),
+          color: Colors.black.withValues(alpha: 0.10),
           blurRadius: 20,
           offset: const Offset(0, 8),
         ),
       ];
 
+  static List<BoxShadow> get softShadow => [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.06),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ];
+
   // --- Premium Gradients ---
   static const LinearGradient oceanGradient = LinearGradient(
-    colors: [primaryBlue, Color(0xFF0F2B3D)],
+    colors: [ceylonBlue, Color(0xFF002844)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-  );
-
-  static const LinearGradient jungleGradient = LinearGradient(
-    colors: [successGreen, Color(0xFF143324)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
   );
 
   // --- Glassmorphism Utils ---
@@ -51,7 +60,7 @@ class AppTheme {
   }) {
     return BoxDecoration(
       color: (color ?? Colors.white).withValues(alpha: opacity),
-      borderRadius: radius ?? BorderRadius.circular(24),
+      borderRadius: radius ?? BorderRadius.circular(16),
       border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
       boxShadow: softShadow,
     );
@@ -61,96 +70,85 @@ class AppTheme {
   static Color getDynamicOverlay() {
     final hour = DateTime.now().hour;
     if (hour >= 18 || hour < 6) {
-      return Colors.black.withValues(alpha: 0.2); // Night mode tint
+      return Colors.black.withValues(alpha: 0.2);
     }
     return Colors.transparent;
   }
 
-  // --- Premium Component Styles ---
   static TextStyle get budgetEmphasis => GoogleFonts.outfit(
     fontSize: 24,
     fontWeight: FontWeight.w900,
-    color: accentOchre,
+    color: sigiriyaOchre,
     letterSpacing: 1,
   );
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: primaryBlue, // Base background is now Ocean Blue
+    scaffoldBackgroundColor: surfaceWhite,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryBlue,
-      primary: primaryBlue,
-      secondary: accentOchre,
-      surface: const Color(0xFF0F2B3D), // Slightly lighter blue for surfaces
+      seedColor: ceylonBlue,
+      primary: ceylonBlue,
+      secondary: sigiriyaOchre,
+      surface: surfaceWhite,
       onPrimary: Colors.white,
-      onSurface: Colors.white,
-      error: warningOrange,
+      onSurface: textPrimary,
+      error: errorRed,
     ),
-    // Premium Typography
     textTheme: GoogleFonts.outfitTextTheme().copyWith(
-      bodyLarge: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9), fontSize: 16),
-      bodyMedium: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
-      displayLarge: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 32),
-      displayMedium: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 24),
-      titleLarge: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 18),
+      displayLarge: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w700, color: textPrimary),
+      displayMedium: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w600, color: textPrimary),
+      headlineMedium: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w600, color: textPrimary),
+      titleLarge: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w600, color: textPrimary),
+      bodyLarge: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w400, color: textPrimary),
+      bodyMedium: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w400, color: textSecondary),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: Colors.transparent,
-      foregroundColor: Colors.white,
+      backgroundColor: surfaceWhite,
+      foregroundColor: textPrimary,
       elevation: 0,
       centerTitle: true,
-      iconTheme: const IconThemeData(color: Colors.white),
       titleTextStyle: GoogleFonts.outfit(
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: Colors.white,
+        color: textPrimary,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: accentOchre, // Buttons pop with Gold
-        foregroundColor: primaryBlue,
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 12,
-        shadowColor: accentOchre.withValues(alpha: 0.3),
-        textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1),
+        backgroundColor: ceylonBlue,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
       ),
     ),
     cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: borderGray),
       ),
-      color: Colors.white.withValues(alpha: 0.05), // Glassy cards
-    ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: primaryBlue,
-      selectedItemColor: accentOchre,
-      unselectedItemColor: Colors.white54,
-      elevation: 0,
-      type: BottomNavigationBarType.fixed,
+      color: Colors.white,
     ),
   );
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: const Color(0xFF020810), // Ultra-deep space
+    scaffoldBackgroundColor: darkSurface,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryBlue,
+      seedColor: ceylonBlue,
       brightness: Brightness.dark,
-      primary: primaryBlue,
-      secondary: accentOchre,
-      surface: const Color(0xFF030C16),
+      primary: ceylonBlue,
+      secondary: sigiriyaOchre,
+      surface: darkSurface,
       onSurface: Colors.white,
     ),
     textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme).copyWith(
-      bodyLarge: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9)),
-      bodyMedium: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.8)),
-      displayLarge: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white),
-      titleLarge: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Colors.white),
+      displayLarge: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+      titleLarge: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
+      bodyLarge: GoogleFonts.inter(fontSize: 16, color: Colors.white.withValues(alpha: 0.9)),
+      bodyMedium: GoogleFonts.inter(fontSize: 14, color: Colors.white.withValues(alpha: 0.7)),
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
@@ -164,19 +162,21 @@ class AppTheme {
     cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: darkBorder),
       ),
-      color: Colors.white.withValues(alpha: 0.03),
+      color: darkCard,
     ),
   );
 
   static ButtonStyle primaryButtonStyle(BuildContext context) {
     return ElevatedButton.styleFrom(
-      backgroundColor: primaryBlue,
+      backgroundColor: ceylonBlue,
       foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold),
     );
   }
 }
+

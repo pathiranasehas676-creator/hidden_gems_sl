@@ -1,8 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 class TripPlan {
-  /// Bump this whenever the stored JSON schema changes.
-  static const int currentSchemaVersion = 4;
+  static const int currentSchemaVersion = 5;
 
   final int schemaVersion;
   final TripSummary tripSummary;
@@ -14,6 +13,7 @@ class TripPlan {
   final int verifiedScore;
   final List<String> kbCitations;
   final DateTime? cachedAt;
+  String? offlineMapPath;
 
   TripPlan({
     this.schemaVersion = TripPlan.currentSchemaVersion,
@@ -26,6 +26,7 @@ class TripPlan {
     required this.verifiedScore,
     required this.kbCitations,
     this.cachedAt,
+    this.offlineMapPath,
   });
 
   // Convenience getters for backward compatibility
@@ -53,6 +54,7 @@ class TripPlan {
           ? DateTime.tryParse(json['cached_at'])
           : DateTime.now(),
       schemaVersion: json['schema_version'] as int? ?? 1,
+      offlineMapPath: json['offline_map_path'] as String?,
     );
   }
 
@@ -68,6 +70,7 @@ class TripPlan {
       'kb_citations': kbCitations,
       'cached_at': cachedAt?.toIso8601String(),
       'schema_version': schemaVersion,
+      'offline_map_path': offlineMapPath,
     };
   }
 }

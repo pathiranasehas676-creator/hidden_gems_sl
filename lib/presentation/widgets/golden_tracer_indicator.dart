@@ -53,21 +53,23 @@ class _GoldenTracerIndicatorState extends State<GoldenTracerIndicator>
         final scale = 0.8 + (0.4 * (1.0 - (progress - 0.5).abs() * 2));
         final opacity = 0.4 + (0.6 * (1.0 - (progress - 0.5).abs() * 2));
         
-        return Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: AppTheme.accentOchre.withOpacity(opacity),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.accentOchre.withOpacity(opacity * 0.5),
-                blurRadius: 8,
-                spreadRadius: progress * 2,
-              )
-            ],
+        return Transform.scale(
+          scale: scale,
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: AppTheme.accentOchre.withValues(alpha: opacity),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.accentOchre.withValues(alpha: opacity * 0.5),
+                  blurRadius: 8,
+                  spreadRadius: progress * 2,
+                )
+              ],
+            ),
           ),
-          transform: Matrix4.identity()..scale(scale),
         );
       },
     );

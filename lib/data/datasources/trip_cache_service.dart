@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/trip_plan_model.dart';
 import '../../core/utils/secure_logger.dart';
 
@@ -144,6 +146,30 @@ class TripCacheService {
     }
   }
 
+  static Future<void> updateSavedPlan(String id, TripPlan plan) async {
+    try {
+      final box = Hive.box<String>(_savedPlansBox);
+      if (box.containsKey(id)) {
+        final payload = json.encode(plan.toJson());
+        await box.put(id, payload);
+      }
+    } catch (e) {
+      SecureLogger.error('[TripCache] Update error', e);
+    }
+  }
+
+  static Future<String?> saveOfflineMap(String id, Uint8List imageBytes) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final File file = File('${dir.path}/map_$id.png');
+      await file.writeAsBytes(imageBytes);
+      return file.path;
+    } catch (e) {
+      SecureLogger.error('[TripCache] Save Offline Map error', e);
+      return null;
+    }
+  }
+
   static List<TripPlan> getAllTrips() {
     try {
       final box = Hive.box<String>(_lastPlanBox);
@@ -188,7 +214,18 @@ class TripCacheService {
 
   static Future<void> deleteSavedPlan(String id) async {
     try {
-      await Hive.box<String>(_savedPlansBox).delete(id);
+      final box = Hive.box<String>(_savedPlansBox);
+      final raw = box.get(id);
+      if (raw != null) {
+        final plan = TripPlan.fromJson(json.decode(raw));
+        if (plan.offlineMapPath != null) {
+          final file = File(plan.offlineMapPath!);
+          if (await file.exists()) {
+            await file.delete();
+          }
+        }
+      }
+      await box.delete(id);
     } catch (e) {
       SecureLogger.error('[TripCache] Delete error', e);
     }

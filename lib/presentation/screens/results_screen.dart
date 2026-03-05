@@ -16,6 +16,7 @@ import '../widgets/offline_highlights_widget.dart';
 import '../widgets/batik_background.dart';
 import '../widgets/oracle_aura_widget.dart';
 import '../widgets/dynamic_light_wrapper.dart';
+import '../widgets/custom_buttons.dart';
 import 'map_route_screen.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 import 'dart:ui';
@@ -53,7 +54,7 @@ class _ResultsScreenState extends State<ResultsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         HapticFeedback.lightImpact();
@@ -271,7 +272,8 @@ class _ResultsScreenState extends State<ResultsScreen>
                         labelStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold),
                         tabs: [
                           Tab(text: l10n.itinerary),
-                          Tab(text: l10n.style),
+                          const Tab(text: "Budget"),
+                          const Tab(text: "Map"),
                           Tab(text: l10n.planB),
                           Tab(text: l10n.tips),
                         ],
@@ -289,7 +291,8 @@ class _ResultsScreenState extends State<ResultsScreen>
                   controller: _tabController,
                   children: [
                     _buildItineraryTab(plan, l10n),
-                    _buildStyleTab(plan),
+                    _buildBudgetTab(plan),
+                    _buildMapTab(plan),
                     _buildPlanBTab(plan, isPremium),
                     _buildTipsTab(plan),
                   ],
@@ -647,101 +650,167 @@ class _ResultsScreenState extends State<ResultsScreen>
   // ═══════════════════════════════════════════════════════════════════
   // TAB 2 – ORACLE STYLE
   // ═══════════════════════════════════════════════════════════════════
-  Widget _buildStyleTab(TripPlan plan) {
+  Widget _buildBudgetTab(TripPlan plan) {
+    int totalCost = 0;
+    Map<String, int> categories = {
+      'Transport': 0,
+      'Food': 0,
+      'Attractions': 0,
+      'Hotel': 0,
+      'Other': 0,
+    };
+
+    for (var day in plan.itinerary) {
+      for (var item in day.items) {
+        totalCost += item.costLkr;
+        if (item.isTransport) {
+          categories['Transport'] = categories['Transport']! + item.costLkr;
+        } else if (item.isFood) {
+          categories['Food'] = categories['Food']! + item.costLkr;
+        } else if (item.isHotel) {
+          categories['Hotel'] = categories['Hotel']! + item.costLkr;
+        } else if (item.type == 'attraction') {
+          categories['Attractions'] = categories['Attractions']! + item.costLkr;
+        } else {
+          categories['Other'] = categories['Other']! + item.costLkr;
+        }
+      }
+    }
+    
+    final userBudget = plan.tripSummary.userBudgetLkr;
+    final progress = userBudget > 0 ? (totalCost / userBudget).clamp(0.0, 1.0) : 0.0;
+    final isOverBudget = totalCost > userBudget && userBudget > 0;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildOracleIntro(plan),
+          _buildHeroBudgetCard(totalCost, userBudget, progress, isOverBudget),
           const SizedBox(height: 24),
-          _buildStyleToggle(plan),
+          _buildSectionHeader("Expense Breakdown"),
+          const SizedBox(height: 16),
+          ...categories.entries.where((e) => e.value > 0).map((e) => _buildBudgetRow(e.key, e.value, totalCost)),
         ],
       ),
     );
   }
 
-  Widget _buildOracleIntro(TripPlan plan) {
+  Widget _buildHeroBudgetCard(int total, int userBudget, double progress, bool isOver) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: AppTheme.glassDecoration(),
+      padding: const EdgeInsets.all(24),
+      decoration: AppTheme.glassDecoration(opacity: 0.15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const CircleAvatar(
-                backgroundColor: Colors.white10,
-                child: Icon(Icons.auto_awesome, color: AppTheme.accentOchre, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Text("Oracle's Perspective", 
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+              Text("ESTIMATED TOTAL", style: GoogleFonts.inter(color: AppTheme.accentOchre, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.5)),
+              if (isOver) 
+                const Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent, size: 20),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            plan.humanText,
-            style: GoogleFonts.inter(fontSize: 14, color: Colors.white70, height: 1.6, fontStyle: FontStyle.italic),
+          const SizedBox(height: 8),
+          Text(_fmtLkr(total), style: GoogleFonts.outfit(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 12,
+              backgroundColor: Colors.white10,
+              valueColor: AlwaysStoppedAnimation<Color>(isOver ? Colors.orangeAccent : AppTheme.accentOchre),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("User Budget: ${_fmtLkr(userBudget)}", style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              Text("${(progress * 100).toInt()}% Used", style: TextStyle(color: isOver ? Colors.orangeAccent : Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStyleToggle(TripPlan plan) {
-    return DefaultTabController(
-      length: 2,
-      child: Column(
+  Widget _buildBudgetRow(String label, int amount, int total) {
+    final percent = (amount / total * 100).toInt();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: AppTheme.glassDecoration(opacity: 0.05),
+      child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TabBar(
-              indicator: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: AppTheme.softShadow,
-              ),
-              labelColor: AppTheme.primaryBlue,
-              unselectedLabelColor: Colors.grey,
-              tabs: const [
-                Tab(child: Text("Compact", style: TextStyle(fontWeight: FontWeight.bold))),
-                Tab(child: Text("Narrative", style: TextStyle(fontWeight: FontWeight.bold))),
-              ],
-            ),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(color: AppTheme.primaryBlue, shape: BoxShape.circle),
+            child: Icon(_getCategoryIcon(label), color: AppTheme.accentOchre, size: 20),
           ),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 400, // Adjust as needed
-            child: TabBarView(
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildCard(plan.styleVariants.compact, Icons.list_alt),
-                _buildCard(plan.styleVariants.narrative, Icons.auto_stories),
+                Text(label, style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
+                Text("$percent% of total", style: const TextStyle(color: Colors.white54, fontSize: 10)),
               ],
             ),
           ),
+          Text(_fmtLkr(amount), style: GoogleFonts.outfit(color: Colors.white70, fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
-  Widget _buildCard(String text, IconData icon) {
+  IconData _getCategoryIcon(String label) {
+    switch (label) {
+      case 'Transport': return Icons.directions_bus_outlined;
+      case 'Food': return Icons.restaurant_outlined;
+      case 'Hotel': return Icons.hotel_outlined;
+      case 'Attractions': return Icons.map_outlined;
+      default: return Icons.more_horiz;
+    }
+  }
+
+  Widget _buildMapTab(TripPlan plan) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: AppTheme.glassDecoration(),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: AppTheme.accentOchre.withValues(alpha: 0.5), size: 32),
-            const SizedBox(height: 16),
-            Text(text, style: GoogleFonts.inter(fontSize: 14, height: 1.6, color: Colors.white70)),
-          ],
-        ),
+      width: double.infinity,
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppTheme.accentOchre.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.map_rounded, size: 64, color: AppTheme.accentOchre),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            "Visual Tour Route",
+            style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            "Plot your entire journey across the teardrop isle. View detailed route segments and travel times.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white70, height: 1.5),
+          ),
+          const SizedBox(height: 48),
+          OchreButton(
+            label: "Open Route Map",
+            onPressed: () {
+               HapticFeedback.heavyImpact();
+               Navigator.push(context, MaterialPageRoute(builder: (_) => MapRouteScreen(plan: plan)));
+            },
+          ),
+        ],
       ),
     );
   }
@@ -1077,6 +1146,17 @@ class _ResultsScreenState extends State<ResultsScreen>
       result.add(chars[i]);
     }
     return "LKR ${result.reversed.join()}";
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.outfit(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+    );
   }
 
   _TypeInfo _typeInfo(String type) {

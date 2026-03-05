@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/trip_plan_model.dart';
+import '../../data/datasources/trip_cache_service.dart';
+import '../../core/utils/secure_logger.dart';
 
 class MapRouteScreen extends StatefulWidget {
   final TripPlan plan;
@@ -17,11 +20,65 @@ class _MapRouteScreenState extends State<MapRouteScreen> {
   late GoogleMapController _controller;
   final Set<Marker> _markers = {};
   final Set<Polyline> _polylines = {};
+  bool _isSavingMap = false;
+  bool _isOfflineMapMode = false;
 
   @override
   void initState() {
     super.initState();
     _initMarkersAndRoutes();
+    _checkOfflineStatus();
+  }
+
+  Future<void> _checkOfflineStatus() async {
+    if (widget.plan.offlineMapPath != null) {
+      if (await File(widget.plan.offlineMapPath!).exists() == false) return; // double check it exists
+      try {
+        final result = await InternetAddress.lookup('google.com');
+        if (result.isEmpty || result[0].rawAddress.isEmpty) {
+          if (mounted) setState(() => _isOfflineMapMode = true);
+        }
+      } catch (_) {
+        if (mounted) setState(() => _isOfflineMapMode = true);
+      }
+    }
+  }
+
+  Future<void> _saveOfflineMap() async {
+    if (_isSavingMap) return;
+    setState(() => _isSavingMap = true);
+    
+    try {
+      final imageBytes = await _controller.takeSnapshot();
+      if (imageBytes != null) {
+        final allSaved = TripCacheService.getSavedPlans();
+        // Fallback match using creation date or destination to find the current item
+        final match = allSaved.where((e) => e.plan.destination == widget.plan.destination && e.plan.itinerary.length == widget.plan.itinerary.length).toList();
+        
+        if (match.isNotEmpty) {
+          final id = match.first.id;
+          final path = await TripCacheService.saveOfflineMap(id, imageBytes);
+          if (path != null) {
+            widget.plan.offlineMapPath = path;
+            await TripCacheService.updateSavedPlan(id, widget.plan);
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Offline route map saved successfully!")));
+            }
+          }
+        } else {
+           if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Cannot save map. Please save the trip plan first!")));
+           }
+        }
+      }
+    } catch (e) {
+      SecureLogger.error("Failed to save map snapshot", e);
+      if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to save map: $e")));
+      }
+    } finally {
+      if (mounted) setState(() => _isSavingMap = false);
+    }
   }
 
   void _initMarkersAndRoutes() {
@@ -112,7 +169,15 @@ class _MapRouteScreenState extends State<MapRouteScreen> {
       ),
       body: Stack(
         children: [
-          GoogleMap(
+          if (_isOfflineMapMode && widget.plan.offlineMapPath != null)
+            Positioned.fill(
+              child: Image.file(
+                File(widget.plan.offlineMapPath!),
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            GoogleMap(
             initialCameraPosition: const CameraPosition(target: LatLng(7.8731, 80.7718), zoom: 7),
             onMapCreated: (controller) {
               _controller = controller;
@@ -133,7 +198,7 @@ class _MapRouteScreenState extends State<MapRouteScreen> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.95),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.95),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: AppTheme.premiumShadow,
                 border: Border.all(color: Colors.white10),
@@ -158,18 +223,28 @@ class _MapRouteScreenState extends State<MapRouteScreen> {
                       ],
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: _fitBounds,
-                    icon: const Icon(Icons.center_focus_strong, size: 18),
-                    label: const Text("FOCUS"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentOchre,
-                      foregroundColor: AppTheme.primaryBlue,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13),
+                  if (!_isOfflineMapMode) ...[
+                    IconButton(
+                      icon: _isSavingMap 
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppTheme.accentOchre, strokeWidth: 2))
+                        : const Icon(Icons.download, color: AppTheme.accentOchre),
+                      onPressed: _saveOfflineMap,
+                      tooltip: "Save Offline Map",
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: _fitBounds,
+                      icon: const Icon(Icons.center_focus_strong, size: 18),
+                      label: const Text("FOCUS"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accentOchre,
+                        foregroundColor: AppTheme.primaryBlue,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

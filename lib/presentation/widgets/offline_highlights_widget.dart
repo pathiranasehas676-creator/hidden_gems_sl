@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_theme.dart';
+
 
 /// Inline KB data for completely offline use.
 /// Mirrors the top-level structure from backend/kb_data.py.

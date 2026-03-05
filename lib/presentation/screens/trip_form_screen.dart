@@ -17,7 +17,6 @@ class _TripFormScreenState extends State<TripFormScreen> {
   int _currentStep = 0;
   final int _totalSteps = 4;
 
-  final _formKey = GlobalKey<FormState>();
   final _budgetController = TextEditingController(text: '25000');
 
   String _origin = "";
@@ -26,7 +25,6 @@ class _TripFormScreenState extends State<TripFormScreen> {
   String _groupType = "couple";
   String _pace = "balanced";
   String _style = "comfort";
-  String _transport = "any";
   final List<String> _interests = [];
 
   DateTime _startDate = DateTime.now().add(const Duration(days: 1));
@@ -131,7 +129,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     return Container(
       width: 140,
       height: 6,
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), borderRadius: BorderRadius.circular(3)),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(3)),
       child: Stack(
         children: [
           AnimatedContainer(
@@ -141,7 +139,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
               color: AppTheme.accentOchre, 
               borderRadius: BorderRadius.circular(3),
               boxShadow: [
-                BoxShadow(color: AppTheme.accentOchre.withOpacity(0.8), blurRadius: 10, spreadRadius: 1),
+                BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.8), blurRadius: 10, spreadRadius: 1),
               ],
             ),
           ),
@@ -329,7 +327,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 ),
               ),
               elevation: 0,
-              shadowColor: AppTheme.accentOchre.withOpacity(0.5),
+              shadowColor: AppTheme.accentOchre.withValues(alpha: 0.5),
             );
           }).toList(),
         ),

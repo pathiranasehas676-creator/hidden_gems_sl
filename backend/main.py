@@ -151,6 +151,32 @@ class TripRequest(BaseModel):
     rain_sensitive: bool = True
     user_context: Optional[UserContext] = None
 
+class DiscoveryPlace(BaseModel):
+    id: str
+    name: str
+    district: str
+    category: str
+    lat: float
+    lng: float
+    rating: float
+    ticketRange: str
+    roadType: str = ""
+    vehicleAccess: str = ""
+    riskTags: List[str] = []
+    parkingRange: str = ""
+    bestTime: str = ""
+    facilities: List[str] = []
+
+class TravelEvent(BaseModel):
+    name: str
+    type: str
+    date: Optional[str] = None
+    start: Optional[str] = None
+    end: Optional[str] = None
+    location: Optional[str] = "Island-wide"
+    religion: Optional[str] = None
+    description: str
+
 # ─── Intelligence Engines ─────────────────────────────────────────────────────
 
 def get_monsoon_advisory(month: int) -> str:
@@ -501,6 +527,59 @@ async def get_hallucination_logs(admin: dict = Header(None)):
 @app.post("/admin/kb/reindex")
 async def reindex_kb(admin: dict = Header(None)):
     return {"status": "success", "message": "KB re-indexing triggered."}
+
+# ─── Discovery & Events (Real-time) ──────────────────────────────────────────
+
+@app.get("/api/discovery/places")
+async def list_places(category: Optional[str] = None):
+    if db is None: return []
+    query = db.collection('places')
+    if category and category != "All":
+        query = query.where('category', '==', category)
+    places = query.limit(100).get()
+    return [p.to_dict() for p in places]
+
+@app.get("/api/discovery/events")
+async def list_events():
+    if db is None: return []
+    events = db.collection('events').limit(100).get()
+    return [e.to_dict() for e in events]
+
+@app.post("/admin/discovery/places")
+async def upsert_place(place: DiscoveryPlace, admin: dict = Header(None)):
+    if db is None: raise HTTPException(status_code=503, detail="Database unavailable")
+    db.collection('places').document(place.id).set(place.dict())
+    return {"status": "success", "id": place.id}
+
+@app.delete("/admin/discovery/places/{place_id}")
+async def delete_place(place_id: str, admin: dict = Header(None)):
+    if db is None: raise HTTPException(status_code=503, detail="Database unavailable")
+    db.collection('places').document(place_id).delete()
+    return {"status": "success"}
+
+@app.post("/admin/discovery/events")
+async def upsert_event(event: TravelEvent, admin: dict = Header(None)):
+    if db is None: raise HTTPException(status_code=503, detail="Database unavailable")
+    doc_id = event.name.lower().replace(" ", "-")
+    db.collection('events').document(doc_id).set(event.dict())
+    return {"status": "success", "id": doc_id}
+
+@app.delete("/admin/discovery/events/{event_id}")
+async def delete_event(event_id: str, admin: dict = Header(None)):
+    if db is None: raise HTTPException(status_code=503, detail="Database unavailable")
+    db.collection('events').document(event_id).delete()
+    return {"status": "success"}
+
+@app.get("/api/config/remote")
+async def get_remote_config():
+    # In production, this would be fetched from a 'configs' collection in Firestore
+    return {
+        "showBanner": False,
+        "bannerText": "Welcome to the new AdvanceTravel.me!",
+        "enableOracleVision": True,
+        "aiModel": "gemini-1.5-flash",
+        "maintenanceMode": False
+    }
 
 @app.get("/health")
 async def health():
