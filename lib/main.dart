@@ -370,12 +370,31 @@ class GlobalScreenshotWrapper extends StatefulWidget {
   final Widget child;
   const GlobalScreenshotWrapper({super.key, required this.child});
 
+  static _GlobalScreenshotWrapperState? _state;
+  
+  static void setVisible(bool visible) {
+    _state?.updateVisibility(visible);
+  }
+
   @override
   State<GlobalScreenshotWrapper> createState() => _GlobalScreenshotWrapperState();
 }
 
 class _GlobalScreenshotWrapperState extends State<GlobalScreenshotWrapper> {
   final ScreenshotService _screenshotService = ScreenshotService();
+  bool _isVisible = true;
+
+  void updateVisibility(bool visible) {
+    if (mounted && _isVisible != visible) {
+      setState(() => _isVisible = visible);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    GlobalScreenshotWrapper._state = this;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -384,35 +403,43 @@ class _GlobalScreenshotWrapperState extends State<GlobalScreenshotWrapper> {
       child: Stack(
         children: [
           widget.child,
-          Positioned(
-            right: 20,
-            bottom: 110,
-            child: SafeArea(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    _screenshotService.captureAndShare(context);
-                  },
-                  borderRadius: BorderRadius.circular(30),
-                  child: Container(
-                    width: 52,
-                    height: 52,
-                    decoration: AppTheme.glassDecoration(opacity: 0.15, blur: 25).copyWith(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.accentOchre.withOpacity(0.4), width: 1.5),
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt_outlined,
-                      color: AppTheme.accentOchre,
-                      size: 26,
+          if (_isVisible)
+            Positioned(
+              right: 20,
+              bottom: 120, // Slightly higher to clear any bottom bars
+              child: SafeArea(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _screenshotService.captureAndShare(context);
+                    },
+                    borderRadius: BorderRadius.circular(30),
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: AppTheme.glassDecoration(opacity: 0.15, blur: 25).copyWith(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.4), width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.accentOchre.withValues(alpha: 0.2),
+                            blurRadius: 15,
+                            spreadRadius: 2,
+                          )
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt_outlined,
+                        color: AppTheme.accentOchre,
+                        size: 26,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

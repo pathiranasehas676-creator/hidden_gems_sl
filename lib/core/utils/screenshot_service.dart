@@ -19,14 +19,16 @@ class ScreenshotService {
         // Handle web download/share
         final blob = html.Blob([imageBytes]);
         final url = html.Url.createObjectUrlFromBlob(blob);
-        final anchor = html.AnchorElement(href: url)
+        html.AnchorElement(href: url)
           ..setAttribute("download", "trip_me_plan_${DateTime.now().millisecondsSinceEpoch}.png")
           ..click();
         html.Url.revokeObjectUrl(url);
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Screenshot saved to downloads")),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Screenshot saved to downloads")),
+          );
+        }
       } else {
         // Handle mobile/desktop share
         final directory = await getTemporaryDirectory();
@@ -40,9 +42,11 @@ class ScreenshotService {
       }
     } catch (e) {
       debugPrint("Screenshot Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error capturing screenshot: $e")),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error capturing screenshot: $e")),
+        );
+      }
     }
   }
 }

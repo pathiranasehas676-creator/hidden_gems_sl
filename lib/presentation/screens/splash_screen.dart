@@ -28,6 +28,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Cinematic Full Screen (Hiding status bar and nav bar)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    
+    // Hide Global Screenshot button while on splash
+    GlobalScreenshotWrapper.setVisible(false);
 
     _controller = VideoPlayerController.asset("assets/videos/splash.mp4")
       ..initialize().then((_) {
@@ -77,8 +80,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    // Restore system UI when leaving splash
+    // Restore system UI and global UI elements
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    GlobalScreenshotWrapper.setVisible(true);
     _controller.dispose();
     super.dispose();
   }
@@ -120,72 +124,115 @@ class _SplashScreenState extends State<SplashScreen> {
 
                 // Cinematic Overlay Text
                 Positioned(
-                  bottom: 100,
-                  left: 32,
-                  right: 32,
+                  bottom: 110,
+                  left: 0,
+                  right: 0,
                   child: FadeInText(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center, // Centered for more impact
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          "ශ්‍රී ලංකා",
-                          style: GoogleFonts.notoSansSinhala(
-                            fontSize: 72, 
+                          "TRIPME.AI",
+                          style: GoogleFonts.outfit(
+                            fontSize: 42,
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
-                            letterSpacing: 2,
+                            letterSpacing: 12,
                             shadows: [
                               Shadow(
-                                color: AppTheme.accentOchre.withOpacity(0.5),
-                                blurRadius: 40,
+                                color: AppTheme.accentOchre.withValues(alpha: 0.3),
+                                blurRadius: 30,
                                 offset: const Offset(0, 0),
                               )
                             ],
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 12),
-                        Container(
-                          height: 1,
-                          width: 120,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.transparent, AppTheme.accentOchre, Colors.transparent],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 8),
                         Text(
-                          "සැඟවුණු සුන්දরත්වය සොයා යන්න",
-                          style: GoogleFonts.notoSansSinhala(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white.withOpacity(0.8),
-                            letterSpacing: 1.5,
+                          "THE FUTURE OF TRAVEL",
+                          style: GoogleFonts.outfit(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.accentOchre.withValues(alpha: 0.8),
+                            letterSpacing: 8,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 60),
-                        // Loading Progress Indicator
+                        // Premium Progress Indicator
                         ValueListenableBuilder(
                           valueListenable: _controller,
                           builder: (context, VideoPlayerValue value, child) {
                             final progress = value.isInitialized
                                 ? value.position.inMilliseconds / value.duration.inMilliseconds
                                 : 0.0;
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(2),
-                              child: SizedBox(
-                                width: 200,
-                                child: LinearProgressIndicator(
-                                  value: progress,
-                                  backgroundColor: Colors.white.withOpacity(0.1),
-                                  valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.accentOchre),
-                                  minHeight: 2,
+                            return Container(
+                              width: 280,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.05),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(2),
+                                child: Stack(
+                                  children: [
+                                    // Animated Progress
+                                    AnimatedContainer(
+                                      duration: const Duration(milliseconds: 300),
+                                      width: 280 * progress,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(2),
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFFB8860B), // Dark Gold
+                                            AppTheme.accentOchre,
+                                            Color(0xFFFFF8DC), // Cornsilk/Light Gold
+                                          ],
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppTheme.accentOchre.withValues(alpha: 0.4),
+                                            blurRadius: 12,
+                                            spreadRadius: 1,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    // Glint Effect Tracking
+                                    Positioned(
+                                      left: (280 * progress) - 60,
+                                      child: Container(
+                                        width: 120,
+                                        height: 4,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.transparent,
+                                              Colors.white.withValues(alpha: 0.3),
+                                              Colors.white.withValues(alpha: 0.7),
+                                              Colors.white.withValues(alpha: 0.3),
+                                              Colors.transparent,
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
                           },
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          "ESTABLISHING SECURE CONNECTION...",
+                          style: GoogleFonts.outfit(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white.withValues(alpha: 0.3),
+                            letterSpacing: 4,
+                          ),
                         ),
                       ],
                     ),

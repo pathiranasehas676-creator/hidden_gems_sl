@@ -231,9 +231,9 @@ class _ResultsScreenState extends State<ResultsScreen>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.black.withOpacity(0.6),
+                                Colors.black.withValues(alpha: 0.6),
                                 Colors.transparent,
-                                AppTheme.primaryBlue.withOpacity(0.8),
+                                AppTheme.primaryBlue.withValues(alpha: 0.8),
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
@@ -248,7 +248,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                     preferredSize: const Size.fromHeight(48),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.95),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.95),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
@@ -262,7 +262,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                           color: AppTheme.accentOchre,
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
-                            BoxShadow(color: AppTheme.accentOchre.withOpacity(0.6), blurRadius: 8, spreadRadius: 1)
+                            BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.6), blurRadius: 8, spreadRadius: 1)
                           ],
                         ),
                         indicatorPadding: const EdgeInsets.symmetric(horizontal: -12, vertical: 4),
@@ -319,9 +319,9 @@ class _ResultsScreenState extends State<ResultsScreen>
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  border: Border(top: BorderSide(color: AppTheme.silkPearl.withOpacity(0.1), width: 1)),
+                  border: Border(top: BorderSide(color: AppTheme.silkPearl.withValues(alpha: 0.1), width: 1)),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2))
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))
                   ],
                 ),
                 child: SafeArea(
@@ -516,7 +516,7 @@ class _ResultsScreenState extends State<ResultsScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: AppTheme.glassDecoration(opacity: 0.1, radius: BorderRadius.circular(20)).copyWith(
-          border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.1)),
+          border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
@@ -581,7 +581,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                   color: typeInfo.color,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: typeInfo.color.withOpacity(0.5), blurRadius: 8, spreadRadius: 2),
+                    BoxShadow(color: typeInfo.color.withValues(alpha: 0.5), blurRadius: 8, spreadRadius: 2),
                     const BoxShadow(color: Colors.white, blurRadius: 2, spreadRadius: 1),
                   ],
                 ),
@@ -763,7 +763,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.9),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -806,7 +806,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentOchre.withOpacity(0.1),
+                  color: AppTheme.accentOchre.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.lock_outline, color: AppTheme.accentOchre, size: 48),
@@ -855,7 +855,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           Stack(
             alignment: Alignment.center,
             children: [
-              Icon(Icons.stars, color: AppTheme.accentOchre.withOpacity(0.2), size: 80),
+              Icon(Icons.stars, color: AppTheme.accentOchre.withValues(alpha: 0.2), size: 80),
               const Icon(Icons.rocket_launch_rounded, color: AppTheme.primaryBlue, size: 40),
             ],
           ),
@@ -892,7 +892,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.accentOchre.withOpacity(0.4),
+                  color: AppTheme.accentOchre.withValues(alpha: 0.4),
                   blurRadius: 15,
                   offset: const Offset(0, 8),
                 )
@@ -1050,24 +1050,11 @@ class _ResultsScreenState extends State<ResultsScreen>
   // HELPERS
   // ═══════════════════════════════════════════════════════════════════
 
-  Widget _miniChip(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(label,
-          style: TextStyle(
-              fontSize: 11, color: color, fontWeight: FontWeight.bold)),
-    );
-  }
-
   Widget _infoChip(String label, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(label,
