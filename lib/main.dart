@@ -28,6 +28,7 @@ import 'presentation/widgets/graceful_error_widget.dart';
 import 'firebase_options.dart';
 import 'core/config/remote_config_service.dart';
 import 'core/theme/vibe_theme_provider.dart';
+import 'core/theme/app_mode_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'core/utils/screenshot_service.dart';
 
@@ -76,6 +77,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PremiumService()..init()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => VibeThemeProvider()),
+        ChangeNotifierProvider(create: (_) => AppModeProvider()),
       ],
       child: TripMeApp(initFuture: initFuture),
     ),
@@ -195,6 +197,7 @@ class TripMeApp extends StatelessWidget {
     return MaterialApp(
       title: 'TripMe.ai',
       debugShowCheckedModeBanner: false,
+      themeMode: context.watch<AppModeProvider>().currentMode,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       localizationsDelegates: const [

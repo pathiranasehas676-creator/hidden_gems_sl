@@ -19,9 +19,11 @@ class BatikBackground extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: CustomPaint(
-              painter: BatikPainter(
-                color: vibeTheme.accent.withValues(alpha: opacity),
+            child: RepaintBoundary(
+              child: CustomPaint(
+                painter: BatikPainter(
+                  color: vibeTheme.accent.withValues(alpha: opacity),
+                ),
               ),
             ),
           ),
@@ -34,16 +36,45 @@ class BatikBackground extends StatelessWidget {
 
 class BatikPainter extends CustomPainter {
   final Color color;
+  
+  // Static cache so paths aren't rebuilt over and over
+  static final List<Path> _cachedPaths = [];
+  static final List<_Dot> _cachedDots = [];
+  static Size? _cachedSize;
+
   BatikPainter({required this.color});
+
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Only generate paths if size changed or first run
+    if (_cachedSize != size) {
+      _generatePaths(size);
+      _cachedSize = size;
+    }
+
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    final random = math.Random(42); // Seeded for consistency
+    for (final path in _cachedPaths) {
+      canvas.drawPath(path, paint);
+    }
+
+    final dotPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    for (final dot in _cachedDots) {
+      canvas.drawCircle(dot.center, dot.radius, dotPaint);
+    }
+  }
+
+  void _generatePaths(Size size) {
+    _cachedPaths.clear();
+    _cachedDots.clear();
+    final random = math.Random(42);
 
     for (var i = 0; i < 15; i++) {
       final path = Path();
@@ -62,18 +93,24 @@ class BatikPainter extends CustomPainter {
         x = nextX;
         y = nextY;
       }
-      canvas.drawPath(path, paint);
+      _cachedPaths.add(path);
     }
 
     for (var i = 0; i < 30; i++) {
-      canvas.drawCircle(
+      _cachedDots.add(_Dot(
         Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
         random.nextDouble() * 4,
-        paint,
-      );
+      ));
     }
   }
 
   @override
   bool shouldRepaint(covariant BatikPainter old) => old.color != color;
 }
+
+class _Dot {
+  final Offset center;
+  final double radius;
+  _Dot(this.center, this.radius);
+}
+

@@ -32,46 +32,53 @@ class _GoldenTracerIndicatorState extends State<GoldenTracerIndicator>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: AppTheme.glassDecoration(opacity: 0.1, radius: BorderRadius.circular(20)),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildDot(0),
-          const SizedBox(width: 8),
-          _buildDot(0.2),
-          const SizedBox(width: 8),
-          _buildDot(0.4),
-        ],
+      // Fixed size to house 3 dots horizontally
+      child: SizedBox(
+        width: 40,
+        height: 12,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            return CustomPaint(
+              painter: _GoldenTracerPainter(
+                progress: _controller.value,
+                color: AppTheme.accentOchre,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
+}
 
-  Widget _buildDot(double delay) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        final progress = (_controller.value + delay) % 1.0;
-        final scale = 0.8 + (0.4 * (1.0 - (progress - 0.5).abs() * 2));
-        final opacity = 0.4 + (0.6 * (1.0 - (progress - 0.5).abs() * 2));
-        
-        return Transform.scale(
-          scale: scale,
-          child: Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: AppTheme.accentOchre.withValues(alpha: opacity),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.accentOchre.withValues(alpha: opacity * 0.5),
-                  blurRadius: 8,
-                  spreadRadius: progress * 2,
-                )
-              ],
-            ),
-          ),
-        );
-      },
-    );
+class _GoldenTracerPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+
+  _GoldenTracerPainter({required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // We have 3 dots. Width is 40. 
+    // Dot centers: x=4, x=20, x=36
+    final List<double> centers = [6, 20, 34];
+    final List<double> delays = [0, 0.2, 0.4];
+
+    for (int i = 0; i < 3; i++) {
+      final p = (progress + delays[i]) % 1.0;
+      final scale = 0.8 + (0.4 * (1.0 - (p - 0.5).abs() * 2));
+      final opacity = 0.4 + (0.6 * (1.0 - (p - 0.5).abs() * 2));
+      
+      final paint = Paint()
+        ..color = color.withValues(alpha: opacity)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, p * 3); // hardware accelerated blur
+
+      // base radius 4. scaled by scale.
+      canvas.drawCircle(Offset(centers[i], size.height / 2), 4 * scale, paint);
+    }
   }
+
+  @override
+  bool shouldRepaint(covariant _GoldenTracerPainter old) => old.progress != progress;
 }

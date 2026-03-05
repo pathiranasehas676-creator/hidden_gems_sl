@@ -16,6 +16,7 @@ import '../../data/datasources/live_events_service.dart';
 import 'emergency_kit_screen.dart';
 import '../../data/models/user_profile.dart';
 import '../../core/theme/vibe_theme_provider.dart';
+import '../../core/theme/app_mode_provider.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -189,6 +190,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildStatsRow(),
                     const SizedBox(height: 32),
                     _buildThemePicker(),
+                    const SizedBox(height: 32),
+                    _buildThemeModeToggle(),
                     const SizedBox(height: 32),
                     _buildVibeSelector(),
                     const SizedBox(height: 32),
@@ -614,6 +617,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Dark/Light Mode Toggle ────────────────────────────────────────────────
+  Widget _buildThemeModeToggle() {
+    final modeProvider = context.watch<AppModeProvider>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.brightness_medium_outlined, color: AppTheme.sigiriyaOchre, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              'APPEARANCE',
+              style: AppTheme.labelStyle,
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.light,
+                label: Text('Light', style: TextStyle(fontSize: 13)),
+                icon: Icon(Icons.light_mode_outlined, size: 18),
+              ),
+              ButtonSegment(
+                value: ThemeMode.system,
+                label: Text('System', style: TextStyle(fontSize: 13)),
+                icon: Icon(Icons.settings_suggest_outlined, size: 18),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                label: Text('Dark', style: TextStyle(fontSize: 13)),
+                icon: Icon(Icons.dark_mode_outlined, size: 18),
+              ),
+            ],
+            selected: {modeProvider.currentMode},
+            onSelectionChanged: (Set<ThemeMode> newSelection) {
+              HapticFeedback.lightImpact();
+              modeProvider.setThemeMode(newSelection.first);
+            },
+            style: SegmentedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              selectedBackgroundColor: AppTheme.accentOchre.withValues(alpha: 0.2),
+              selectedForegroundColor: AppTheme.accentOchre,
+              foregroundColor: Colors.white70,
+              side: const BorderSide(color: Colors.white12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
         ),
       ],

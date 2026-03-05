@@ -80,4 +80,10 @@ class UserPreferenceService {
     profile.vibeTheme = themeId;
     await saveProfile(profile);
   }
+
+  static Future<void> updateThemeMode(String mode) async {
+    final profile = getProfile();
+    profile.themeMode = mode;
+    await saveProfile(profile);
+  }
 }

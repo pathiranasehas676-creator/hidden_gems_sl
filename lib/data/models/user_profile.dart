@@ -8,6 +8,7 @@ class UserProfile {
   String? profileImagePath;
   List<String> sosContacts;
   String vibeTheme; // "ceylon_blue" | "jungle_green" | "sunset_red" | "lotus_pink" | "midnight_gold"
+  String themeMode; // "system", "light", "dark"
   List<String> tripHistory; // past destinations for AI memory
 
   UserProfile({
@@ -20,6 +21,7 @@ class UserProfile {
     this.profileImagePath,
     List<String>? sosContacts,
     this.vibeTheme = 'ceylon_blue',
+    this.themeMode = 'system',
     List<String>? tripHistory,
   })  : sosContacts = sosContacts ?? [],
         tripHistory = tripHistory ?? [];
@@ -31,6 +33,7 @@ class UserProfile {
       visitedPlaces: [],
       vibe: 'explorer',
       vibeTheme: 'ceylon_blue',
+      themeMode: 'system',
     );
   }
 
@@ -44,6 +47,7 @@ class UserProfile {
         'profileImagePath': profileImagePath,
         'sosContacts': sosContacts,
         'vibeTheme': vibeTheme,
+        'themeMode': themeMode,
         'tripHistory': tripHistory,
       };
 
@@ -57,6 +61,7 @@ class UserProfile {
         profileImagePath: json['profileImagePath'],
         sosContacts: List<String>.from(json['sosContacts'] ?? []),
         vibeTheme: json['vibeTheme'] ?? 'ceylon_blue',
+        themeMode: json['themeMode'] ?? 'system',
         tripHistory: List<String>.from(json['tripHistory'] ?? []),
       );
 }
