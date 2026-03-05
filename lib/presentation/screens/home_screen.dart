@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             _journalUnfold(child: _buildWelcomeCard()),
                             const SizedBox(height: 24),
                             OchreButton(
-                              label: "Plan New Trip",
+                              label: l10n.planNewTrip,
                               icon: Icons.auto_awesome,
                               onPressed: () {
                                 Navigator.push(
@@ -93,9 +93,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                const SizedBox(height: 24),
                             ],
                             if (isOffline) ...[
-                              _buildSectionHeader("Local Gems (Offline)"),
+                              _buildSectionHeader(l10n.localGemsOffline),
                               const SizedBox(height: 16),
-                              _buildLocalGemsScroller(),
+                              _buildLocalGemsScroller(context),
                               const SizedBox(height: 32),
                             ],
                             const SizedBox(height: 16),
@@ -645,7 +645,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildLocalGemsScroller() {
+  Widget _buildLocalGemsScroller(BuildContext context) {
     // Basic extraction from our local KB for offline access
     final gems = [
       ("Pahanthudawa", "Ratnapura", "4.8"),
@@ -667,7 +667,7 @@ class _HomeScreenState extends State<HomeScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(20),
               boxShadow: AppTheme.softShadow,
             ),
@@ -678,12 +678,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.accentOchre),
-                    Text(gem.$3, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text(gem.$3, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyMedium?.color)),
                   ],
                 ),
                 const Spacer(),
-                Text(gem.$1, style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold), maxLines: 1),
-                Text(gem.$2, style: GoogleFonts.inter(fontSize: 10, color: Colors.black54)),
+                Text(gem.$1, style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color), maxLines: 1),
+                Text(gem.$2, style: GoogleFonts.inter(fontSize: 10, color: Theme.of(context).textTheme.bodySmall?.color)),
               ],
             ),
           );

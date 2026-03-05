@@ -94,4 +94,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get openOnMap => '지도에서 열기';
+
+  @override
+  String get planNewTrip => 'Plan New Trip';
+
+  @override
+  String get localGemsOffline => 'Local Gems (Offline)';
 }

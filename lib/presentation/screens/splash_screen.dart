@@ -121,46 +121,17 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ),
                 ),
-
-                // Cinematic Overlay Text
+                // Bottom Loading UI
                 Positioned(
-                  bottom: 110,
+                  bottom: 60,
                   left: 0,
                   right: 0,
-                  child: FadeInText(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "TRIPME.AI",
-                          style: GoogleFonts.outfit(
-                            fontSize: 42,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: 12,
-                            shadows: [
-                              Shadow(
-                                color: AppTheme.accentOchre.withValues(alpha: 0.3),
-                                blurRadius: 30,
-                                offset: const Offset(0, 0),
-                              )
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "THE FUTURE OF TRAVEL",
-                          style: GoogleFonts.outfit(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.accentOchre.withValues(alpha: 0.8),
-                            letterSpacing: 8,
-                          ),
-                        ),
-                        const SizedBox(height: 60),
-                        // Premium Progress Indicator
-                        ValueListenableBuilder(
-                          valueListenable: _controller,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Premium Progress Indicator
+                      ValueListenableBuilder(
+                        valueListenable: _controller,
                           builder: (context, VideoPlayerValue value, child) {
                             final progress = value.isInitialized
                                 ? value.position.inMilliseconds / value.duration.inMilliseconds
@@ -237,7 +208,6 @@ class _SplashScreenState extends State<SplashScreen> {
                       ],
                     ),
                   ),
-                ),
               ],
             )
           : Container(

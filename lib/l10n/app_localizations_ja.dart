@@ -94,4 +94,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get openOnMap => '地図で開く';
+
+  @override
+  String get planNewTrip => 'Plan New Trip';
+
+  @override
+  String get localGemsOffline => 'Local Gems (Offline)';
 }

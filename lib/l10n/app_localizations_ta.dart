@@ -94,4 +94,10 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get openOnMap => 'வரைபடத்தில் திறக்கவும்';
+
+  @override
+  String get planNewTrip => 'Plan New Trip';
+
+  @override
+  String get localGemsOffline => 'Local Gems (Offline)';
 }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../widgets/batik_background.dart';
+import '../widgets/custom_buttons.dart';
 import 'loading_plan_screen.dart';
 
 class TripFormScreen extends StatefulWidget {
@@ -111,12 +112,10 @@ class _TripFormScreenState extends State<TripFormScreen> {
           ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.appBackground),
+      body: BatikBackground(
         child: Stack(
           children: [
-            BatikBackground(
-            child: PageView(
+            PageView(
               controller: _pageController,
               physics: const NeverScrollableScrollPhysics(),
               onPageChanged: (i) {
@@ -129,14 +128,13 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 _buildStep4(),
               ],
             ),
-          ),
-          // Time-Aware Dynamic Overlay
-          IgnorePointer(
-            child: Container(
-              color: AppTheme.getDynamicOverlay(),
+            // Time-Aware Dynamic Overlay
+            IgnorePointer(
+              child: Container(
+                color: AppTheme.getDynamicOverlay(),
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
       bottomNavigationBar: _buildBottomBar(),
@@ -274,7 +272,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
         children: [
           Text(subtitle.toUpperCase(), style: GoogleFonts.inter(fontSize: 12, color: AppTheme.accentOchre, fontWeight: FontWeight.bold, letterSpacing: 2)),
           const SizedBox(height: 12),
-          Text(title, style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, height: 1.2)),
+          Text(title, style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color, height: 1.2)),
           const SizedBox(height: 40),
           content,
         ],
@@ -454,14 +452,13 @@ class _TripFormScreenState extends State<TripFormScreen> {
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-      decoration: BoxDecoration(color: AppTheme.primaryBlue, border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.1)))),
-      child: ElevatedButton(
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.1)))),
+      child: PrimaryButton(
+        label: _currentStep == _totalSteps - 1 ? "CONSULT ORACLE" : "CONTINUE",
         onPressed: () {
           HapticFeedback.lightImpact();
           _nextStep();
         },
-        style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 60)),
-        child: Text(_currentStep == _totalSteps - 1 ? "CONSULT ORACLE" : "CONTINUE"),
       ),
     );
   }

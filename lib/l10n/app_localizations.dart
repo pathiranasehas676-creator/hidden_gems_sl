@@ -279,6 +279,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open on Map'**
   String get openOnMap;
+
+  /// No description provided for @planNewTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan New Trip'**
+  String get planNewTrip;
+
+  /// No description provided for @localGemsOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Local Gems (Offline)'**
+  String get localGemsOffline;
 }
 
 class _AppLocalizationsDelegate

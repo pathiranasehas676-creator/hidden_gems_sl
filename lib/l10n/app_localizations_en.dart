@@ -94,4 +94,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get openOnMap => 'Open on Map';
+
+  @override
+  String get planNewTrip => 'Plan New Trip';
+
+  @override
+  String get localGemsOffline => 'Local Gems (Offline)';
 }

@@ -54,17 +54,16 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
       appBar: AppBar(
         title: Text(
           'Saved Journeys',
-          style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.black.withValues(alpha: 0.3),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           if (_plans.isNotEmpty)
             TextButton.icon(
-              icon: const Icon(Icons.delete_sweep, color: Colors.white54, size: 18),
-              label: const Text('Clear all',
-                  style: TextStyle(color: Colors.white54, fontSize: 12)),
+              icon: Icon(Icons.delete_sweep, color: Theme.of(context).colorScheme.error, size: 18),
+              label: Text('Clear all',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
               onPressed: () async {
                 final confirm = await showDialog<bool>(
                   context: context,
@@ -90,11 +89,8 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
             ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.appBackground),
-        child: BatikBackground(
-          child: _plans.isEmpty ? _buildEmpty() : _buildList(),
-        ),
+      body: BatikBackground(
+        child: _plans.isEmpty ? _buildEmpty() : _buildList(),
       ),
     );
   }
@@ -116,11 +112,11 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
           const SizedBox(height: 24),
           Text('No Saved Journeys',
               style: GoogleFonts.outfit(
-                  fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                  fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
           const SizedBox(height: 8),
           Text('Tap the 🔖 icon on any plan to save it offline.',
               textAlign: TextAlign.center,
-              style: AppTheme.bodyStyle),
+              style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color)),
         ],
       ),
     );

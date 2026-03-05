@@ -94,4 +94,10 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get openOnMap => 'සිතියමේ විවෘත කරන්න';
+
+  @override
+  String get planNewTrip => 'Plan New Trip';
+
+  @override
+  String get localGemsOffline => 'Local Gems (Offline)';
 }

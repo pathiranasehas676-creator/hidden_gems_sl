@@ -30,5 +30,7 @@
   "aiReason": "Why this place?",
   "filters": "Filters",
   "distance": "Distance",
-  "openOnMap": "Open on Map"
+  "openOnMap": "Open on Map",
+  "planNewTrip": "Plan New Trip",
+  "localGemsOffline": "Local Gems (Offline)"
 }

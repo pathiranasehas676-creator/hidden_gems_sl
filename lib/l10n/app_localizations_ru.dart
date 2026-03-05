@@ -94,4 +94,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get openOnMap => 'Открыть на карте';
+
+  @override
+  String get planNewTrip => 'Plan New Trip';
+
+  @override
+  String get localGemsOffline => 'Local Gems (Offline)';
 }
