@@ -74,4 +74,10 @@ class UserPreferenceService {
     profile.profileImagePath = path;
     await saveProfile(profile);
   }
+
+  static Future<void> updateVibeTheme(String themeId) async {
+    final profile = getProfile();
+    profile.vibeTheme = themeId;
+    await saveProfile(profile);
+  }
 }

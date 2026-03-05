@@ -1,7 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 class TripPlan {
-  static const int currentSchemaVersion = 5;
+  static const int currentSchemaVersion = 6;
 
   final int schemaVersion;
   final TripSummary tripSummary;
@@ -14,6 +14,7 @@ class TripPlan {
   final List<String> kbCitations;
   final DateTime? cachedAt;
   String? offlineMapPath;
+  final List<Expense> realizedExpenses;
 
   TripPlan({
     this.schemaVersion = TripPlan.currentSchemaVersion,
@@ -27,7 +28,8 @@ class TripPlan {
     required this.kbCitations,
     this.cachedAt,
     this.offlineMapPath,
-  });
+    List<Expense>? realizedExpenses,
+  }) : realizedExpenses = realizedExpenses ?? [];
 
   // Convenience getters for backward compatibility
   String get origin => tripSummary.fromCity;
@@ -55,6 +57,9 @@ class TripPlan {
           : DateTime.now(),
       schemaVersion: json['schema_version'] as int? ?? 1,
       offlineMapPath: json['offline_map_path'] as String?,
+      realizedExpenses: (json['realized_expenses'] as List? ?? [])
+          .map((e) => Expense.fromJson(e))
+          .toList(),
     );
   }
 
@@ -71,6 +76,7 @@ class TripPlan {
       'cached_at': cachedAt?.toIso8601String(),
       'schema_version': schemaVersion,
       'offline_map_path': offlineMapPath,
+      'realized_expenses': realizedExpenses.map((e) => e.toJson()).toList(),
     };
   }
 }
@@ -318,6 +324,42 @@ class ComfortUpgrade {
         'extra_cost_lkr': extraCostLkr,
         'why': why,
       };
+}
+
+class Expense {
+  final String id;
+  final String title;
+  final int amountLkr;
+  final String category; // food, transport, tickets, misc
+  final DateTime timestamp;
+
+  Expense({
+    required this.id,
+    required this.title,
+    required this.amountLkr,
+    required this.category,
+    required this.timestamp,
+  });
+
+  factory Expense.fromJson(Map<String, dynamic> json) {
+    return Expense(
+      id: json['id'] ?? '',
+      title: json['title'] ?? '',
+      amountLkr: _toInt(json['amount_lkr'] ?? 0),
+      category: json['category'] ?? 'misc',
+      timestamp: json['timestamp'] != null 
+          ? DateTime.parse(json['timestamp']) 
+          : DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'amount_lkr': amountLkr,
+    'category': category,
+    'timestamp': timestamp.toIso8601String(),
+  };
 }
 
 int _toInt(dynamic v) {

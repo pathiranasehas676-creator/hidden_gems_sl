@@ -1,20 +1,22 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:local_auth/local_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/user_preference_service.dart';
 import '../../data/datasources/premium_service.dart';
 import '../widgets/batik_background.dart';
-
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../data/datasources/live_events_service.dart';
+import 'emergency_kit_screen.dart';
+import '../../data/models/user_profile.dart';
+import '../../core/theme/vibe_theme_provider.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -25,9 +27,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late var profile = UserPreferenceService.getProfile();
-  final LocalAuthentication auth = LocalAuthentication();
-  bool _isAuthenticated = false;
-  bool _isAuthenticating = true;
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -38,45 +37,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _selectedDay = _focusedDay;
     _selectedEvents = LiveEventsService.getEventsForTrip(_selectedDay!, 1);
-    _checkBiometricAuth();
-  }
-
-  Future<void> _checkBiometricAuth() async {
-    try {
-      final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
-      final bool canAuthenticate = canAuthenticateWithBiometrics || await auth.isDeviceSupported();
-
-      if (!canAuthenticate) {
-        setState(() {
-          _isAuthenticated = true;
-          _isAuthenticating = false;
-        });
-        return;
-      }
-
-      final bool didAuthenticate = await auth.authenticate(
-        localizedReason: 'Verify your identity to access User Details',
-      );
-
-      if (mounted) {
-        if (didAuthenticate) {
-          setState(() {
-            _isAuthenticated = true;
-            _isAuthenticating = false;
-          });
-        } else {
-          // Authentication failed or canceled. Send them out of this screen gracefully
-          setState(() => _isAuthenticating = false);
-        }
-      }
-    } on PlatformException catch (_) {
-      if (mounted) {
-        setState(() {
-          _isAuthenticated = true; // Fallback to accessible if crash
-          _isAuthenticating = false;
-        });
-      }
-    }
   }
 
   void _showLanguagePicker(BuildContext context) {
@@ -202,38 +162,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isAuthenticating) {
-      return const Scaffold(
-        backgroundColor: AppTheme.silkPearl,
-        body: Center(child: CircularProgressIndicator(color: AppTheme.primaryBlue)),
-      );
-    }
-
-    if (!_isAuthenticated) {
-      return Scaffold(
-        backgroundColor: AppTheme.silkPearl,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.lock_outline, size: 80, color: AppTheme.primaryBlue),
-              const SizedBox(height: 20),
-              Text(
-                "Access Denied",
-                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _checkBiometricAuth,
-                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentOchre),
-                child: Text("Retry Authentication", style: GoogleFonts.inter(color: Colors.white)),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     final premiumService = context.watch<PremiumService>();
     final l10n = AppLocalizations.of(context)!;
 
@@ -259,6 +187,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 24),
                     _buildStatsRow(),
+                    const SizedBox(height: 32),
+                    _buildThemePicker(),
                     const SizedBox(height: 32),
                     _buildVibeSelector(),
                     const SizedBox(height: 32),
@@ -613,6 +543,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // ── Theme Picker ─────────────────────────────────────────────────────────
+  Widget _buildThemePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.palette_outlined, color: AppTheme.sigiriyaOchre, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              'APP THEME',
+              style: AppTheme.labelStyle,
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 90,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemCount: VibeThemes.all.length,
+            itemBuilder: (context, i) {
+              final theme = VibeThemes.all[i];
+              final provider = context.watch<VibeThemeProvider>();
+              final isActive = provider.current.id == theme.id;
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  context.read<VibeThemeProvider>().setTheme(theme);
+                  setState(() {
+                    profile = UserPreferenceService.getProfile();
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  width: 80,
+                  decoration: BoxDecoration(
+                    gradient: theme.background,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isActive
+                          ? theme.accent
+                          : Colors.white12,
+                      width: isActive ? 2 : 1,
+                    ),
+                    boxShadow: isActive
+                        ? [BoxShadow(color: theme.accent.withValues(alpha: 0.4), blurRadius: 12)]
+                        : [],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(theme.emoji, style: const TextStyle(fontSize: 22)),
+                      const SizedBox(height: 4),
+                      Text(
+                        theme.name.split(' ').first,
+                        style: GoogleFonts.outfit(
+                          fontSize: 9,
+                          color: isActive ? theme.accent : Colors.white54,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (isActive)
+                        Icon(Icons.check_circle, color: theme.accent, size: 14),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSettingsSection(AppLocalizations l10n) {
     return Column(
       children: [
@@ -626,6 +633,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Icons.language_outlined, 
           l10n.language,
           onTap: () => _showLanguagePicker(context),
+        ),
+        _settingsTile(
+          Icons.emergency_outlined,
+          "Emergency Kit",
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const EmergencyKitScreen()),
+          ),
         ),
         _settingsTile(Icons.privacy_tip_outlined, "Privacy Policy"),
         _settingsTile(Icons.help_outline_rounded, "Support Center"),

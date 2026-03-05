@@ -2,43 +2,85 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper: Is the user authenticated?
+
+    // ── Helper Functions ────────────────────────────────────────────────────
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Helper: Is the user an admin according to their profile?
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
     function isAdmin() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin'];
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+          in ['admin', 'super_admin'];
     }
 
-    // --- User Profiles ---
+    // ── User Profiles ───────────────────────────────────────────────────────
+    // Users can only read/write THEIR OWN profile.
+    // Admins can read all profiles.
+    // Users cannot change their own 'role' or 'isPremium' flag.
     match /users/{userId} {
-      allow read: if request.auth.uid == userId || isAdmin();
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if (request.auth.uid == userId && 
-                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isPremium'])) || 
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if (isOwner(userId) &&
+                        !request.resource.data.diff(resource.data)
+                          .affectedKeys().hasAny(['role', 'isPremium', 'isBanned'])) ||
                        isAdmin();
+      allow delete: if isAdmin();
     }
 
-    // --- AI Logs (Audit Trail) ---
+    // ── Discovery: Places ───────────────────────────────────────────────────
+    // Public read — any authenticated user can browse places.
+    // Only admins can add, edit, or delete places.
+    match /places/{placeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ── Discovery: Events ───────────────────────────────────────────────────
+    // Same pattern as places.
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ── Saved Plans ─────────────────────────────────────────────────────────
+    // User can only read/write their own saved plans.
+    match /saved_plans/{planId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // ── AI Logs (Audit Trail) ───────────────────────────────────────────────
+    // Only admins can read logs.
+    // Writes are done exclusively by the backend service account (server-side SDK).
+    // Client-side writes are blocked.
     match /ai_logs/{logId} {
       allow read: if isAdmin();
-      allow create: if true; // Backend adds these, but we keep it open for server-side SDKs
+      allow write: if false; // Backend-only via Admin SDK
     }
 
-    // --- Saved Plans ---
-    match /saved_plans/{planId} {
-      allow read, write: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-    }
-
-    // --- Knowledge Base (Ground Truth) ---
+    // ── Knowledge Base Config ───────────────────────────────────────────────
+    // Any authenticated user can read KB config (needed for RAG).
+    // Only admins can modify it.
     match /kb_config/{configId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
+    }
+
+    // ── Remote Config Cache ─────────────────────────────────────────────────
+    match /app_config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ── Catch-All: Deny Everything Else ─────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/trip_cache_service.dart';
 import '../../data/models/trip_plan_model.dart';
+import '../widgets/batik_background.dart';
 import 'results_screen.dart';
 
 class SavedPlansScreen extends StatefulWidget {
@@ -25,9 +27,11 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
     if (mounted) setState(() => _plans = TripCacheService.getSavedPlans());
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Plan removed'),
+        SnackBar(
+          content: const Text('Plan removed'),
           behavior: SnackBarBehavior.floating,
+          backgroundColor: AppTheme.darkCard,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
@@ -45,32 +49,36 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primaryBlue, // Base Oceanic Background
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Saved Plans', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.transparent,
+        title: Text(
+          'Saved Journeys',
+          style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.black.withValues(alpha: 0.3),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           if (_plans.isNotEmpty)
             TextButton.icon(
-              icon: const Icon(Icons.delete_sweep, color: Colors.white70, size: 18),
+              icon: const Icon(Icons.delete_sweep, color: Colors.white54, size: 18),
               label: const Text('Clear all',
-                  style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  style: TextStyle(color: Colors.white54, fontSize: 12)),
               onPressed: () async {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (_) => AlertDialog(
-                    title: const Text('Clear All Saved Plans'),
-                    content: const Text('This cannot be undone.'),
+                    backgroundColor: AppTheme.darkCard,
+                    title: const Text('Clear All Saved Plans', style: TextStyle(color: Colors.white)),
+                    content: const Text('This cannot be undone.', style: TextStyle(color: Colors.white70)),
                     actions: [
                       TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel')),
+                          child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
                       TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Clear',
-                              style: TextStyle(color: Colors.red))),
+                          child: const Text('Clear', style: TextStyle(color: Colors.redAccent))),
                     ],
                   ),
                 );
@@ -82,7 +90,12 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
             ),
         ],
       ),
-      body: _plans.isEmpty ? _buildEmpty() : _buildList(),
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppTheme.appBackground),
+        child: BatikBackground(
+          child: _plans.isEmpty ? _buildEmpty() : _buildList(),
+        ),
+      ),
     );
   }
 
@@ -91,18 +104,23 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.bookmark_border,
-              size: 72, color: Colors.white54),
-          const SizedBox(height: 16),
-          const Text('No saved plans yet',
-              style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500)),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppTheme.sigiriyaOchre.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+              border: Border.all(color: AppTheme.sigiriyaOchre.withValues(alpha: 0.3)),
+            ),
+            child: const Icon(Icons.bookmark_outlined, size: 48, color: AppTheme.sigiriyaOchre),
+          ),
+          const SizedBox(height: 24),
+          Text('No Saved Journeys',
+              style: GoogleFonts.outfit(
+                  fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 8),
-          const Text('Tap the  🔖  icon on any plan to save it offline.',
+          Text('Tap the 🔖 icon on any plan to save it offline.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.white70)),
+              style: AppTheme.bodyStyle),
         ],
       ),
     );
@@ -110,9 +128,9 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
 
   Widget _buildList() {
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+      padding: const EdgeInsets.fromLTRB(20, 120, 20, 100),
       itemCount: _plans.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => const SizedBox(height: 14),
       itemBuilder: (context, i) {
         final (:id, :plan) = _plans[i];
         final summary = plan.tripSummary;
@@ -127,7 +145,7 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.only(right: 20),
             decoration: BoxDecoration(
-                color: Colors.red.shade400,
+                color: Colors.red.shade700,
                 borderRadius: BorderRadius.circular(16)),
             child: const Icon(Icons.delete_outline, color: Colors.white),
           ),
@@ -136,53 +154,50 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
             onTap: () => _openPlan(plan),
             child: Container(
               padding: const EdgeInsets.all(16),
-              decoration: AppTheme.glassDecoration(),
+              decoration: AppTheme.ochreCardDecoration(),
               child: Row(
                 children: [
-                  // Destination icon chip
+                  // Destination Icon
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 52,
+                    height: 52,
                     decoration: BoxDecoration(
-                      color: Colors.white10,
+                      color: AppTheme.sigiriyaOchre.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppTheme.sigiriyaOchre.withValues(alpha: 0.3)),
                     ),
-                    child: const Icon(Icons.travel_explore,
-                        color: Colors.white, size: 24),
+                    child: const Icon(Icons.travel_explore, color: AppTheme.sigiriyaOchre, size: 24),
                   ),
-                  const SizedBox(width: 12),
-                  // Plan info
+                  const SizedBox(width: 14),
+                  // Plan Info
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           '${summary.fromCity} → ${summary.destinationCity}',
-                          style: const TextStyle(
+                          style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Wrap(
-                          spacing: 8,
+                          spacing: 10,
                           children: [
-                            _chip(Icons.nights_stay_outlined,
-                                '${summary.days}d'),
+                            _chip(Icons.nights_stay_outlined, '${summary.days}d'),
                             _chip(Icons.people_outline, summary.groupType),
                             _chip(Icons.account_balance_wallet_outlined,
-                                'LKR ${_fmt(summary.userBudgetLkr)}'),
+                                'Rs. ${_fmt(summary.userBudgetLkr)}'),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Text(
                           'Saved $cachedAgo',
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.white54),
+                          style: const TextStyle(fontSize: 11, color: Colors.white38),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right,
-                      color: Colors.white54),
+                  const Icon(Icons.chevron_right, color: AppTheme.sigiriyaOchre),
                 ],
               ),
             ),
@@ -196,10 +211,9 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 11, color: Colors.white70),
+        Icon(icon, size: 11, color: AppTheme.sigiriyaOchre.withValues(alpha: 0.7)),
         const SizedBox(width: 3),
-        Text(label,
-            style: const TextStyle(fontSize: 11, color: Colors.white70)),
+        Text(label, style: const TextStyle(fontSize: 11, color: Colors.white60)),
       ],
     );
   }

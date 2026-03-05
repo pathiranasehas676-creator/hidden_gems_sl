@@ -46,7 +46,9 @@ def get_retrieval():
         try:
             import vector_retrieval as vr
             _retrieval = vr
-            logger.info("[RAG] Vector retrieval module loaded.")
+            if db:
+                _retrieval.set_firestore_db(db)
+            logger.info("[RAG] Vector retrieval module loaded with Firestore support.")
         except Exception as e:
             logger.warning("[RAG] Could not load vector_retrieval: %s", e)
     return _retrieval
@@ -578,7 +580,8 @@ async def get_remote_config():
         "bannerText": "Welcome to the new AdvanceTravel.me!",
         "enableOracleVision": True,
         "aiModel": "gemini-1.5-flash",
-        "maintenanceMode": False
+        "maintenanceMode": False,
+        "data_refresh_timestamp": int(time.time() * 1000)
     }
 
 @app.get("/health")

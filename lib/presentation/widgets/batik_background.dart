@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/vibe_theme_provider.dart';
 
 class BatikBackground extends StatelessWidget {
   final Widget child;
@@ -9,17 +11,23 @@ class BatikBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: CustomPaint(
-            painter: BatikPainter(
-              color: AppTheme.sigiriyaOchre.withValues(alpha: opacity),
+    // Read active vibe theme — rebuilds the whole bg when user changes theme
+    final vibeTheme = context.watch<VibeThemeProvider>().current;
+
+    return Container(
+      decoration: BoxDecoration(gradient: vibeTheme.background),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomPaint(
+              painter: BatikPainter(
+                color: vibeTheme.accent.withValues(alpha: opacity),
+              ),
             ),
           ),
-        ),
-        child,
-      ],
+          child,
+        ],
+      ),
     );
   }
 }
@@ -37,7 +45,6 @@ class BatikPainter extends CustomPainter {
 
     final random = math.Random(42); // Seeded for consistency
 
-    // Draw some organic patterns
     for (var i = 0; i < 15; i++) {
       final path = Path();
       double x = random.nextDouble() * size.width;
@@ -51,7 +58,6 @@ class BatikPainter extends CustomPainter {
         double cp1y = y + (random.nextDouble() - 0.5) * 100;
         double cp2x = nextX - (random.nextDouble() - 0.5) * 100;
         double cp2y = nextY - (random.nextDouble() - 0.5) * 100;
-
         path.cubicTo(cp1x, cp1y, cp2x, cp2y, nextX, nextY);
         x = nextX;
         y = nextY;
@@ -59,7 +65,6 @@ class BatikPainter extends CustomPainter {
       canvas.drawPath(path, paint);
     }
 
-    // Draw some circular "dots" (representative of some batik styles)
     for (var i = 0; i < 30; i++) {
       canvas.drawCircle(
         Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
@@ -70,5 +75,5 @@ class BatikPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant BatikPainter old) => old.color != color;
 }

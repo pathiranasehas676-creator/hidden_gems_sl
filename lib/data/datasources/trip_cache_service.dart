@@ -34,6 +34,7 @@ class CachedPlanResult {
 class TripCacheService {
   static const String _lastPlanBox = 'tripme_last_plans';
   static const String _savedPlansBox = 'tripme_saved_plans';
+  static const String _globalDataBox = 'tripme_global_data';
   static const Duration _cacheTtl = Duration(days: 7);
 
   // ─── Initialisation ─────────────────────────────────────────────────────
@@ -56,13 +57,16 @@ class TripCacheService {
     try {
       await Hive.openBox<String>(_lastPlanBox, encryptionCipher: cipher);
       await Hive.openBox<String>(_savedPlansBox, encryptionCipher: cipher);
+      await Hive.openBox<String>(_globalDataBox, encryptionCipher: cipher);
     } catch (e) {
       SecureLogger.error("Failed to open encrypted Hive boxes. Deleting existing unencrypted data to upgrade.", e);
       // If we attempt to open unencrypted databases with a cipher, it will crash. Purge for seamless upgrade.
       await Hive.deleteBoxFromDisk(_lastPlanBox);
       await Hive.deleteBoxFromDisk(_savedPlansBox);
+      await Hive.deleteBoxFromDisk(_globalDataBox);
       await Hive.openBox<String>(_lastPlanBox, encryptionCipher: cipher);
       await Hive.openBox<String>(_savedPlansBox, encryptionCipher: cipher);
+      await Hive.openBox<String>(_globalDataBox, encryptionCipher: cipher);
     }
   }
 
@@ -247,6 +251,38 @@ class TripCacheService {
       await Hive.box<String>(_savedPlansBox).clear();
     } catch (e) {
       debugPrint('[TripCache] ClearAll error (non-fatal): $e');
+    }
+  }
+
+  // ─── Global Data Cache (Smart Refresh Support) ──────────────────────────
+
+  static Future<void> cacheGlobalData(String key, String jsonString) async {
+    try {
+      final box = Hive.box<String>(_globalDataBox);
+      await box.put(key, jsonString);
+      await box.put('${key}_timestamp', DateTime.now().millisecondsSinceEpoch.toString());
+    } catch (e) {
+      SecureLogger.error('[TripCache] Global data cache error', e);
+    }
+  }
+
+  static String? getGlobalData(String key) {
+    try {
+      final box = Hive.box<String>(_globalDataBox);
+      return box.get(key);
+    } catch (e) {
+      SecureLogger.error('[TripCache] Global data read error', e);
+      return null;
+    }
+  }
+
+  static int getGlobalDataTimestamp(String key) {
+    try {
+      final box = Hive.box<String>(_globalDataBox);
+      final raw = box.get('${key}_timestamp');
+      return raw != null ? int.parse(raw) : 0;
+    } catch (_) {
+      return 0;
     }
   }
 }

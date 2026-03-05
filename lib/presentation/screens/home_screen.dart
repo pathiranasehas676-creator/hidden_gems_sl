@@ -563,27 +563,45 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomNav(BuildContext context, AppLocalizations l10n) {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 10,
-      color: AppTheme.primaryBlue, // Dark Oceanic Bottom Bar
-      child: SizedBox(
-        height: 60,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _navItem(l10n.home, Icons.home_rounded, 0, onTap: () {
-              setState(() => _selectedIndex = 0);
-            }),
-            _navItem(l10n.discovery, Icons.travel_explore_rounded, -1, onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryScreen()));
-            }),
-            const SizedBox(width: 40),
-            _navItem("Saved", Icons.bookmark_border, -1, onTap: () {}),
-            _navItem(l10n.profile, Icons.person_rounded, 1, onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
-            }),
-          ],
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _navItem(l10n.home, Icons.home_rounded, 0, onTap: () {
+                  setState(() => _selectedIndex = 0);
+                }),
+                _navItem(l10n.discovery, Icons.travel_explore_rounded, 1, onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryScreen()));
+                }),
+                const SizedBox(width: 48), // FAB gap
+                _navItem("Saved", Icons.bookmark_border_rounded, 2, onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPlansScreen()));
+                }),
+                _navItem(l10n.profile, Icons.person_rounded, 3, onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+                }),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -592,17 +610,37 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _navItem(String label, IconData icon, int index, {VoidCallback? onTap}) {
     final bool active = _selectedIndex == index;
     return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: active ? AppTheme.accentOchre : Colors.white54, size: 24),
-          Text(label, style: TextStyle(
-            color: active ? AppTheme.accentOchre : Colors.white54,
-            fontSize: 10,
-            fontWeight: active ? FontWeight.bold : FontWeight.normal,
-          )),
-        ],
+      onTap: () {
+        setState(() => _selectedIndex = index);
+        if (onTap != null) onTap();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: active ? AppTheme.sigiriyaOchre.withValues(alpha: 0.18) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: active ? AppTheme.sigiriyaOchre : Colors.white38,
+              size: 22,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                color: active ? AppTheme.sigiriyaOchre : Colors.white38,
+                fontSize: 9,
+                fontWeight: active ? FontWeight.bold : FontWeight.normal,
+                letterSpacing: active ? 0.5 : 0,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

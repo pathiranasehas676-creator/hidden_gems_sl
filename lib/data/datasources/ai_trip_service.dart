@@ -59,6 +59,18 @@ class AiTripService {
       },
     };
 
+    // Phase 3: Contextual AI Memory — inject past trip history into AI prompt
+    final tripHistory = userProfile.tripHistory;
+    if (tripHistory.isNotEmpty) {
+      body['user_context'] = {
+        ...(body['user_context'] as Map<String, dynamic>),
+        'memory_context': {
+          'visited_recently': tripHistory.take(5).toList(),
+          'avoid_repeat_destinations': tripHistory.isNotEmpty,
+        },
+      };
+    }
+
     int retryCount = 0;
     const maxRetries = 2;
 
@@ -75,7 +87,10 @@ class AiTripService {
 
         if (response.statusCode == 200) {
           final Map<String, dynamic> data = json.decode(response.body);
-          return TripPlan.fromJson(data);
+          final plan = TripPlan.fromJson(data);
+          // Save destination to trip history for future AI memory
+          await _saveTripToHistory(destination);
+          return plan;
         } else if (response.statusCode == 429) {
           throw Exception("Rate limit reached. Try again soon.");
         } else if (response.statusCode >= 500) {
@@ -107,6 +122,20 @@ class AiTripService {
 
   // Local extraction logic no longer needed as backend returns clean JSON
   // static String _extractJson(String text) { ... }
+
+  /// Save trip destination to user's memory history (Phase 3)
+  static Future<void> _saveTripToHistory(String destination) async {
+    try {
+      final profile = UserPreferenceService.getProfile();
+      if (!profile.tripHistory.contains(destination)) {
+        profile.tripHistory.insert(0, destination); // most recent first
+        if (profile.tripHistory.length > 20) {
+          profile.tripHistory.removeLast(); // cap at 20
+        }
+        await UserPreferenceService.saveProfile(profile);
+      }
+    } catch (_) {} // Non-critical, never block generation
+  }
 }
 
 

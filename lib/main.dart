@@ -26,6 +26,8 @@ import 'presentation/screens/splash_screen.dart';
 import 'presentation/screens/language_selection_screen.dart';
 import 'presentation/widgets/graceful_error_widget.dart';
 import 'firebase_options.dart';
+import 'core/config/remote_config_service.dart';
+import 'core/theme/vibe_theme_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'core/utils/screenshot_service.dart';
 
@@ -73,6 +75,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => PremiumService()..init()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => VibeThemeProvider()),
       ],
       child: TripMeApp(initFuture: initFuture),
     ),
@@ -124,6 +127,11 @@ Future<InitializationResult> performInitialization() async {
       debugPrint("Firebase initialized successfully.");
     } else {
       debugPrint("Skipping Firebase initialization due to missing config.");
+    }
+    if (firebaseStatus) {
+      final remoteConfig = await RemoteConfigService.getInstance();
+      await remoteConfig.initialize();
+      debugPrint("Remote Config initialized.");
     }
   } catch (e) {
     debugPrint("Firebase optional init error: $e");
@@ -319,8 +327,11 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
       return Scaffold(
         backgroundColor: AppTheme.primaryBlue,
         body: GracefulErrorWidget(
+          icon: Icons.storage_rounded,
+          title: "Oracle Cannot Start",
+          subtitle: _currentInitResult.error ?? "Critical storage error. The Oracle cannot start.",
+          buttonLabel: "Retry",
           onRetry: _retryInit,
-          errorMessage: _currentInitResult.error ?? "Critical storage error. The Oracle cannot start.",
         ),
       );
     }

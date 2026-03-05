@@ -25,6 +25,7 @@ import '../../core/rating/rating_service.dart';
 import '../../data/datasources/voice_service.dart';
 import '../../core/utils/screenshot_service.dart';
 import 'package:screenshot/screenshot.dart';
+import 'budget_tracker_screen.dart';
 
 class ResultsScreen extends StatefulWidget {
   final TripPlan plan;
@@ -161,6 +162,23 @@ class _ResultsScreenState extends State<ResultsScreen>
                             );
                             _tabController.animateTo(2); // Jump to Plan B / Premium CTA
                           }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: AppTheme.glassDecoration(opacity: 0.2, radius: BorderRadius.circular(16)),
+                      child: IconButton(
+                        icon: const Icon(Icons.account_balance_wallet_outlined, color: Colors.white),
+                        tooltip: "Budget Tracker",
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BudgetTrackerScreen(plan: plan),
+                            ),
+                          );
                         },
                       ),
                     ),

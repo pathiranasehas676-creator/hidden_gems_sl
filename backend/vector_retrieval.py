@@ -24,6 +24,13 @@ from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Filter, FieldCondition, MatchValue
 
+# Optional: Firebase support for dynamic hot-topics
+_db = None
+
+def set_firestore_db(db):
+    global _db
+    _db = db
+
 logger = logging.getLogger(__name__)
 
 # ─── Configuration ────────────────────────────────────────────────────────────
@@ -156,7 +163,16 @@ def retrieve(
                     diverse_hits.insert(0, indoor_results[0].payload)
                     diverse_hits = diverse_hits[:top_k]  # keep at topK
 
-        return diverse_hits
+        # ── Dynamic Backfill: Fetch "Hot Topics" from Firestore ───────────────
+        if _db:
+            try:
+                hot_docs = _db.collection('hot_topics').where('city', '==', destination.lower()).limit(3).get()
+                for doc in hot_docs:
+                    diverse_hits.insert(0, doc.to_dict())
+            except Exception as e:
+                logger.warning("[RAG] Firestore hot_topics lookup failed: %s", e)
+
+        return diverse_hits[:top_k]
 
     except Exception as e:
         logger.warning("[RAG] Retrieval failed (non-fatal, falling back to zero-shot): %s", e)

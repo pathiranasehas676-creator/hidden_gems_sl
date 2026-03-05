@@ -7,6 +7,7 @@ import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/discovery_service.dart';
 import '../widgets/batik_background.dart';
+import '../widgets/skeleton_loaders.dart';
 import 'place_details_screen.dart';
 
 class DiscoveryScreen extends StatefulWidget {
@@ -165,8 +166,14 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             child: _buildFilters(l10n),
           ),
           if (_isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator(color: AppTheme.accentOchre)),
+            SliverPadding(
+              padding: const EdgeInsets.only(top: 16),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => const DiscoveryCardSkeleton(),
+                  childCount: 3,
+                ),
+              ),
             )
           else if (_searchQuery.isNotEmpty)
             _buildListView(l10n)

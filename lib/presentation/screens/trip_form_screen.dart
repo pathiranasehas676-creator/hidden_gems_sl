@@ -37,6 +37,18 @@ class _TripFormScreenState extends State<TripFormScreen> {
     "Adventure 🧗", "Food 🍛", "Wildlife 🐘", "Photography 📸",
   ];
 
+  // Sri Lanka cities for autocomplete — offline, no network needed
+  static const List<String> _sriLankaCities = [
+    'Colombo', 'Galle', 'Kandy', 'Ella', 'Nuwara Eliya', 'Jaffna', 'Trincomalee',
+    'Batticaloa', 'Negombo', 'Anuradhapura', 'Polonnaruwa', 'Sigiriya', 'Dambulla',
+    'Matara', 'Hambantota', 'Tangalle', 'Mirissa', 'Weligama', 'Hikkaduwa',
+    'Unawatuna', 'Arugam Bay', 'Habarana', 'Pinnawala', 'Ratnapura', 'Kurunegala',
+    'Bandarawela', 'Badulla', 'Monaragala', 'Ampara', 'Mannar', 'Vavuniya',
+    'Kataragama', 'Tissamaharama', 'Bentota', 'Beruwala', 'Chilaw', 'Kalpitiya',
+    'Puttalam', 'Avissawella', 'Hatton', 'Nanu Oya', 'Ohiya',
+    'BIA / Airport', 'Katunayake',
+  ];
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -76,10 +88,13 @@ class _TripFormScreenState extends State<TripFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primaryBlue, // Let Batik ocean gradient show
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.white),
           onPressed: () {
             HapticFeedback.lightImpact();
             _prevStep();
@@ -92,13 +107,15 @@ class _TripFormScreenState extends State<TripFormScreen> {
               HapticFeedback.lightImpact();
               Navigator.pop(context);
             },
-            child: const Text("Exit", style: TextStyle(color: Colors.grey)),
+            child: const Text("Exit", style: TextStyle(color: Colors.white54)),
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          BatikBackground(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppTheme.appBackground),
+        child: Stack(
+          children: [
+            BatikBackground(
             child: PageView(
               controller: _pageController,
               physics: const NeverScrollableScrollPhysics(),
@@ -120,6 +137,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
             ),
           ),
         ],
+        ),
       ),
       bottomNavigationBar: _buildBottomBar(),
     );
@@ -154,9 +172,19 @@ class _TripFormScreenState extends State<TripFormScreen> {
       subtitle: "The Essentials",
       content: Column(
         children: [
-          _premiumTextField(label: "Starting Point", hint: "Airport, Colombo...", icon: Icons.flight_takeoff, onChanged: (v) => _origin = v),
+          _cityAutocomplete(
+            label: "Starting Point",
+            hint: "Airport, Colombo...",
+            icon: Icons.flight_takeoff,
+            onSelected: (v) => _origin = v,
+          ),
           const SizedBox(height: 24),
-          _premiumTextField(label: "Destination", hint: "Ella, Galle, Kandy...", icon: Icons.place_outlined, onChanged: (v) => _destination = v),
+          _cityAutocomplete(
+            label: "Destination",
+            hint: "Ella, Galle, Kandy...",
+            icon: Icons.place_outlined,
+            onSelected: (v) => _destination = v,
+          ),
           const SizedBox(height: 32),
           _outlinedTile(icon: Icons.calendar_month, label: "Start Date", value: _formatDate(_startDate), onTap: _pickDate),
         ],
@@ -254,22 +282,88 @@ class _TripFormScreenState extends State<TripFormScreen> {
     );
   }
 
-  Widget _premiumTextField({required String label, required String hint, required IconData icon, required Function(String) onChanged}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: AppTheme.glassDecoration(),
-      child: TextFormField(
-        style: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label, hintText: hint,
-          labelStyle: const TextStyle(color: Colors.white70),
-          hintStyle: const TextStyle(color: Colors.white30),
-          prefixIcon: Icon(icon, color: Colors.white70),
-          border: InputBorder.none,
-          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.accentOchre, width: 2)),
-        ),
-        onChanged: onChanged,
-      ),
+  /// City autocomplete field using local Sri Lanka dataset
+  Widget _cityAutocomplete({
+    required String label,
+    required String hint,
+    required IconData icon,
+    required Function(String) onSelected,
+  }) {
+    return Autocomplete<String>(
+      optionsBuilder: (textEditingValue) {
+        final query = textEditingValue.text.toLowerCase();
+        if (query.isEmpty) return const Iterable.empty();
+        return _sriLankaCities.where((city) => city.toLowerCase().contains(query));
+      },
+      onSelected: (val) {
+        HapticFeedback.selectionClick();
+        onSelected(val);
+      },
+      fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: AppTheme.glassDecoration(),
+          child: TextField(
+            controller: controller,
+            focusNode: focusNode,
+            onChanged: (v) => onSelected(v),
+            style: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Colors.white),
+            decoration: InputDecoration(
+              labelText: label,
+              hintText: hint,
+              labelStyle: const TextStyle(color: Colors.white70),
+              hintStyle: const TextStyle(color: Colors.white30),
+              prefixIcon: Icon(icon, color: Colors.white70),
+              border: InputBorder.none,
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: AppTheme.accentOchre, width: 2),
+              ),
+            ),
+          ),
+        );
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              margin: const EdgeInsets.only(top: 4),
+              width: MediaQuery.of(context).size.width - 64,
+              constraints: const BoxConstraints(maxHeight: 220),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0D1B2A),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white12),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 16),
+                ],
+              ),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: options.length,
+                itemBuilder: (context, i) {
+                  final city = options.elementAt(i);
+                  return InkWell(
+                    onTap: () => onSelected(city),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.location_on, size: 14, color: AppTheme.sigiriyaOchre),
+                          const SizedBox(width: 10),
+                          Text(city, style: GoogleFonts.outfit(color: Colors.white, fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'user_preference_service.dart';
+import 'trip_cache_service.dart';
 import '../../core/utils/secure_logger.dart';
 import '../../core/config/app_config.dart';
+import '../../core/config/remote_config_service.dart';
 
 class DiscoveryPlace {
   final String id;
@@ -92,23 +94,42 @@ class DiscoveryService {
     List<dynamic> data = [];
     
     try {
-      // 1. Try fetching from the Real-time API
-      final response = await http.get(
-        Uri.parse('${AppConfig.baseUrl}/discovery/places'),
-        headers: {'X-TripMe-Key': AppConfig.tripMeApiKey},
-      ).timeout(const Duration(seconds: 5));
+      final remoteConfig = await RemoteConfigService.getInstance();
+      final remoteTimestamp = remoteConfig.dataRefreshTimestamp;
+      final localTimestamp = TripCacheService.getGlobalDataTimestamp('places');
+      
+      final String? cachedData = TripCacheService.getGlobalData('places');
 
-      if (response.statusCode == 200) {
-        data = json.decode(response.body);
-        SecureLogger.info("Discovery data fetched from Real-time API.");
+      if (cachedData != null && localTimestamp >= remoteTimestamp) {
+        data = json.decode(cachedData);
+        SecureLogger.info("Discovery data loaded from cache (Smart Refresh).");
       } else {
-        throw Exception("API returned ${response.statusCode}");
+        // 1. Try fetching from the Real-time API
+        final response = await http.get(
+          Uri.parse('${AppConfig.baseUrl}/discovery/places'),
+          headers: {'X-TripMe-Key': AppConfig.tripMeApiKey},
+        ).timeout(const Duration(seconds: 5));
+
+        if (response.statusCode == 200) {
+          data = json.decode(response.body);
+          await TripCacheService.cacheGlobalData('places', response.body);
+          SecureLogger.info("Discovery data fetched from Real-time API and cached.");
+        } else {
+          throw Exception("API returned ${response.statusCode}");
+        }
       }
     } catch (e) {
-      // 2. Fallback to local assets if API fails
-      SecureLogger.error("API fetch failed, falling back to local assets", e);
-      final String localResponse = await rootBundle.loadString('assets/places.json');
-      data = json.decode(localResponse);
+      // 2. Fallback to cache or local assets if API fails
+      SecureLogger.error("API fetch/cache failed, checking cache or local assets", e);
+      final String? cachedData = TripCacheService.getGlobalData('places');
+      if (cachedData != null) {
+        data = json.decode(cachedData);
+        SecureLogger.info("Loaded from last successful cache.");
+      } else {
+        final String localResponse = await rootBundle.loadString('assets/places.json');
+        data = json.decode(localResponse);
+        SecureLogger.info("Loaded from static assets.");
+      }
     }
     
     List<DiscoveryPlace> places = data.map((json) => DiscoveryPlace.fromJson(json)).toList();
