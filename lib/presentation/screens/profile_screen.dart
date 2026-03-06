@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -65,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: GoogleFonts.outfit(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 16),
@@ -79,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     leading: Text(lang['flag']!, style: const TextStyle(fontSize: 24)),
                     title: Text(
                       lang['name']!,
-                      style: GoogleFonts.inter(color: Colors.white),
+                      style: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface),
                     ),
                     onTap: () {
                       context.read<LocaleProvider>().setLocale(lang['code']!);
@@ -99,14 +99,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final picker = ImagePicker();
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      backgroundColor: AppTheme.primaryBlue,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) => Container(
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(l10n.uploadPhoto, style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.uploadPhoto, style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -150,11 +150,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(color: Colors.white10, shape: BoxShape.circle),
-            child: Icon(icon, color: Colors.white, size: 32),
+            decoration: BoxDecoration(color: Theme.of(context).dividerColor.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 32),
           ),
           const SizedBox(height: 8),
-          Text(label, style: GoogleFonts.inter(color: Colors.white70, fontSize: 12)),
+          Text(label, style: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 12)),
         ],
       ),
     );
@@ -182,7 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: GoogleFonts.outfit(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white, // Pop against dark background
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -220,16 +220,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             if (isPremium)
               Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF0F2027), AppTheme.primaryBlue, AppTheme.accentOchre],
+                    colors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.secondary,
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                 ),
               )
             else
-              Container(color: AppTheme.primaryBlue),
+              Container(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)),
             
             // Profile Image with Glow
             GestureDetector(
@@ -243,13 +246,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: (isPremium ? AppTheme.accentOchre : Colors.white).withValues(alpha: 0.3),
+                        color: (isPremium ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface).withValues(alpha: 0.2),
                         blurRadius: 20,
                         spreadRadius: 5,
                       )
                     ],
                     border: Border.all(
-                      color: isPremium ? AppTheme.accentOchre : Colors.white,
+                      color: isPremium ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withValues(alpha: 0.5),
                       width: 3,
                     ),
                   ),
@@ -276,11 +279,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.accentOchre,
+                    color: Theme.of(context).colorScheme.primary,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.primaryBlue, width: 2),
+                    border: Border.all(color: Theme.of(context).cardColor, width: 2),
                   ),
-                  child: const Icon(Icons.camera_alt, color: AppTheme.primaryBlue, size: 16),
+                  child: Icon(Icons.camera_alt, color: Theme.of(context).colorScheme.onPrimary, size: 16),
                 ),
               ),
             ),
@@ -292,10 +295,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _defaultAvatar(bool isPremium) {
     return Container(
-      color: Colors.white10,
+      color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
       child: Icon(
         isPremium ? Icons.stars : Icons.person,
-        color: Colors.white70,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
         size: 50,
       ),
     );
@@ -351,14 +354,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Text(
           label,
           style: GoogleFonts.inter(
             fontSize: 10,
-            color: Colors.white70,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             fontWeight: FontWeight.bold,
             letterSpacing: 1,
           ),
@@ -368,7 +371,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _verticalDivider() {
-    return Container(height: 30, width: 1, color: Colors.white24);
+    return Container(height: 30, width: 1, color: Theme.of(context).dividerColor.withValues(alpha: 0.2));
   }
 
   Widget _buildVibeSelector() {
@@ -382,7 +385,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontSize: 14,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 16),
@@ -408,19 +411,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.accentOchre : AppTheme.glassDecoration().color,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppTheme.accentOchre : Colors.white24,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withValues(alpha: 0.2),
           ),
-          boxShadow: isSelected ? AppTheme.premiumShadow : AppTheme.softShadow,
         ),
         child: Text(
           v.toUpperCase(),
           style: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.bold,
-            color: isSelected ? AppTheme.primaryBlue : Colors.white70,
+            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             letterSpacing: 1,
           ),
         ),
@@ -471,29 +473,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   CalendarFormat.month: 'Month',
                 },
                 headerStyle: HeaderStyle(
-                  titleTextStyle: GoogleFonts.outfit(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  titleTextStyle: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold),
                   formatButtonVisible: false,
-                  leftChevronIcon: const Icon(Icons.chevron_left, color: Colors.white54),
-                  rightChevronIcon: const Icon(Icons.chevron_right, color: Colors.white54),
+                  leftChevronIcon: Icon(Icons.chevron_left, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  rightChevronIcon: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
                 ),
                 daysOfWeekStyle: DaysOfWeekStyle(
-                  weekdayStyle: GoogleFonts.inter(color: Colors.white70, fontSize: 12),
-                  weekendStyle: GoogleFonts.inter(color: AppTheme.accentOchre, fontSize: 12),
+                  weekdayStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 12),
+                  weekendStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.primary, fontSize: 12),
                 ),
                 calendarStyle: CalendarStyle(
-                  defaultTextStyle: GoogleFonts.inter(color: Colors.white, fontSize: 13),
-                  weekendTextStyle: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-                  outsideTextStyle: GoogleFonts.inter(color: Colors.white24, fontSize: 13),
+                  defaultTextStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
+                  weekendTextStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 13),
+                  outsideTextStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 13),
                   todayDecoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withValues(alpha: 0.5),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  selectedDecoration: const BoxDecoration(
-                    color: AppTheme.accentOchre,
+                  selectedDecoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
-                  markerDecoration: const BoxDecoration(
-                    color: AppTheme.accentOchre,
+                  markerDecoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -604,13 +606,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         theme.name.split(' ').first,
                         style: GoogleFonts.outfit(
                           fontSize: 9,
-                          color: isActive ? theme.accent : Colors.white54,
+                          color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       if (isActive)
-                        Icon(Icons.check_circle, color: theme.accent, size: 14),
+                        const Icon(Icons.check_circle, color: Colors.white, size: 14),
                     ],
                   ),
                 ),
@@ -666,10 +668,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
             style: SegmentedButton.styleFrom(
               backgroundColor: Colors.transparent,
-              selectedBackgroundColor: AppTheme.accentOchre.withValues(alpha: 0.2),
-              selectedForegroundColor: AppTheme.accentOchre,
-              foregroundColor: Colors.white70,
-              side: const BorderSide(color: Colors.white12),
+              selectedBackgroundColor: Theme.of(context).colorScheme.primary,
+              selectedForegroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              side: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.2)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
@@ -714,17 +716,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white10,
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white24),
+            border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.2)),
           ),
-          child: Icon(icon, color: Colors.white, size: 20),
+          child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
         ),
         title: Text(
           title,
-          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
         ),
-        trailing: const Icon(Icons.chevron_right, size: 18, color: Colors.white54),
+        trailing: Icon(Icons.chevron_right, size: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
         onTap: onTap ?? () {},
       ),
     );

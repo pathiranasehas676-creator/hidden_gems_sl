@@ -52,12 +52,14 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(
-          'Saved Journeys',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? Colors.transparent,
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+        titleTextStyle: GoogleFonts.outfit(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
         actions: [
           if (_plans.isNotEmpty)
             TextButton.icon(
@@ -68,13 +70,13 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (_) => AlertDialog(
-                    backgroundColor: AppTheme.darkCard,
-                    title: const Text('Clear All Saved Plans', style: TextStyle(color: Colors.white)),
-                    content: const Text('This cannot be undone.', style: TextStyle(color: Colors.white70)),
+                    backgroundColor: Theme.of(context).cardColor,
+                    title: Text('Clear All Saved Plans', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                    content: Text('This cannot be undone.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
                     actions: [
                       TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
+                          child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)))),
                       TextButton(
                           onPressed: () => Navigator.pop(context, true),
                           child: const Text('Clear', style: TextStyle(color: Colors.redAccent))),
@@ -103,11 +105,11 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppTheme.sigiriyaOchre.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.sigiriyaOchre.withValues(alpha: 0.3)),
+              border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
             ),
-            child: const Icon(Icons.bookmark_outlined, size: 48, color: AppTheme.sigiriyaOchre),
+            child: Icon(Icons.bookmark_outlined, size: 48, color: Theme.of(context).colorScheme.primary),
           ),
           const SizedBox(height: 24),
           Text('No Saved Journeys',
@@ -150,7 +152,10 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
             onTap: () => _openPlan(plan),
             child: Container(
               padding: const EdgeInsets.all(16),
-              decoration: AppTheme.ochreCardDecoration(),
+              decoration: AppTheme.glassDecoration(
+                color: Theme.of(context).cardColor,
+                opacity: Theme.of(context).brightness == Brightness.light ? 0.9 : 0.2,
+              ),
               child: Row(
                 children: [
                   // Destination Icon
@@ -158,11 +163,11 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: AppTheme.sigiriyaOchre.withValues(alpha: 0.12),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.sigiriyaOchre.withValues(alpha: 0.3)),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
                     ),
-                    child: const Icon(Icons.travel_explore, color: AppTheme.sigiriyaOchre, size: 24),
+                    child: Icon(Icons.travel_explore, color: Theme.of(context).colorScheme.primary, size: 24),
                   ),
                   const SizedBox(width: 14),
                   // Plan Info
@@ -173,7 +178,7 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                         Text(
                           '${summary.fromCity} → ${summary.destinationCity}',
                           style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
+                              fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
                         ),
                         const SizedBox(height: 6),
                         Wrap(
@@ -188,7 +193,7 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                         const SizedBox(height: 6),
                         Text(
                           'Saved $cachedAgo',
-                          style: const TextStyle(fontSize: 11, color: Colors.white38),
+                          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
                         ),
                       ],
                     ),
@@ -207,9 +212,9 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 11, color: AppTheme.sigiriyaOchre.withValues(alpha: 0.7)),
+        Icon(icon, size: 11, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7)),
         const SizedBox(width: 3),
-        Text(label, style: const TextStyle(fontSize: 11, color: Colors.white60)),
+        Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
       ],
     );
   }

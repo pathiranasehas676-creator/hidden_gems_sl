@@ -136,8 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(builder: (context) => const TripFormScreen()),
           );
         },
-        backgroundColor: AppTheme.accentOchre,
-        child: const Icon(Icons.auto_awesome, color: AppTheme.primaryBlue),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.auto_awesome, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
@@ -172,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       "Today in Sri Lanka 🇱🇰",
                       style: GoogleFonts.outfit(
-                        color: AppTheme.accentOchre,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                         letterSpacing: 1.2,
@@ -182,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       event['name'] ?? "Special Event",
                       style: GoogleFonts.outfit(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -250,9 +250,9 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withValues(alpha: 0.8),
+                    Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.8),
                     Colors.transparent,
-                    AppTheme.primaryBlue.withValues(alpha: 0.9), // Blend into oceanic background
+                    Theme.of(context).scaffoldBackgroundColor, 
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -270,8 +270,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     letterSpacing: 1,
                   ),
                   children: [
-                    const TextSpan(text: "AdvanceTravel", style: TextStyle(color: Colors.white)),
-                    const TextSpan(text: ".me", style: TextStyle(color: AppTheme.sigiriyaOchre)),
+                    TextSpan(text: "AdvanceTravel", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                    const TextSpan(text: ".me", style: TextStyle(color: Color(0xFFC19A6B))), 
                   ],
                 ),
               ),
@@ -302,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }),
         _glassActionIcon(Icons.person_outline, () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
-        }),
+        }, iconColor: Theme.of(context).colorScheme.onSurface),
         const SizedBox(width: 8),
       ],
     );
@@ -375,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Pop against dark oceanic backdrop
+                    color: Theme.of(context).colorScheme.onSurface,
                     height: 1.1,
                   ),
                 ),
@@ -393,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
       style: GoogleFonts.outfit(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: Colors.white, // Pop against dark background
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
@@ -551,12 +551,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _glassActionIcon(IconData icon, VoidCallback onTap) {
+  Widget _glassActionIcon(IconData icon, VoidCallback onTap, {Color? iconColor}) {
     return Container(
       margin: const EdgeInsets.all(8),
-      decoration: AppTheme.glassDecoration(opacity: 0.2, radius: BorderRadius.circular(12)),
+      decoration: AppTheme.glassDecoration(
+        opacity: Theme.of(context).brightness == Brightness.light ? 0.8 : 0.2, 
+        radius: BorderRadius.circular(12),
+        color: Theme.of(context).cardColor,
+      ),
       child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 20),
+        icon: Icon(icon, color: iconColor ?? Colors.white, size: 20),
         onPressed: onTap,
       ),
     );

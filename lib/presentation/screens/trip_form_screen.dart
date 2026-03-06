@@ -95,7 +95,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new, size: 20, color: Theme.of(context).colorScheme.primary),
           onPressed: () {
             HapticFeedback.lightImpact();
             _prevStep();
@@ -108,7 +108,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
               HapticFeedback.lightImpact();
               Navigator.pop(context);
             },
-            child: const Text("Exit", style: TextStyle(color: Colors.white54)),
+            child: Text("Exit", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))),
           ),
         ],
       ),
@@ -152,11 +152,8 @@ class _TripFormScreenState extends State<TripFormScreen> {
             duration: const Duration(milliseconds: 400),
             width: 140 * ((_currentStep + 1) / _totalSteps),
             decoration: BoxDecoration(
-              color: AppTheme.accentOchre, 
+              color: Theme.of(context).colorScheme.primary, 
               borderRadius: BorderRadius.circular(3),
-              boxShadow: [
-                BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.8), blurRadius: 10, spreadRadius: 1),
-              ],
             ),
           ),
         ],
@@ -200,8 +197,8 @@ class _TripFormScreenState extends State<TripFormScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("How many days?", style: GoogleFonts.inter(fontSize: 14, color: Colors.black54)),
-              Text("$_days Days", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.accentOchre)),
+              Text("How many days?", style: GoogleFonts.inter(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+              Text("$_days Days", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
             ],
           ),
           Slider(
@@ -244,7 +241,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
           final isSelected = _interests.contains(opt);
           return FilterChip(
             label: Text(opt, style: GoogleFonts.outfit(
-              color: isSelected ? Colors.white : AppTheme.primaryBlue,
+              color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             )),
             selected: isSelected,
@@ -252,11 +249,11 @@ class _TripFormScreenState extends State<TripFormScreen> {
               HapticFeedback.selectionClick();
               setState(() => val ? _interests.add(opt) : _interests.remove(opt));
             },
-            selectedColor: AppTheme.accentOchre.withValues(alpha: 0.2),
-            backgroundColor: AppTheme.glassDecoration().color,
+            selectedColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: Theme.of(context).cardColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: isSelected ? AppTheme.accentOchre : Colors.white24),
+              side: BorderSide(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withValues(alpha: 0.2)),
             ),
           );
         }).toList(),
@@ -270,9 +267,9 @@ class _TripFormScreenState extends State<TripFormScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(subtitle.toUpperCase(), style: GoogleFonts.inter(fontSize: 12, color: AppTheme.accentOchre, fontWeight: FontWeight.bold, letterSpacing: 2)),
+          Text(subtitle.toUpperCase(), style: GoogleFonts.inter(fontSize: 12, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold, letterSpacing: 2)),
           const SizedBox(height: 12),
-          Text(title, style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color, height: 1.2)),
+          Text(title, style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, height: 1.2)),
           const SizedBox(height: 40),
           content,
         ],
@@ -300,21 +297,24 @@ class _TripFormScreenState extends State<TripFormScreen> {
       fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: AppTheme.glassDecoration(),
+          decoration: AppTheme.glassDecoration(
+            color: Theme.of(context).cardColor,
+            opacity: Theme.of(context).brightness == Brightness.light ? 0.8 : 0.2,
+          ),
           child: TextField(
             controller: controller,
             focusNode: focusNode,
             onChanged: (v) => onSelected(v),
-            style: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Colors.white),
+            style: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
             decoration: InputDecoration(
               labelText: label,
               hintText: hint,
-              labelStyle: const TextStyle(color: Colors.white70),
-              hintStyle: const TextStyle(color: Colors.white30),
-              prefixIcon: Icon(icon, color: Colors.white70),
+              labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
+              prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
               border: InputBorder.none,
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(color: AppTheme.accentOchre, width: 2),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
               ),
             ),
           ),
@@ -330,9 +330,9 @@ class _TripFormScreenState extends State<TripFormScreen> {
               width: MediaQuery.of(context).size.width - 64,
               constraints: const BoxConstraints(maxHeight: 220),
               decoration: BoxDecoration(
-                color: const Color(0xFF0D1B2A),
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: Theme.of(context).dividerColor),
                 boxShadow: [
                   BoxShadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 16),
                 ],
@@ -372,15 +372,15 @@ class _TripFormScreenState extends State<TripFormScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("ESTIMATED BUDGET", style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white70)),
+          Text("ESTIMATED BUDGET", style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
           const SizedBox(height: 8),
           TextFormField(
             controller: _budgetController,
-            style: AppTheme.budgetEmphasis.copyWith(color: Colors.white),
+            style: AppTheme.budgetEmphasis.copyWith(color: Theme.of(context).colorScheme.onSurface),
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               prefixText: "LKR ", 
-              prefixStyle: TextStyle(color: Colors.white70),
+              prefixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
               border: InputBorder.none
             ),
           ),
@@ -404,22 +404,21 @@ class _TripFormScreenState extends State<TripFormScreen> {
               label: Text(opt.toUpperCase()),
               selected: isSelected,
               onSelected: (_) => onSelect(opt),
-              selectedColor: AppTheme.accentOchre.withValues(alpha: 0.2),
+              selectedColor: Theme.of(context).colorScheme.primary,
               labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.white70, 
+                color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface, 
                 fontWeight: FontWeight.bold, 
                 fontSize: 11,
               ),
-              backgroundColor: AppTheme.glassDecoration().color,
+              backgroundColor: Theme.of(context).cardColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: isSelected ? AppTheme.accentOchre : Colors.white24,
+                  color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withValues(alpha: 0.2),
                   width: isSelected ? 2 : 1,
                 ),
               ),
               elevation: 0,
-              shadowColor: AppTheme.accentOchre.withValues(alpha: 0.5),
             );
           }).toList(),
         ),
@@ -427,7 +426,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     );
   }
 
-  Widget _itemHeader(String label) => Text(label.toUpperCase(), style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white70, letterSpacing: 1));
+  Widget _itemHeader(String label) => Text(label.toUpperCase(), style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), letterSpacing: 1));
 
   Widget _outlinedTile({required IconData icon, required String label, required String value, required VoidCallback onTap}) {
     return InkWell(
@@ -437,11 +436,11 @@ class _TripFormScreenState extends State<TripFormScreen> {
         decoration: AppTheme.glassDecoration(),
         child: Row(
           children: [
-            Icon(icon, color: AppTheme.accentOchre),
+            Icon(icon, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 16),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(label, style: const TextStyle(fontSize: 12, color: Colors.white70)),
-              Text(value, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+              Text(label, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+              Text(value, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface)),
             ]),
           ],
         ),

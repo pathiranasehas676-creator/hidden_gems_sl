@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,6 +32,7 @@ import 'core/theme/vibe_theme_provider.dart';
 import 'core/theme/app_mode_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'core/utils/screenshot_service.dart';
+import 'presentation/widgets/golden_tracer_indicator.dart';
 
 class InitializationResult {
   final bool hiveSuccess;
@@ -57,6 +59,7 @@ void main() async {
   try {
     await TripCacheService.init();
     await UserPreferenceService.init();
+    await UserPreferenceService.ensureProfileLoaded();
     debugPrint("Core storage ready.");
   } catch (e) {
     debugPrint("CRITICAL Hive Init Error: $e");
@@ -355,10 +358,23 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            body: Container(
-              color: AppTheme.silkPearl,
-              child: const Center(
-                child: CircularProgressIndicator(color: AppTheme.primaryBlue),
+            backgroundColor: AppTheme.primaryBlue,
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const GoldenTracerIndicator(),
+                  const SizedBox(height: 16),
+                  Text(
+                    "ORACLE IS THINKING...",
+                    style: GoogleFonts.inter(
+                      color: AppTheme.accentOchre,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ],
               ),
             ),
           );

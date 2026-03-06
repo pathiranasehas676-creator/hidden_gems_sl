@@ -5,7 +5,7 @@ import '../../data/datasources/user_preference_service.dart';
 /// Holds the currently active VibeTheme and notifies the entire widget tree
 /// when the user changes it from the Profile screen.
 class VibeThemeProvider extends ChangeNotifier {
-  VibeTheme _current = VibeThemes.ceylonBlue;
+  VibeTheme _current = VibeThemes.oceanNature;
 
   VibeTheme get current => _current;
 

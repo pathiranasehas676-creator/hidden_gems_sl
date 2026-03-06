@@ -2,19 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // --- AdvanceTravel.Me Premium Palette ---
-  static const Color ceylonBlue = Color(0xFF003B5C); // Deep Ceylon Blue
-  static const Color sigiriyaOchre = Color(0xFFC19A6B); // Sigiriya Ochre
+  // --- Clean & Modern Palette (Eco-Friendly & Trustworthy) ---
+  static const Color modernGreen = Color(0xFF2E7D32); // Primary Green
+  static const Color modernBlue  = Color(0xFF1976D2); // Secondary Blue
+  static const Color pureWhite   = Color(0xFFFFFFFF); // Clean Background
+  static const Color softGray    = Color(0xFFF8FAFC); // Subtle Surface
+  static const Color darkText    = Color(0xFF1E293B); // Dark Slate for readability
 
-  // --- Green + Blue + White Palette (Ocean & Nature) ---
-  static const Color oceanBlue  = Color(0xFF005B96); // Ocean Blue (Light primary)
-  static const Color skyBlue    = Color(0xFF38BDF8); // Sky Blue (Dark primary)
-  static const Color teaGreen   = Color(0xFF27AE60); // Tea Leaf Green (Light accent)
-  static const Color mintGreen  = Color(0xFF2ECC71); // Mint Green (Dark accent)
-  static const Color offWhite   = Color(0xFFF8FAFC); // Off-White background (Light)
-  static const Color softSlate  = Color(0xFF1E293B); // Soft Slate surface (Dark)
-  static const Color deepSlate  = Color(0xFF0F172A); // Deep Slate background (Dark)
-  static const Color darkNavy   = Color(0xFF0F172A); // Text on light bg
+  // --- Dark Theme Palette ---
+  static const Color deepSlate   = Color(0xFF0F172A);
+  static const Color softSlate   = Color(0xFF1E293B);
+  static const Color skyBlue     = Color(0xFF38BDF8);
+  static const Color mintGreen   = Color(0xFF34D399);
+  static const Color offWhite    = Color(0xFFF1F5F9);
+
+  // --- Legacy Palette (for compatibility) ---
+  static const Color ceylonBlue = Color(0xFF003B5C);
+  static const Color sigiriyaOchre = Color(0xFFC19A6B);
 
   static const Color surfaceWhite = Color(0xFFFAFAFA);
   static const Color backgroundGray = Color(0xFFF2F3F5);
@@ -55,6 +59,12 @@ class AppTheme {
       ];
 
   // --- Premium Gradients ---
+  static const LinearGradient modernGradient = LinearGradient(
+    colors: [modernGreen, modernBlue],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
   static const LinearGradient oceanGradient = LinearGradient(
     colors: [ceylonBlue, Color(0xFF002844)],
     begin: Alignment.topCenter,
@@ -133,39 +143,40 @@ class AppTheme {
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: offWhite,
+    scaffoldBackgroundColor: pureWhite,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: oceanBlue,
-      primary: oceanBlue,
-      secondary: teaGreen,
-      surface: Colors.white,
+      seedColor: modernGreen,
+      primary: modernGreen,
+      secondary: modernBlue,
+      surface: pureWhite,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
-      onSurface: darkNavy,
+      onSurface: darkText,
       error: errorRed,
     ),
     textTheme: GoogleFonts.outfitTextTheme().copyWith(
-      displayLarge: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w700, color: darkNavy),
-      displayMedium: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w600, color: darkNavy),
-      headlineMedium: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w600, color: darkNavy),
-      titleLarge: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w600, color: darkNavy),
-      bodyLarge: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w400, color: darkNavy),
+      displayLarge: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w700, color: darkText),
+      displayMedium: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w600, color: darkText),
+      headlineMedium: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w600, color: darkText),
+      titleLarge: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w600, color: darkText),
+      bodyLarge: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w400, color: darkText),
       bodyMedium: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w400, color: textSecondary),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: oceanBlue,
-      foregroundColor: Colors.white,
+      backgroundColor: pureWhite,
+      foregroundColor: modernGreen,
       elevation: 0,
       centerTitle: true,
       titleTextStyle: GoogleFonts.outfit(
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: Colors.white,
+        color: modernGreen,
       ),
+      iconTheme: const IconThemeData(color: modernGreen),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: oceanBlue,
+        backgroundColor: modernGreen,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -173,19 +184,20 @@ class AppTheme {
       ),
     ),
     cardTheme: CardThemeData(
-      elevation: 0,
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.05),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: borderGray),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.black.withValues(alpha: 0.03)),
       ),
       color: Colors.white,
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: teaGreen,
+      backgroundColor: modernGreen,
       foregroundColor: Colors.white,
     ),
     chipTheme: ChipThemeData(
-      selectedColor: teaGreen.withValues(alpha: 0.15),
+      selectedColor: modernGreen.withValues(alpha: 0.15),
       labelStyle: GoogleFonts.inter(fontSize: 12),
     ),
   );
@@ -358,14 +370,14 @@ class VibeThemes {
     id: 'ocean_nature',
     name: 'Ocean & Nature',
     emoji: '🌿',
-    primary: Color(0xFF005B96),   // Ocean Blue
-    accent: Color(0xFF27AE60),    // Tea Leaf Green
+    primary: AppTheme.modernGreen,   
+    accent: AppTheme.modernBlue,    
     background: LinearGradient(
-      colors: [Color(0xFF003D6B), Color(0xFF0D2137)],
+      colors: [Color(0xFFE8F5E9), Color(0xFFE3F2FD)], // Very light green to light blue
       begin: Alignment.topLeft, end: Alignment.bottomRight,
     ),
     cardGradient: LinearGradient(
-      colors: [Color(0xFF005B96), Color(0xFF003D6B)],
+      colors: [AppTheme.modernGreen, AppTheme.modernBlue],
       begin: Alignment.topLeft, end: Alignment.bottomRight,
     ),
   );

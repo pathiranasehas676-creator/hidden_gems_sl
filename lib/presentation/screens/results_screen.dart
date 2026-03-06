@@ -112,7 +112,7 @@ class _ResultsScreenState extends State<ResultsScreen>
       body: Screenshot(
         controller: _screenshotService.controller,
         child: Container(
-          color: AppTheme.primaryBlue, // Ensure background is captured
+          color: Theme.of(context).scaffoldBackgroundColor, // Ensure background is captured
           child: Stack(
             children: [
               NestedScrollView(
@@ -122,9 +122,9 @@ class _ResultsScreenState extends State<ResultsScreen>
                   expandedHeight: 280,
                   pinned: true,
                   stretch: true,
-                  backgroundColor: AppTheme.primaryBlue,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   leading: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                    icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.primary, size: 20),
                     onPressed: () {
                       HapticFeedback.mediumImpact();
                       Navigator.pop(context);
@@ -202,13 +202,15 @@ class _ResultsScreenState extends State<ResultsScreen>
                               style: GoogleFonts.outfit(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 24,
-                                color: Colors.white,
-                                shadows: [const Shadow(color: Colors.black45, blurRadius: 10)],
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             Text(
                               "Your Personalized Journey",
-                              style: GoogleFonts.inter(fontSize: 10, color: Colors.white70),
+                              style: GoogleFonts.inter(
+                                fontSize: 10, 
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
                             ),
                           ],
                         );
@@ -250,9 +252,9 @@ class _ResultsScreenState extends State<ResultsScreen>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.black.withValues(alpha: 0.6),
+                                Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.4),
                                 Colors.transparent,
-                                AppTheme.primaryBlue.withValues(alpha: 0.8),
+                                Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
@@ -267,7 +269,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                     preferredSize: const Size.fromHeight(48),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.95),
+                        color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.95),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
@@ -278,15 +280,12 @@ class _ResultsScreenState extends State<ResultsScreen>
                         isScrollable: true,
                         dividerColor: Colors.transparent,
                         indicator: BoxDecoration(
-                          color: AppTheme.accentOchre,
+                          color: Theme.of(context).colorScheme.primary,
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.6), blurRadius: 8, spreadRadius: 1)
-                          ],
                         ),
                         indicatorPadding: const EdgeInsets.symmetric(horizontal: -12, vertical: 4),
-                        labelColor: AppTheme.primaryBlue,
-                        unselectedLabelColor: Colors.white70,
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         labelStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold),
                         tabs: [
                           Tab(text: l10n.itinerary),
@@ -404,7 +403,7 @@ class _ResultsScreenState extends State<ResultsScreen>
     return IconButton(
       icon: Icon(
         _isSaved ? Icons.bookmark : Icons.bookmark_border_rounded,
-        color: _isSaved ? AppTheme.accentOchre : Colors.white,
+        color: _isSaved ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
       ),
       onPressed: () async {
         if (!_isSaved) {
@@ -437,8 +436,8 @@ class _ResultsScreenState extends State<ResultsScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 2),
-              Text("$score", style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
-              Text("VERIFIED", style: GoogleFonts.inter(color: AppTheme.accentOchre, fontSize: 5, fontWeight: FontWeight.bold)),
+              Text("$score", style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 11)),
+              Text("VERIFIED", style: GoogleFonts.inter(color: Theme.of(context).colorScheme.primary, fontSize: 5, fontWeight: FontWeight.bold)),
             ],
           ),
         ],
@@ -479,11 +478,16 @@ class _ResultsScreenState extends State<ResultsScreen>
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.auto_awesome, color: AppTheme.accentOchre, size: 20),
+                    Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary, size: 20),
                     const SizedBox(width: 12),
                     Text(
                       "ORACLE'S VISION",
-                      style: GoogleFonts.outfit(color: AppTheme.accentOchre, fontWeight: FontWeight.bold, letterSpacing: 2, fontSize: 12),
+                      style: GoogleFonts.outfit(
+                        color: Theme.of(context).colorScheme.primary, 
+                        fontWeight: FontWeight.bold, 
+                        letterSpacing: 2, 
+                        fontSize: 12,
+                      ),
                     ),
                     const Spacer(),
                     _buildVoiceButton(plan, isPremium),
@@ -492,7 +496,11 @@ class _ResultsScreenState extends State<ResultsScreen>
                 const SizedBox(height: 12),
                 Text(
                   plan.humanText,
-                  style: GoogleFonts.inter(color: Colors.white, height: 1.6, fontSize: 14),
+                  style: GoogleFonts.inter(
+                    color: Theme.of(context).colorScheme.onSurface, 
+                    height: 1.6, 
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -536,27 +544,50 @@ class _ResultsScreenState extends State<ResultsScreen>
     return DynamicLightWrapper(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: AppTheme.glassDecoration(opacity: 0.1, radius: BorderRadius.circular(20)).copyWith(
-          border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
+        decoration: AppTheme.glassDecoration(
+          opacity: Theme.of(context).brightness == Brightness.light ? 0.8 : 0.1, 
+          radius: BorderRadius.circular(20),
+          color: Theme.of(context).cardColor,
+        ).copyWith(
+          border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: AppTheme.primaryBlue, shape: BoxShape.circle, boxShadow: AppTheme.premiumShadow),
-              child: Text("${day.day}", 
-                style: GoogleFonts.outfit(color: AppTheme.accentOchre, fontWeight: FontWeight.bold, fontSize: 18)),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary, 
+                shape: BoxShape.circle, 
+                boxShadow: AppTheme.premiumShadow,
+              ),
+              child: Text(
+                "${day.day}", 
+                style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Day ${day.day}".toUpperCase(), 
-                    style: GoogleFonts.inter(color: AppTheme.accentOchre, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 2)),
+                  Text(
+                    "Day ${day.day}".toUpperCase(), 
+                    style: GoogleFonts.inter(
+                      color: Theme.of(context).colorScheme.primary, 
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 12, 
+                      letterSpacing: 2,
+                    ),
+                  ),
                   if (day.dayTheme.isNotEmpty)
-                    Text(day.dayTheme, 
-                      style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+                    Text(
+                      day.dayTheme, 
+                      style: GoogleFonts.outfit(
+                        color: Theme.of(context).colorScheme.onSurface, 
+                        fontWeight: FontWeight.bold, 
+                        fontSize: 20,
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -582,7 +613,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                   item.time,
                   style: GoogleFonts.outfit(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.accentOchre,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 13),
                 ),
                 Expanded(
@@ -624,7 +655,10 @@ class _ResultsScreenState extends State<ResultsScreen>
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(bottom: 24),
-              decoration: AppTheme.glassDecoration().copyWith(
+              decoration: AppTheme.glassDecoration(
+                color: Theme.of(context).cardColor,
+                opacity: Theme.of(context).brightness == Brightness.light ? 0.9 : 0.12,
+              ).copyWith(
                 border: Border(left: BorderSide(color: typeInfo.color, width: 4)),
               ),
               child: Padding(
@@ -634,7 +668,16 @@ class _ResultsScreenState extends State<ResultsScreen>
                   children: [
                     Row(
                       children: [
-                        Expanded(child: Text(item.title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white))),
+                        Expanded(
+                          child: Text(
+                            item.title, 
+                            style: GoogleFonts.outfit(
+                              fontWeight: FontWeight.bold, 
+                              fontSize: 16, 
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
                         Icon(typeInfo.icon, size: 18, color: typeInfo.color.withValues(alpha: 0.5)),
                       ],
                     ),
@@ -650,7 +693,14 @@ class _ResultsScreenState extends State<ResultsScreen>
                     ),
                     if (item.notes.isNotEmpty) ...[
                       const SizedBox(height: 16),
-                      Text(item.notes, style: GoogleFonts.inter(fontSize: 13, color: Colors.white70, height: 1.5)),
+                      Text(
+                        item.notes, 
+                        style: GoogleFonts.inter(
+                          fontSize: 13, 
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+                          height: 1.5,
+                        ),
+                      ),
                     ],
                   ],
                 ),
@@ -717,36 +767,69 @@ class _ResultsScreenState extends State<ResultsScreen>
   Widget _buildHeroBudgetCard(int total, int userBudget, double progress, bool isOver) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: AppTheme.glassDecoration(opacity: 0.15),
+      decoration: AppTheme.glassDecoration(
+        color: Theme.of(context).cardColor,
+        opacity: Theme.of(context).brightness == Brightness.light ? 0.9 : 0.15,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("ESTIMATED TOTAL", style: GoogleFonts.inter(color: AppTheme.accentOchre, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.5)),
+              Text(
+                "ESTIMATED TOTAL", 
+                style: GoogleFonts.inter(
+                  color: Theme.of(context).colorScheme.primary, 
+                  fontWeight: FontWeight.bold, 
+                  fontSize: 12, 
+                  letterSpacing: 1.5,
+                ),
+              ),
               if (isOver) 
                 const Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent, size: 20),
             ],
           ),
           const SizedBox(height: 8),
-          Text(_fmtLkr(total), style: GoogleFonts.outfit(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+          Text(
+            _fmtLkr(total), 
+            style: GoogleFonts.outfit(
+              color: Theme.of(context).colorScheme.onSurface, 
+              fontSize: 32, 
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 20),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 12,
-              backgroundColor: Colors.white10,
-              valueColor: AlwaysStoppedAnimation<Color>(isOver ? Colors.orangeAccent : AppTheme.accentOchre),
+              backgroundColor: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                isOver ? Colors.orangeAccent : Theme.of(context).colorScheme.primary,
+              ),
             ),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("User Budget: ${_fmtLkr(userBudget)}", style: const TextStyle(color: Colors.white70, fontSize: 12)),
-              Text("${(progress * 100).toInt()}% Used", style: TextStyle(color: isOver ? Colors.orangeAccent : Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(
+                "User Budget: ${_fmtLkr(userBudget)}", 
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), 
+                  fontSize: 12,
+                ),
+              ),
+              Text(
+                "${(progress * 100).toInt()}% Used", 
+                style: TextStyle(
+                  color: isOver ? Colors.orangeAccent : Theme.of(context).colorScheme.primary, 
+                  fontSize: 12, 
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ],
@@ -759,26 +842,47 @@ class _ResultsScreenState extends State<ResultsScreen>
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.glassDecoration(opacity: 0.05),
+      decoration: AppTheme.glassDecoration(
+        color: Theme.of(context).cardColor,
+        opacity: Theme.of(context).brightness == Brightness.light ? 0.7 : 0.05,
+      ),
       child: Row(
         children: [
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(color: AppTheme.primaryBlue, shape: BoxShape.circle),
-            child: Icon(_getCategoryIcon(label), color: AppTheme.accentOchre, size: 20),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, shape: BoxShape.circle),
+            child: Icon(_getCategoryIcon(label), color: Colors.white, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
-                Text("$percent% of total", style: const TextStyle(color: Colors.white54, fontSize: 10)),
+                Text(
+                  label, 
+                  style: GoogleFonts.outfit(
+                    color: Theme.of(context).colorScheme.onSurface, 
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "$percent% of total", 
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), 
+                    fontSize: 10,
+                  ),
+                ),
               ],
             ),
           ),
-          Text(_fmtLkr(amount), style: GoogleFonts.outfit(color: Colors.white70, fontWeight: FontWeight.bold)),
+          Text(
+            _fmtLkr(amount), 
+            style: GoogleFonts.outfit(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8), 
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -804,21 +908,28 @@ class _ResultsScreenState extends State<ResultsScreen>
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppTheme.accentOchre.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.map_rounded, size: 64, color: AppTheme.accentOchre),
+            child: Icon(Icons.map_rounded, size: 64, color: Theme.of(context).colorScheme.primary),
           ),
           const SizedBox(height: 32),
           Text(
             "Visual Tour Route",
-            style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            style: GoogleFonts.outfit(
+              fontSize: 24, 
+              fontWeight: FontWeight.bold, 
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             "Plot your entire journey across the teardrop isle. View detailed route segments and travel times.",
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70, height: 1.5),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 48),
           OchreButton(
@@ -850,7 +961,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withValues(alpha: 0.9),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -861,8 +972,21 @@ class _ResultsScreenState extends State<ResultsScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Oracle's Rain Plan", style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                      const Text("Caught in a sudden shower? Switch to this.", style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      Text(
+                        "Oracle's Rain Plan", 
+                        style: GoogleFonts.outfit(
+                          color: Theme.of(context).colorScheme.primary, 
+                          fontWeight: FontWeight.bold, 
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        "Caught in a sudden shower? Switch to this.", 
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -884,8 +1008,11 @@ class _ResultsScreenState extends State<ResultsScreen>
         padding: const EdgeInsets.all(32.0),
         child: Container(
           padding: const EdgeInsets.all(24),
-          decoration: AppTheme.glassDecoration().copyWith(
-            border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
+          decoration: AppTheme.glassDecoration(
+            color: Theme.of(context).cardColor,
+            opacity: Theme.of(context).brightness == Brightness.light ? 0.9 : 0.2,
+          ).copyWith(
+            border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -901,7 +1028,11 @@ class _ResultsScreenState extends State<ResultsScreen>
               const SizedBox(height: 24),
               Text(
                 "Oracle's Vault",
-                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                style: GoogleFonts.outfit(
+                  fontSize: 24, 
+                  fontWeight: FontWeight.bold, 
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
@@ -922,7 +1053,10 @@ class _ResultsScreenState extends State<ResultsScreen>
             ),
             TextButton(
               onPressed: () => Provider.of<PremiumService>(context, listen: false).buyPremium(),
-              child: const Text("Go Premium for Ad-Free Experience", style: TextStyle(color: Colors.white70)),
+              child: Text(
+                "Go Premium for Ad-Free Experience", 
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+              ),
             ),
           ],
         ),
@@ -934,8 +1068,11 @@ class _ResultsScreenState extends State<ResultsScreen>
   Widget _buildPremiumCTA() {
     return Container(
       padding: const EdgeInsets.all(28),
-      decoration: AppTheme.glassDecoration().copyWith(
-        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.5), width: 2),
+      decoration: AppTheme.glassDecoration(
+        color: Theme.of(context).cardColor,
+        opacity: Theme.of(context).brightness == Brightness.light ? 1.0 : 0.2, // Make it pop in light mode
+      ).copyWith(
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5), width: 2),
       ),
       child: Column(
         children: [
@@ -1030,9 +1167,23 @@ class _ResultsScreenState extends State<ResultsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(item.title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+            Text(
+              item.title, 
+              style: GoogleFonts.outfit(
+                fontWeight: FontWeight.bold, 
+                fontSize: 18, 
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             const SizedBox(height: 12),
-            Text(item.reason, style: GoogleFonts.inter(fontSize: 14, color: Colors.white70, height: 1.5)),
+            Text(
+              item.reason, 
+              style: GoogleFonts.inter(
+                fontSize: 14, 
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+                height: 1.5,
+              ),
+            ),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -1172,7 +1323,7 @@ class _ResultsScreenState extends State<ResultsScreen>
       style: GoogleFonts.outfit(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }

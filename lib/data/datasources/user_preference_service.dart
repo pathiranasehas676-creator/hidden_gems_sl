@@ -1,18 +1,17 @@
 import 'dart:convert';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_profile.dart';
 
 class UserPreferenceService {
-  static const String _boxName = 'user_preference_box';
   static const String _profileKey = 'current_profile';
   static const _secureStorage = FlutterSecureStorage();
 
   static Future<void> init() async {
-    await Hive.openBox<String>(_boxName);
+    // Hive is still used for other non-sensitive caching if any,
+    // but we'll move the core profile to SecureStorage.
   }
 
-  // Example implementation of Secure Storage for Auth Tokens
+  // Auth Tokens
   static Future<void> saveAuthToken(String token) async {
     await _secureStorage.write(key: 'auth_token', value: token);
   }
@@ -25,10 +24,8 @@ class UserPreferenceService {
     await _secureStorage.delete(key: 'auth_token');
   }
 
-  static UserProfile getProfile() {
-    if (!Hive.isBoxOpen(_boxName)) return UserProfile.defaultProfile();
-    final box = Hive.box<String>(_boxName);
-    final raw = box.get(_profileKey);
+  static Future<UserProfile> loadProfile() async {
+    final raw = await _secureStorage.read(key: _profileKey);
     if (raw == null) return UserProfile.defaultProfile();
     try {
       return UserProfile.fromJson(json.decode(raw));
@@ -37,10 +34,20 @@ class UserPreferenceService {
     }
   }
 
+  // For synchronous access (like from UI builders), we might still need a cached version.
+  static UserProfile? _cachedProfile;
+
+  static UserProfile getProfile() {
+    return _cachedProfile ?? UserProfile.defaultProfile();
+  }
+
   static Future<void> saveProfile(UserProfile profile) async {
-    if (!Hive.isBoxOpen(_boxName)) await Hive.openBox<String>(_boxName);
-    final box = Hive.box<String>(_boxName);
-    await box.put(_profileKey, json.encode(profile.toJson()));
+    _cachedProfile = profile;
+    await _secureStorage.write(key: _profileKey, value: json.encode(profile.toJson()));
+  }
+
+  static Future<void> ensureProfileLoaded() async {
+    _cachedProfile = await loadProfile();
   }
 
   static Future<void> updateVibe(String vibe) async {

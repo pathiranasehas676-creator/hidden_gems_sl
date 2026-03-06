@@ -6,7 +6,7 @@ import '../../core/theme/vibe_theme_provider.dart';
 class BatikBackground extends StatelessWidget {
   final Widget child;
   final double opacity;
-  const BatikBackground({super.key, required this.child, this.opacity = 0.03});
+  const BatikBackground({super.key, required this.child, this.opacity = 0.015});
 
   @override
   Widget build(BuildContext context) {

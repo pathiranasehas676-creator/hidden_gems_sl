@@ -17,16 +17,27 @@ class OchreButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 56,
       width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: onPressed != null ? AppTheme.modernGradient : null,
+        color: onPressed == null ? Colors.grey[300] : null,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: onPressed != null ? [
+          BoxShadow(
+            color: AppTheme.modernGreen.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          )
+        ] : null,
+      ),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.sigiriyaOchre,
-          foregroundColor: Colors.black87,
-          elevation: 4,
-          shadowColor: AppTheme.sigiriyaOchre.withValues(alpha: 0.4),
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         child: isLoading
@@ -35,14 +46,14 @@ class OchreButton extends StatelessWidget {
                 width: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, size: 20),
+                    Icon(icon, size: 20, color: Colors.white),
                     const SizedBox(width: 12),
                   ],
                   Text(
@@ -50,6 +61,7 @@ class OchreButton extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -73,15 +85,27 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 56,
       width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: onPressed != null ? AppTheme.modernGradient : null,
+        color: onPressed == null ? Colors.grey[300] : null,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: onPressed != null ? [
+          BoxShadow(
+            color: AppTheme.modernBlue.withValues(alpha: 0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          )
+        ] : null,
+      ),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.ceylonBlue,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          elevation: 2,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         child: isLoading
@@ -98,6 +122,7 @@ class PrimaryButton extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
+                  color: Colors.white,
                 ),
               ),
       ),

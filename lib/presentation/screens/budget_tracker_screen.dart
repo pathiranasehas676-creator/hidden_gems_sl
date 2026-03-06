@@ -59,7 +59,7 @@ class _BudgetTrackerScreenState extends State<BudgetTrackerScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: category,
+              initialValue: category,
                 dropdownColor: AppTheme.darkCard,
                 decoration: _inputDecoration("Category"),
                 items: ["food", "transport", "tickets", "misc"].map((c) => DropdownMenuItem(
@@ -94,7 +94,7 @@ class _BudgetTrackerScreenState extends State<BudgetTrackerScreen> {
                         // For non-saved active plan, we might update a 'volatile' cache if needed
                       }
 
-                      if (mounted) Navigator.pop(context);
+                      if (context.mounted) Navigator.pop(context);
                     }
                   },
                   child: const Text("ADD TO TRACKER"),
