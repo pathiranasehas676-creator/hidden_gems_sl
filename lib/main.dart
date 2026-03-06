@@ -303,9 +303,10 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
       navigatorKey: navigatorKey,
       title: 'TripMe.ai',
       debugShowCheckedModeBanner: false,
+      themeMode: context.watch<AppModeProvider>().currentMode,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      localizationsDelegates: [
+      localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

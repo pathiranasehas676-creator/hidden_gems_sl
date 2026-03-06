@@ -124,8 +124,8 @@ class TripCacheService {
       // TTL check
       if (plan.cachedAt != null &&
           DateTime.now().difference(plan.cachedAt!) > _cacheTtl) {
-        box.delete(cacheKey);
-        return const CachedPlanResult(state: CacheReadResult.stale);
+        // Return stale but DO NOT delete, so offline scenarios still have access to it.
+        return CachedPlanResult(state: CacheReadResult.stale, plan: plan);
       }
 
       return CachedPlanResult(state: CacheReadResult.fresh, plan: plan);

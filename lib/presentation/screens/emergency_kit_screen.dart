@@ -62,19 +62,19 @@ class _EmergencyKitScreenState extends State<EmergencyKitScreen> {
         }
       }
 
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("SOS Alerts Prepared!")),
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
         );
       }
     } finally {
-      if (mounted) setState(() => _isSendingSOS = false);
+      if (context.mounted) setState(() => _isSendingSOS = false);
     }
   }
 
@@ -227,7 +227,7 @@ class _EmergencyKitScreenState extends State<EmergencyKitScreen> {
                 p.sosContacts.add(phone);
                 await UserPreferenceService.saveProfile(p);
                 setState(() {});
-                if (mounted) Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
               }
             },
             child: const Text("Save"),

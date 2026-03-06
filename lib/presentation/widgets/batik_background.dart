@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:provider/provider.dart';
-import '../../core/theme/app_theme.dart';
 import '../../core/theme/vibe_theme_provider.dart';
 
 class BatikBackground extends StatelessWidget {

@@ -4,6 +4,7 @@ import '../../core/theme/app_theme.dart';
 import '../widgets/batik_background.dart';
 import '../../data/datasources/discovery_service.dart';
 import '../../data/datasources/admin_api_service.dart';
+import '../widgets/shimmer_loader.dart';
 
 class ManagePlacesScreen extends StatefulWidget {
   const ManagePlacesScreen({super.key});
@@ -123,7 +124,11 @@ class _ManagePlacesScreenState extends State<ManagePlacesScreen> {
       ),
       body: BatikBackground(
         child: _isLoading 
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.accentOchre))
+          ? ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: 5,
+              itemBuilder: (context, index) => const TripCardShimmer(),
+            )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: _places.length,

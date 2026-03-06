@@ -14,7 +14,6 @@ import '../../core/localization/locale_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../data/datasources/live_events_service.dart';
 import 'emergency_kit_screen.dart';
-import '../../data/models/user_profile.dart';
 import '../../core/theme/vibe_theme_provider.dart';
 import '../../core/theme/app_mode_provider.dart';
 

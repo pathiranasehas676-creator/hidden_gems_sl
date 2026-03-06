@@ -2,7 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const { GoogleGenAI } = require('@google/genai');
+const axios = require('axios'); // We need axios for making proxy requests
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,6 +15,7 @@ const ai = new GoogleGenAI({
 });
 
 // Middleware
+app.use(helmet()); // Add Security Headers
 app.use(cors());
 app.use(express.json());
 
@@ -27,10 +30,10 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
-// Rate Limiting to prevent abuse (e.g. 50 requests per 15 minutes per IP)
+// Rate Limiting to prevent abuse (e.g. 100 requests per 15 minutes per IP)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 50,
+  max: 100,
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -38,7 +41,53 @@ const limiter = rateLimit({
 
 app.use('/api/', requireAuth, limiter);
 
-// Endpoints
+// ==========================================
+// Proxy: Google Maps Places API (Text Search)
+// ==========================================
+app.get('/api/maps/places/search', async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) return res.status(400).json({ error: 'Query parameter is required' });
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'Google Maps API Key not configured on server' });
+
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
+
+    const response = await axios.get(url);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Maps API Error:', error.response ? error.response.data : error.message);
+    res.status(500).json({ error: 'Failed to fetch from Google Maps API' });
+  }
+});
+
+// ==========================================
+// Proxy: Google Maps Directions API
+// ==========================================
+app.get('/api/maps/directions', async (req, res) => {
+  try {
+    const { origin, destination, mode } = req.query;
+    if (!origin || !destination) return res.status(400).json({ error: 'Origin and destination are required' });
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'Google Maps API Key not configured on server' });
+
+    const pMode = mode || 'driving';
+    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&mode=${pMode}&key=${apiKey}`;
+
+    const response = await axios.get(url);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Maps API Error:', error.response ? error.response.data : error.message);
+    res.status(500).json({ error: 'Failed to fetch from Google Maps API' });
+  }
+});
+
+
+// ==========================================
+// AI Recommendations
+// ==========================================
 app.post('/api/ai/recommendations', async (req, res) => {
   try {
     const { nearbyPlaces, vibeText } = req.body;

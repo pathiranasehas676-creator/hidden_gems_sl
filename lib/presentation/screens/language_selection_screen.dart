@@ -37,43 +37,55 @@ class LanguageSelectionScreen extends StatelessWidget {
               const SizedBox(height: 32),
               // Title
               Text(
-                "AdvanceTravel.me",
+                "TripMe.ai",
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
                   color: AppTheme.ceylonBlue,
                   letterSpacing: -0.5,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               // Subtitle
               Text(
-                "Plan like a local. Explore like a pro.",
+                "Discover Hidden Gems. Plan like a local.",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textSecondary,
+                  fontSize: 16,
                 ),
+                textAlign: TextAlign.center,
               ),
               const Spacer(),
               // English Button
               PrimaryButton(
                 label: "Continue in English",
-                onPressed: () {
-                  context.read<LocaleProvider>().setLocale('en');
+                onPressed: () async {
+                  await context.read<LocaleProvider>().setLocale('en');
                 },
               ),
               const SizedBox(height: 16),
               // Sinhala Button
               OchreButton(
-                label: "සිංහල දිගටම",
-                onPressed: () {
-                  context.read<LocaleProvider>().setLocale('si');
+                label: "සිංහල",
+                onPressed: () async {
+                  await context.read<LocaleProvider>().setLocale('si');
+                },
+              ),
+              const SizedBox(height: 16),
+              // Tamil Button
+              PrimaryButton(
+                label: "தமிழ்",
+                onPressed: () async {
+                  await context.read<LocaleProvider>().setLocale('ta');
                 },
               ),
               const SizedBox(height: 24),
               TextButton(
-                onPressed: () {
-                  // Default behavior
+                onPressed: () async {
+                  // Default behavior is English
+                  await context.read<LocaleProvider>().setLocale('en');
                 },
                 child: Text(
-                  "SKIP",
+                  "SKIP FOR NOW",
                   style: TextStyle(
                     color: AppTheme.textSecondary,
                     fontWeight: FontWeight.bold,

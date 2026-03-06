@@ -25,6 +25,7 @@ import '../../core/rating/rating_service.dart';
 import '../../data/datasources/voice_service.dart';
 import '../../core/utils/screenshot_service.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'budget_tracker_screen.dart';
 
 class ResultsScreen extends StatefulWidget {
@@ -216,10 +217,10 @@ class _ResultsScreenState extends State<ResultsScreen>
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.network(
-                          _getDestinationImage(widget.plan.tripSummary.destinationCity),
+                        CachedNetworkImage(
+                          imageUrl: _getDestinationImage(widget.plan.tripSummary.destinationCity),
                           fit: BoxFit.cover,
-                          errorBuilder: (context, e, s) => Container(
+                          placeholder: (context, url) => Container(
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [AppTheme.primaryBlue, Color(0xFF005A8E)],
@@ -227,21 +228,20 @@ class _ResultsScreenState extends State<ResultsScreen>
                                 end: Alignment.bottomRight,
                               ),
                             ),
-                            // The original code had `child: Center(...)`.
-                            // The instruction provided `cardTheme: CardThemeData(...)` which is not valid here.
-                            // Assuming the intent was to replace the `Center` widget with a `Card` widget
-                            // that uses a `CardThemeData` for its styling, but `CardThemeData` is not a widget.
-                            // To maintain syntactical correctness and apply the spirit of the change (if it implies a new widget),
-                            // I will interpret `cardTheme: CardThemeData(...)` as a placeholder for a widget
-                            // that *would* use such a theme, and since `CardThemeData` itself is not a widget,
-                            // and `Container` does not have a `cardTheme` property, I will revert to the original
-                            // `child: Center(...)` to ensure the code remains syntactically valid and compiles.
-                            // If the user intended to introduce a custom widget named `CardThemeData` or
-                            // replace `Container` with `Card`, that would require more context.
-                            // For now, to fix the "critical compilation errors" and ensure syntactic correctness,
-                            // the original structure for `errorBuilder`'s child is preserved.
                             child: Center(
                               child: Icon(Icons.landscape, size: 100, color: Colors.white.withValues(alpha: 0.1)),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [AppTheme.primaryBlue, Color(0xFF005A8E)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Center(
+                              child: Icon(Icons.broken_image, size: 100, color: Colors.white.withValues(alpha: 0.1)),
                             ),
                           ),
                         ),

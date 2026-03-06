@@ -4,6 +4,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/discovery_service.dart';
 import '../widgets/batik_background.dart';
@@ -392,10 +393,12 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                     flex: 4,
                     child: ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                      child: Image.network(
-                        "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
+                      child: CachedNetworkImage(
+                        imageUrl: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
                         width: double.infinity,
                         fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(color: Colors.grey[800]),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
                       ),
                     ),
                   ),
@@ -461,9 +464,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               height: 140,
               child: ClipRRect(
                 borderRadius: const BorderRadius.horizontal(left: Radius.circular(24)),
-                child: Image.network(
-                  "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
+                child: CachedNetworkImage(
+                  imageUrl: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
                   fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(color: Colors.grey[800]),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
             ),
