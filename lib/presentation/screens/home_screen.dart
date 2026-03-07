@@ -15,8 +15,10 @@ import 'saved_plans_screen.dart';
 import 'trip_form_screen.dart';
 import 'discovery_screen.dart';
 import 'profile_screen.dart';
+import 'event_calendar_screen.dart';
 import '../admin/admin_shell.dart';
 import '../../data/datasources/live_events_service.dart';
+import '../../data/models/event_model.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isOffline;
@@ -29,7 +31,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0; // For bottom navigation
   
-  List<Map<String, dynamic>> _todayEvents = [];
+  List<EventModel> _todayEvents = [];
   bool _showEventBanner = true;
 
   @override
@@ -210,16 +212,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      event['name'] ?? "Special Event",
+                      event.name,
                       style: GoogleFonts.outfit(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
-                    if (event['description'] != null)
+                    if (event.description.isNotEmpty)
                       Text(
-                        event['description'],
+                        event.description,
                         style: GoogleFonts.inter(
                           color: Colors.white70,
                           fontSize: 12,
@@ -631,8 +633,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryScreen()));
                 }),
                 const SizedBox(width: 48), // FAB gap
-                _navItem("Saved", Icons.bookmark_border_rounded, 2, onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPlansScreen()));
+                _navItem("Events", Icons.calendar_month_rounded, 2, onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const EventCalendarScreen()));
                 }),
                 _navItem(l10n.profile, Icons.person_rounded, 3, onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));

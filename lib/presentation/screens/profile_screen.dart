@@ -11,8 +11,6 @@ import '../../data/datasources/premium_service.dart';
 import '../widgets/batik_background.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
-import 'package:table_calendar/table_calendar.dart';
-import '../../data/datasources/live_events_service.dart';
 import 'emergency_kit_screen.dart';
 import '../../core/theme/vibe_theme_provider.dart';
 import '../../core/theme/app_mode_provider.dart';
@@ -28,15 +26,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late var profile = UserPreferenceService.getProfile();
 
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-  List<Map<String, dynamic>> _selectedEvents = [];
-
   @override
   void initState() {
     super.initState();
-    _selectedDay = _focusedDay;
-    _selectedEvents = LiveEventsService.getEventsForTrip(_selectedDay!, 1);
   }
 
   void _showLanguagePicker(BuildContext context) {
@@ -193,8 +185,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildThemeModeToggle(),
                     const SizedBox(height: 32),
                     _buildVibeSelector(),
-                    const SizedBox(height: 32),
-                    _buildCalendarSection(),
                     const SizedBox(height: 32),
                     _buildSettingsSection(l10n),
                     const SizedBox(height: 100),
@@ -430,122 +420,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildCalendarSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Sri Lanka Live Events",
-              style: GoogleFonts.outfit(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const Icon(Icons.celebration, color: AppTheme.accentOchre, size: 20),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: AppTheme.glassDecoration(opacity: 0.1, blur: 15).copyWith(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white10),
-          ),
-          child: Column(
-            children: [
-              TableCalendar(
-                firstDay: DateTime.now().subtract(const Duration(days: 365)),
-                lastDay: DateTime.now().add(const Duration(days: 365 * 2)),
-                focusedDay: _focusedDay,
-                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                    _selectedEvents = LiveEventsService.getEventsForTrip(selectedDay, 1);
-                  });
-                },
-                calendarFormat: CalendarFormat.month,
-                availableCalendarFormats: const {
-                  CalendarFormat.month: 'Month',
-                },
-                headerStyle: HeaderStyle(
-                  titleTextStyle: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold),
-                  formatButtonVisible: false,
-                  leftChevronIcon: Icon(Icons.chevron_left, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
-                  rightChevronIcon: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
-                ),
-                daysOfWeekStyle: DaysOfWeekStyle(
-                  weekdayStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 12),
-                  weekendStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.primary, fontSize: 12),
-                ),
-                calendarStyle: CalendarStyle(
-                  defaultTextStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
-                  weekendTextStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), fontSize: 13),
-                  outsideTextStyle: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 13),
-                  todayDecoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  selectedDecoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  markerDecoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                eventLoader: (day) {
-                  return LiveEventsService.getEventsForTrip(day, 1);
-                },
-              ),
-              if (_selectedEvents.isNotEmpty) ...[
-                const Divider(color: Colors.white10, height: 1),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _selectedEvents.length,
-                  itemBuilder: (context, index) {
-                    final ev = _selectedEvents[index];
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      leading: Container(
-                         padding: const EdgeInsets.all(8),
-                         decoration: BoxDecoration(color: AppTheme.accentOchre.withValues(alpha: 0.2), shape: BoxShape.circle),
-                         child: const Icon(Icons.star, color: AppTheme.accentOchre, size: 16),
-                      ),
-                      title: Text(
-                        ev['name'] ?? 'Event',
-                        style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          ev['description'] ?? '',
-                          style: GoogleFonts.inter(color: Colors.white70, fontSize: 12),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-              if (_selectedEvents.isEmpty) ...[
-                 const Divider(color: Colors.white10, height: 1),
-                 Padding(
-                   padding: const EdgeInsets.all(24.0),
-                   child: Text("No major events on this date.", style: GoogleFonts.inter(color: Colors.white38, fontSize: 12)),
-                 ),
-              ]
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+
 
   // ── Theme Picker ─────────────────────────────────────────────────────────
   Widget _buildThemePicker() {

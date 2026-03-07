@@ -363,12 +363,12 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const GoldenTracerIndicator(),
+                  const ModernTracerIndicator(),
                   const SizedBox(height: 16),
                   Text(
                     "ORACLE IS THINKING...",
                     style: GoogleFonts.inter(
-                      color: AppTheme.accentOchre,
+                      color: AppTheme.modernGreen,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2,
@@ -452,10 +452,10 @@ class _GlobalScreenshotWrapperState extends State<GlobalScreenshotWrapper> {
                       height: 52,
                       decoration: AppTheme.glassDecoration(opacity: 0.15, blur: 25).copyWith(
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.4), width: 1.5),
+                        border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.4), width: 1.5),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.accentOchre.withValues(alpha: 0.2),
+                            color: AppTheme.modernGreen.withValues(alpha: 0.2),
                             blurRadius: 15,
                             spreadRadius: 2,
                           )
@@ -463,7 +463,7 @@ class _GlobalScreenshotWrapperState extends State<GlobalScreenshotWrapper> {
                       ),
                       child: const Icon(
                         Icons.camera_alt_outlined,
-                        color: AppTheme.accentOchre,
+                        color: AppTheme.modernGreen,
                         size: 26,
                       ),
                     ),

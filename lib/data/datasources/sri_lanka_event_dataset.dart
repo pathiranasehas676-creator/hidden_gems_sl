@@ -1,6 +1,34 @@
 class SriLankaEvents {
   static final List<Map<String, dynamic>> events = [
     {"name": "Duruthu Full Moon Poya", "type": "religious", "religion": "Buddhist", "date": "01-02", "description": "Marks Buddha's first visit to Sri Lanka. The Duruthu Perahera at Kelaniya Temple is a major highlight."},
+    {
+      "name": "Mirissa Deep House Sessions",
+      "type": "party",
+      "location": "Mirissa Beach",
+      "date": "03-08",
+      "description": "Premium deep house experience under the stars with Sri Lanka's top DJs.",
+      "ticket_url": "https://mirissatickets.com/deep-house",
+      "lineup": [
+        {"name": "DJ Serendib", "music_genre": "Deep House", "social_link": "@djserendib_sl"},
+        {"name": "Vibe Oracle", "music_genre": "Melodic Techno", "social_link": "@vibeoracle"}
+      ],
+      "lat": 5.9483,
+      "lng": 80.4571
+    },
+    {
+      "name": "Ella Acoustic Nights",
+      "type": "cultural",
+      "location": "Ella Town",
+      "date": "03-09",
+      "description": "Soulful acoustic melodies from local indie artists in the misty hills.",
+      "ticket_url": "https://ellamusic.lk/acoustic",
+      "lineup": [
+        {"name": "Kasun Kalhara", "music_genre": "Indie Folk"},
+        {"name": "The Serendib Trio", "music_genre": "Fusion Jazz"}
+      ],
+      "lat": 6.8667,
+      "lng": 81.0466
+    },
     {"name": "Navam Full Moon Poya", "type": "religious", "religion": "Buddhist", "date": "02-01", "description": "Celebrated with the grand Navam Perahera at Gangaramaya Temple, Colombo."},
     {"name": "Medin Full Moon Poya", "type": "religious", "religion": "Buddhist", "date": "03-02", "description": "Marks Buddha's revisit to his home after enlightenment."},
     {"name": "Bak Full Moon Poya", "type": "religious", "religion": "Buddhist", "date": "04-01", "description": "Marks Buddha's second visit to Sri Lanka to settle a dispute between two kings."},

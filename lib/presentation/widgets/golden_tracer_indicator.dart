@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
 class ModernTracerIndicator extends StatefulWidget {
-  const GoldenTracerIndicator({super.key});
+  const ModernTracerIndicator({super.key});
 
   @override
   State<ModernTracerIndicator> createState() => _ModernTracerIndicatorState();

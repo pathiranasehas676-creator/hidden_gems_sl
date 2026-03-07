@@ -1,12 +1,13 @@
+import 'package:url_launcher/url_launcher.dart';
+import '../models/event_model.dart';
 import 'sri_lanka_event_dataset.dart';
 
 class LiveEventsService {
   /// Returns a list of structured events happening during a specific trip window
-  static List<Map<String, dynamic>> getEventsForTrip(DateTime startDate, int durationDays, {List<Map<String, dynamic>>? dynamicEvents}) {
+  static List<EventModel> getEventsForTrip(DateTime startDate, int durationDays, {List<Map<String, dynamic>>? dynamicEvents}) {
     DateTime endDate = startDate.add(Duration(days: durationDays));
-    List<Map<String, dynamic>> results = [];
+    List<EventModel> results = [];
     
-    // Prioritize dynamic events from backend, fallback to local dataset
     final sourceEvents = dynamicEvents ?? SriLankaEvents.events;
 
     for (var event in sourceEvents) {
@@ -17,9 +18,9 @@ class LiveEventsService {
           DateTime eventDate = DateTime(startDate.year, int.parse(parts[0]), int.parse(parts[1]));
 
           // Check if event falls within trip dates (inclusive padding)
-          if (eventDate.isAfter(startDate.subtract(const Duration(days: 1))) &&
-              eventDate.isBefore(endDate.add(const Duration(days: 1)))) {
-            results.add(event);
+          if ((eventDate.isAfter(startDate.subtract(const Duration(days: 1))) &&
+              eventDate.isBefore(endDate.add(const Duration(days: 1)))) || isSameDay(eventDate, startDate) || isSameDay(eventDate, endDate)) {
+            results.add(EventModel.fromJson(event));
           }
         } catch (_) {}
       } else if (event.containsKey("start") && event.containsKey("end")) {
@@ -31,33 +32,26 @@ class LiveEventsService {
           DateTime eventStart = DateTime(startDate.year, int.parse(s[0]), int.parse(s[1]));
           DateTime eventEnd = DateTime(startDate.year, int.parse(e[0]), int.parse(e[1]));
 
-          // Handle seasons crossing the year mark (e.g., Dec 15 to May 23)
+          // Handle seasons crossing the year mark
           if (eventEnd.isBefore(eventStart)) {
-            DateTime endOfYear = DateTime(startDate.year, 12, 31);
-            DateTime startOfYear = DateTime(startDate.year, 1, 1);
-            
-            bool overlapSegment1 = startDate.isBefore(endOfYear.add(const Duration(days: 1))) && 
-                                   endDate.isAfter(eventStart.subtract(const Duration(days: 1)));
-                                   
-            bool overlapSegment2 = startDate.isBefore(eventEnd.add(const Duration(days: 1))) && 
-                                   endDate.isAfter(startOfYear.subtract(const Duration(days: 1)));
-                                   
-            if (overlapSegment1 || overlapSegment2) {
-              results.add(event);
-            }
-          } else {
-            bool overlap = startDate.isBefore(eventEnd.add(const Duration(days: 1))) && 
-                           endDate.isAfter(eventStart.subtract(const Duration(days: 1)));
-            
-            if (overlap) {
-              results.add(event);
-            }
+            eventEnd = eventEnd.add(const Duration(days: 365));
+          }
+
+          bool overlap = startDate.isBefore(eventEnd.add(const Duration(days: 1))) && 
+                         endDate.isAfter(eventStart.subtract(const Duration(days: 1)));
+          
+          if (overlap) {
+            results.add(EventModel.fromJson(event));
           }
         } catch (_) {}
       }
     }
 
     return results;
+  }
+
+  static bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   /// Convenience wrapper for AI payload injection specifically
@@ -67,9 +61,9 @@ class LiveEventsService {
       final events = getEventsForTrip(start, durationDays, dynamicEvents: dynamicEvents);
       
       return events.map((e) {
-        String base = "${e['name']} (${e['type']})";
-        if (e.containsKey('location')) base += " in ${e['location']}";
-        base += ": ${e['description']}";
+        String base = "${e.name} (${e.category.name})";
+        if (e.location != null) base += " in ${e.location}";
+        base += ": ${e.description}";
         return base;
       }).toList();
     } catch (_) {
@@ -78,8 +72,16 @@ class LiveEventsService {
   }
 
   /// Returns today's active events
-  static List<Map<String, dynamic>> getTodayEvents({List<Map<String, dynamic>>? dynamicEvents}) {
+  static List<EventModel> getTodayEvents() {
     DateTime today = DateTime.now();
-    return getEventsForTrip(today, 1, dynamicEvents: dynamicEvents);
+    return getEventsForTrip(today, 1);
+  }
+
+  /// Launch external ticket booking URL
+  static Future<void> launchTicketUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
   }
 }

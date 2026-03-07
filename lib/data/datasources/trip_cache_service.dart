@@ -34,6 +34,7 @@ class CachedPlanResult {
 class TripCacheService {
   static const String _lastPlanBox = 'tripme_last_plans';
   static const String _savedPlansBox = 'tripme_saved_plans';
+  static const String _interestedEventsBox = 'tripme_interested_events';
   static const String _globalDataBox = 'tripme_global_data';
   static const Duration _cacheTtl = Duration(days: 7);
 
@@ -57,15 +58,18 @@ class TripCacheService {
     try {
       await Hive.openBox<String>(_lastPlanBox, encryptionCipher: cipher);
       await Hive.openBox<String>(_savedPlansBox, encryptionCipher: cipher);
+      await Hive.openBox<String>(_interestedEventsBox, encryptionCipher: cipher);
       await Hive.openBox<String>(_globalDataBox, encryptionCipher: cipher);
     } catch (e) {
       SecureLogger.error("Failed to open encrypted Hive boxes. Deleting existing unencrypted data to upgrade.", e);
       // If we attempt to open unencrypted databases with a cipher, it will crash. Purge for seamless upgrade.
       await Hive.deleteBoxFromDisk(_lastPlanBox);
       await Hive.deleteBoxFromDisk(_savedPlansBox);
+      await Hive.deleteBoxFromDisk(_interestedEventsBox);
       await Hive.deleteBoxFromDisk(_globalDataBox);
       await Hive.openBox<String>(_lastPlanBox, encryptionCipher: cipher);
       await Hive.openBox<String>(_savedPlansBox, encryptionCipher: cipher);
+      await Hive.openBox<String>(_interestedEventsBox, encryptionCipher: cipher);
       await Hive.openBox<String>(_globalDataBox, encryptionCipher: cipher);
     }
   }
@@ -232,6 +236,38 @@ class TripCacheService {
       await box.delete(id);
     } catch (e) {
       SecureLogger.error('[TripCache] Delete error', e);
+    }
+  }
+
+  // ─── Interested Events (Offline Support) ──────────────────────────────────
+  
+  static Future<void> toggleInterestedEvent(String eventId, String eventJson) async {
+    try {
+      final box = Hive.box<String>(_interestedEventsBox);
+      if (box.containsKey(eventId)) {
+        await box.delete(eventId);
+      } else {
+        await box.put(eventId, eventJson);
+      }
+    } catch (e) {
+      SecureLogger.error('[TripCache] Toggle Event error', e);
+    }
+  }
+
+  static List<String> getInterestedEvents() {
+    try {
+      final box = Hive.box<String>(_interestedEventsBox);
+      return box.values.toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static bool isEventPinned(String eventId) {
+    try {
+      return Hive.box<String>(_interestedEventsBox).containsKey(eventId);
+    } catch (_) {
+      return false;
     }
   }
 

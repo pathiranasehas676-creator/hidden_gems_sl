@@ -27,7 +27,8 @@ class ModernTracerShimmer extends StatelessWidget {
   }
 
   /// A standard rectangular skeleton box
-  static Widget box({
+  static Widget box(
+    BuildContext context, {
     double? width,
     double height = 20,
     double borderRadius = 8,
@@ -43,7 +44,7 @@ class ModernTracerShimmer extends StatelessWidget {
   }
 
   /// A circular skeleton (e.g. for profile pics)
-  static Widget circle({double size = 40}) {
+  static Widget circle(BuildContext context, {double size = 40}) {
     return Container(
       width: size,
       height: size,
@@ -66,7 +67,7 @@ class DiscoveryCardSkeleton extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         height: 200,
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? Colors.white05 : Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
         ),
@@ -76,9 +77,9 @@ class DiscoveryCardSkeleton extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              ModernTracerShimmer.box(width: 150, height: 24),
+              ModernTracerShimmer.box(context, width: 150, height: 24),
               const SizedBox(height: 8),
-              ModernTracerShimmer.box(width: 100, height: 16),
+              ModernTracerShimmer.box(context, width: 100, height: 16),
             ],
           ),
         ),
