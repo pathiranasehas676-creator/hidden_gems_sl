@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
-class OchreButton extends StatelessWidget {
+class ModernGradientButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool isLoading;
   final IconData? icon;
 
-  const OchreButton({
+  const ModernGradientButton({
     super.key,
     required this.label,
     this.onPressed,

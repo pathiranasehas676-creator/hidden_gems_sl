@@ -185,7 +185,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primaryBlue,
+      backgroundColor: Colors.white,
       body: BatikBackground(
         child: Container(
           decoration: BoxDecoration(
@@ -193,8 +193,8 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
               center: Alignment.center,
               radius: 1.5,
               colors: [
-                AppTheme.primaryBlue.withValues(alpha: 0.8),
-                AppTheme.primaryBlue,
+                Colors.white,
+                const Color(0xFFF5F7F9), // Very light gray-blue
               ],
             ),
           ),
@@ -226,7 +226,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
                   return CustomPaint(
                     painter: JourneyPathPainter(
                       progress: _mapController.value,
-                      color: AppTheme.accentOchre.withValues(alpha: 0.2),
+                      color: AppTheme.modernGreen.withValues(alpha: 0.1),
                     ),
                   );
                 },
@@ -241,21 +241,21 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppTheme.accentOchre.withValues(alpha: 0.05),
+                      color: AppTheme.modernGreen.withValues(alpha: 0.05),
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.2), width: 0.5),
+                      border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.2), width: 0.5),
                       boxShadow: [
-                        BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.1), blurRadius: 40, spreadRadius: 10),
+                        BoxShadow(color: AppTheme.modernGreen.withValues(alpha: 0.1), blurRadius: 40, spreadRadius: 10),
                       ],
                     ),
                     child: Icon(
                       _isOfflineMode ? Icons.cloud_done_outlined : Icons.auto_awesome,
                       size: 48,
-                      color: AppTheme.accentOchre,
+                      color: AppTheme.modernGreen,
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const GoldenTracerIndicator(),
+                  const ModernTracerIndicator(),
                 ],
               ),
             ),
@@ -267,7 +267,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
         Text(
           "SERENDIB ORACLE",
           style: GoogleFonts.inter(
-            color: AppTheme.accentOchre,
+            color: AppTheme.modernGreen,
             fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 4,
@@ -281,7 +281,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
             key: ValueKey(_statusText),
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
-              color: Colors.white,
+              color: AppTheme.darkText,
               fontSize: 18,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.2,
@@ -308,16 +308,16 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: AppTheme.modernBlue.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: AppTheme.modernBlue.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: AppTheme.accentOchre),
+          Icon(icon, size: 16, color: AppTheme.modernGreen),
           const SizedBox(width: 8),
-          Text(label, style: GoogleFonts.inter(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+          Text(label, style: GoogleFonts.inter(color: AppTheme.darkText.withValues(alpha: 0.7), fontSize: 13, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -345,14 +345,14 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
             _generate();
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.accentOchre,
-            foregroundColor: AppTheme.primaryBlue,
+            backgroundColor: AppTheme.modernGreen,
+            foregroundColor: Colors.white,
           ),
           child: const Text("TRY AGAIN"),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Refine Request", style: TextStyle(color: Colors.white70)),
+          child: Text("Refine Request", style: TextStyle(color: AppTheme.darkText.withValues(alpha: 0.5))),
         ),
       ],
     );
@@ -375,7 +375,7 @@ class JourneyPathPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final dotPaint = Paint()
-      ..color = AppTheme.accentOchre
+      ..color = AppTheme.modernGreen
       ..style = PaintingStyle.fill;
 
     // Stylized path approximating a journey across Sri Lanka
@@ -392,13 +392,13 @@ class JourneyPathPainter extends CustomPainter {
     // Draw animated progress path
     final pathMetrics = path.computeMetrics().first;
     final extractPath = pathMetrics.extractPath(0.0, pathMetrics.length * progress);
-    canvas.drawPath(extractPath, paint..color = AppTheme.accentOchre..strokeWidth = 3.0);
+    canvas.drawPath(extractPath, paint..color = AppTheme.modernGreen..strokeWidth = 3.0);
 
     // Draw the "traveling dot"
     final pos = pathMetrics.getTangentForOffset(pathMetrics.length * progress)?.position;
     if (pos != null) {
       canvas.drawCircle(pos, 6, dotPaint);
-      canvas.drawCircle(pos, 12, dotPaint..color = AppTheme.accentOchre.withValues(alpha: 0.3));
+      canvas.drawCircle(pos, 12, dotPaint..color = AppTheme.modernGreen.withValues(alpha: 0.3));
     }
   }
 

@@ -157,7 +157,7 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
                     if (isPremium && _result != null) _buildResultCard(),
                     const SizedBox(height: 48),
                     if (isPremium)
-                      OchreButton(
+                      ModernGradientButton(
                         label: _isScanning ? "PROCESSING..." : "SCAN LANDMARK",
                         icon: Icons.filter_center_focus_rounded,
                         isLoading: _isScanning,
@@ -208,7 +208,7 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
             style: TextStyle(color: Colors.white70, height: 1.5, fontSize: 13),
           ),
           const SizedBox(height: 32),
-          OchreButton(
+          ModernGradientButton(
             label: "Explore Premium",
             onPressed: () => Provider.of<PremiumService>(context, listen: false).buyPremium(),
           ),

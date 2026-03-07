@@ -52,13 +52,13 @@ class GracefulErrorWidget extends StatelessWidget {
       icon: Icons.search_off_rounded,
       title: "Nothing Found",
       subtitle: subtitle,
-      iconColor: AppTheme.sigiriyaOchre,
+      iconColor: AppTheme.modernGreen,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final color = iconColor ?? AppTheme.sigiriyaOchre;
+    final color = iconColor ?? AppTheme.modernGreen;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -81,7 +81,7 @@ class GracefulErrorWidget extends StatelessWidget {
               style: GoogleFonts.outfit(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppTheme.darkText,
               ),
             ),
             const SizedBox(height: 10),
@@ -90,7 +90,7 @@ class GracefulErrorWidget extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 13,
-                color: Colors.white54,
+                color: AppTheme.darkText.withValues(alpha: 0.6),
                 height: 1.6,
               ),
             ),

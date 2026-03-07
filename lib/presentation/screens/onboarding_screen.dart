@@ -61,9 +61,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
       body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.appBackground),
+        color: Colors.white,
         child: BatikBackground(
           child: SafeArea(
             child: Column(
@@ -73,7 +72,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   alignment: Alignment.topRight,
                   child: TextButton(
                     onPressed: _finish,
-                    child: const Text("Skip", style: TextStyle(color: Colors.white38)),
+                    child: Text("Skip", style: TextStyle(color: AppTheme.modernGreen.withValues(alpha: 0.5))),
                   ),
                 ),
                 // Pages
@@ -113,30 +112,30 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               height: 140,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.sigiriyaOchre.withValues(alpha: 0.08),
+                color: AppTheme.modernGreen.withValues(alpha: 0.08),
                 border: Border.all(
-                  color: AppTheme.sigiriyaOchre.withValues(alpha: 0.25),
+                  color: AppTheme.modernGreen.withValues(alpha: 0.25),
                   width: 1.5,
                 ),
               ),
-              child: const Icon(Icons.auto_awesome, size: 60, color: AppTheme.sigiriyaOchre),
+              child: const Icon(Icons.auto_awesome, size: 60, color: AppTheme.modernGreen),
             ),
           ),
           const SizedBox(height: 24),
-          const GoldenTracerIndicator(),
+          const ModernTracerIndicator(),
           const SizedBox(height: 32),
           Text(
             "Plan Smarter with AI",
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
-              fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, height: 1.2,
+              fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.darkText, height: 1.2,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             "Tell the Oracle where you want to go.\nGet a full personalized itinerary for Sri Lanka in seconds.",
             textAlign: TextAlign.center,
-            style: AppTheme.bodyStyle,
+            style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkText.withValues(alpha: 0.7), height: 1.5),
           ),
         ],
       ),
@@ -167,14 +166,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             "Discover Hidden Gems",
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
-              fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, height: 1.2,
+              fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.darkText, height: 1.2,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             "Explore over 150 off-the-beaten-path locations curated by locals and AI — places you won't find in any guidebook.",
             textAlign: TextAlign.center,
-            style: AppTheme.bodyStyle,
+            style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkText.withValues(alpha: 0.7), height: 1.5),
           ),
         ],
       ),
@@ -189,10 +188,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: AppTheme.sigiriyaOchre, size: 28),
+          Icon(icon, color: AppTheme.modernBlue, size: 28),
           const SizedBox(height: 8),
           Text(label, textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w500)),
+              style: GoogleFonts.inter(fontSize: 11, color: AppTheme.darkText.withValues(alpha: 0.7), fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -209,8 +208,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.ceylonBlue.withValues(alpha: 0.3),
-              border: Border.all(color: AppTheme.sigiriyaOchre.withValues(alpha: 0.3)),
+              color: AppTheme.modernBlue.withValues(alpha: 0.1),
+              border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.3)),
             ),
             child: const Text("🇱🇰", style: TextStyle(fontSize: 60)),
           ),
@@ -219,14 +218,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             "Your Journey,\nYour Way",
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
-              fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, height: 1.2,
+              fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.darkText, height: 1.2,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             "Sinhala, English, Tamil and more.\nOffline maps, emergency SOS, budget tracking — everything you need for the perfect Sri Lankan adventure.",
             textAlign: TextAlign.center,
-            style: AppTheme.bodyStyle,
+            style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkText.withValues(alpha: 0.7), height: 1.5),
           ),
         ],
       ),
@@ -246,17 +245,27 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         // CTA button
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: SizedBox(
+          child: Container(
             width: double.infinity,
             height: 56,
+            decoration: BoxDecoration(
+              gradient: AppTheme.modernGradient,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.modernGreen.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                )
+              ],
+            ),
             child: ElevatedButton(
               onPressed: _next,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.sigiriyaOchre,
-                foregroundColor: AppTheme.primaryBlue,
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 8,
-                shadowColor: AppTheme.sigiriyaOchre.withValues(alpha: 0.4),
               ),
               child: Text(
                 _currentPage == 2 ? "Start Exploring 🚀" : "Continue",
@@ -277,7 +286,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       width: active ? 24 : 8,
       height: 8,
       decoration: BoxDecoration(
-        color: active ? AppTheme.sigiriyaOchre : Colors.white24,
+        color: active ? AppTheme.modernGreen : AppTheme.modernGreen.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
     );

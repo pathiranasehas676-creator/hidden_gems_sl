@@ -9,7 +9,7 @@ class OracleAuraWidget extends StatefulWidget {
   const OracleAuraWidget({
     super.key,
     required this.isVisible,
-    this.baseColor = AppTheme.accentOchre,
+    this.baseColor = AppTheme.modernGreen,
   });
 
   @override

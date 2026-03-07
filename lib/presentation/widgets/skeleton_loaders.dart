@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/theme/app_theme.dart';
 
-class GoldenTracerShimmer extends StatelessWidget {
+class ModernTracerShimmer extends StatelessWidget {
   final Widget child;
   final bool enabled;
 
-  const GoldenTracerShimmer({
+  const ModernTracerShimmer({
     super.key,
     required this.child,
     this.enabled = true,
@@ -19,8 +19,8 @@ class GoldenTracerShimmer extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Shimmer.fromColors(
-      baseColor: isDark ? const Color(0xFF262B2A) : Colors.grey[300]!,
-      highlightColor: AppTheme.sigiriyaOchre.withValues(alpha: 0.3),
+      baseColor: isDark ? const Color(0xFF262B2A) : Colors.grey[200]!,
+      highlightColor: AppTheme.modernGreen.withValues(alpha: 0.2),
       period: const Duration(milliseconds: 1500),
       child: child,
     );
@@ -36,7 +36,7 @@ class GoldenTracerShimmer extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[100],
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );
@@ -47,8 +47,8 @@ class GoldenTracerShimmer extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[100],
         shape: BoxShape.circle,
       ),
     );
@@ -61,13 +61,14 @@ class DiscoveryCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GoldenTracerShimmer(
+    return ModernTracerShimmer(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         height: 200,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.white05 : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -75,9 +76,9 @@ class DiscoveryCardSkeleton extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              GoldenTracerShimmer.box(width: 150, height: 24),
+              ModernTracerShimmer.box(width: 150, height: 24),
               const SizedBox(height: 8),
-              GoldenTracerShimmer.box(width: 100, height: 16),
+              ModernTracerShimmer.box(width: 100, height: 16),
             ],
           ),
         ),

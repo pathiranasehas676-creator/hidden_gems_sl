@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // --- Clean & Modern Palette (Eco-Friendly & Trustworthy) ---
-  static const Color modernGreen = Color(0xFF2E7D32); // Primary Green
-  static const Color modernBlue  = Color(0xFF1976D2); // Secondary Blue
+  static const Color modernGreen = Color(0xFF2E7D32); // Eco-friendly Green
+  static const Color modernBlue  = Color(0xFF1565C0); // Trustworthy Blue
   static const Color pureWhite   = Color(0xFFFFFFFF); // Clean Background
   static const Color softGray    = Color(0xFFF8FAFC); // Subtle Surface
   static const Color darkText    = Color(0xFF1E293B); // Dark Slate for readability
@@ -207,7 +207,7 @@ class AppTheme {
     brightness: Brightness.dark,
     scaffoldBackgroundColor: deepSlate,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: skyBlue,
+      seedColor: modernBlue,
       brightness: Brightness.dark,
       primary: skyBlue,
       secondary: mintGreen,

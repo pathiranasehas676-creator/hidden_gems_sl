@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
-class GoldenTracerIndicator extends StatefulWidget {
+class ModernTracerIndicator extends StatefulWidget {
   const GoldenTracerIndicator({super.key});
 
   @override
-  State<GoldenTracerIndicator> createState() => _GoldenTracerIndicatorState();
+  State<ModernTracerIndicator> createState() => _ModernTracerIndicatorState();
 }
 
-class _GoldenTracerIndicatorState extends State<GoldenTracerIndicator>
+class _ModernTracerIndicatorState extends State<ModernTracerIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -40,9 +40,9 @@ class _GoldenTracerIndicatorState extends State<GoldenTracerIndicator>
           animation: _controller,
           builder: (context, _) {
             return CustomPaint(
-              painter: _GoldenTracerPainter(
+              painter: _ModernTracerPainter(
                 progress: _controller.value,
-                color: AppTheme.accentOchre,
+                color: AppTheme.modernGreen,
               ),
             );
           },
@@ -52,11 +52,11 @@ class _GoldenTracerIndicatorState extends State<GoldenTracerIndicator>
   }
 }
 
-class _GoldenTracerPainter extends CustomPainter {
+class _ModernTracerPainter extends CustomPainter {
   final double progress;
   final Color color;
 
-  _GoldenTracerPainter({required this.progress, required this.color});
+  _ModernTracerPainter({required this.progress, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -80,5 +80,5 @@ class _GoldenTracerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _GoldenTracerPainter old) => old.progress != progress;
+  bool shouldRepaint(covariant _ModernTracerPainter old) => old.progress != progress;
 }

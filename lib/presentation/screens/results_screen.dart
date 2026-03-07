@@ -108,7 +108,7 @@ class _ResultsScreenState extends State<ResultsScreen>
     final plan = widget.plan;
 
     return Scaffold(
-      backgroundColor: Colors.transparent, // Background handled by BatikBackground
+      backgroundColor: Colors.white, // Background handled by BatikBackground
       body: Screenshot(
         controller: _screenshotService.controller,
         child: Container(
@@ -141,7 +141,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       decoration: AppTheme.glassDecoration(opacity: 0.2, radius: BorderRadius.circular(16)),
                       child: IconButton(
-                        icon: const Icon(Icons.public, color: Colors.white),
+                        icon: const Icon(Icons.public, color: AppTheme.modernBlue),
                         tooltip: "View Visual Route",
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => MapRouteScreen(plan: plan)));
@@ -153,7 +153,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       decoration: AppTheme.glassDecoration(opacity: 0.2, radius: BorderRadius.circular(16)),
                       child: IconButton(
-                        icon: const Icon(Icons.picture_as_pdf_outlined, color: Colors.white),
+                        icon: const Icon(Icons.picture_as_pdf_outlined, color: AppTheme.modernBlue),
                         onPressed: () {
                           if (isPremium) {
                             PdfService.generateAndShareTripPdf(plan);
@@ -171,7 +171,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       decoration: AppTheme.glassDecoration(opacity: 0.2, radius: BorderRadius.circular(16)),
                       child: IconButton(
-                        icon: const Icon(Icons.account_balance_wallet_outlined, color: Colors.white),
+                        icon: const Icon(Icons.account_balance_wallet_outlined, color: AppTheme.modernBlue),
                         tooltip: "Budget Tracker",
                         onPressed: () {
                           Navigator.push(
@@ -225,25 +225,25 @@ class _ResultsScreenState extends State<ResultsScreen>
                           placeholder: (context, url) => Container(
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [AppTheme.primaryBlue, Color(0xFF005A8E)],
+                                colors: [AppTheme.modernBlue, Color(0xFF0D47A1)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                             ),
                             child: Center(
-                              child: Icon(Icons.landscape, size: 100, color: Colors.white.withValues(alpha: 0.1)),
+                              child: Icon(Icons.landscape, size: 100, color: Colors.white.withValues(alpha: 0.2)),
                             ),
                           ),
                           errorWidget: (context, url, error) => Container(
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [AppTheme.primaryBlue, Color(0xFF005A8E)],
+                                colors: [AppTheme.modernBlue, Color(0xFF0D47A1)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                             ),
                             child: Center(
-                              child: Icon(Icons.broken_image, size: 100, color: Colors.white.withValues(alpha: 0.1)),
+                              child: Icon(Icons.broken_image, size: 100, color: Colors.white.withValues(alpha: 0.2)),
                             ),
                           ),
                         ),
@@ -427,8 +427,8 @@ class _ResultsScreenState extends State<ResultsScreen>
             height: 36,
             child: CircularProgressIndicator(
               value: score / 100,
-              backgroundColor: Colors.white10,
-              color: AppTheme.accentOchre,
+              backgroundColor: AppTheme.modernBlue.withValues(alpha: 0.1),
+              color: AppTheme.modernGreen,
               strokeWidth: 3,
             ),
           ),
@@ -436,8 +436,8 @@ class _ResultsScreenState extends State<ResultsScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 2),
-              Text("$score", style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 11)),
-              Text("VERIFIED", style: GoogleFonts.inter(color: Theme.of(context).colorScheme.primary, fontSize: 5, fontWeight: FontWeight.bold)),
+              Text("$score", style: GoogleFonts.outfit(color: AppTheme.modernBlue, fontWeight: FontWeight.bold, fontSize: 11)),
+              Text("VERIFIED", style: GoogleFonts.inter(color: AppTheme.modernGreen, fontSize: 5, fontWeight: FontWeight.bold)),
             ],
           ),
         ],
@@ -478,12 +478,12 @@ class _ResultsScreenState extends State<ResultsScreen>
               children: [
                 Row(
                   children: [
-                    Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary, size: 20),
+                    Icon(Icons.auto_awesome, color: AppTheme.modernGreen, size: 20),
                     const SizedBox(width: 12),
                     Text(
                       "ORACLE'S VISION",
                       style: GoogleFonts.outfit(
-                        color: Theme.of(context).colorScheme.primary, 
+                        color: AppTheme.modernGreen, 
                         fontWeight: FontWeight.bold, 
                         letterSpacing: 2, 
                         fontSize: 12,
@@ -497,7 +497,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                 Text(
                   plan.humanText,
                   style: GoogleFonts.inter(
-                    color: Theme.of(context).colorScheme.onSurface, 
+                    color: AppTheme.darkText, 
                     height: 1.6, 
                     fontSize: 14,
                   ),
@@ -547,18 +547,31 @@ class _ResultsScreenState extends State<ResultsScreen>
         decoration: AppTheme.glassDecoration(
           opacity: Theme.of(context).brightness == Brightness.light ? 0.8 : 0.1, 
           radius: BorderRadius.circular(20),
-          color: Theme.of(context).cardColor,
+          color: Colors.white,
         ).copyWith(
-          border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
+          border: Border.all(color: AppTheme.modernBlue.withValues(alpha: 0.05)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary, 
+                gradient: AppTheme.modernGradient, 
                 shape: BoxShape.circle, 
-                boxShadow: AppTheme.premiumShadow,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.modernGreen.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  )
+                ],
               ),
               child: Text(
                 "${day.day}", 
@@ -573,7 +586,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                   Text(
                     "Day ${day.day}".toUpperCase(), 
                     style: GoogleFonts.inter(
-                      color: Theme.of(context).colorScheme.primary, 
+                      color: AppTheme.modernGreen, 
                       fontWeight: FontWeight.bold, 
                       fontSize: 12, 
                       letterSpacing: 2,
@@ -583,7 +596,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                     Text(
                       day.dayTheme, 
                       style: GoogleFonts.outfit(
-                        color: Theme.of(context).colorScheme.onSurface, 
+                        color: AppTheme.darkText, 
                         fontWeight: FontWeight.bold, 
                         fontSize: 20,
                       ),
@@ -613,7 +626,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                   item.time,
                   style: GoogleFonts.outfit(
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: AppTheme.modernBlue,
                       fontSize: 13),
                 ),
                 Expanded(
@@ -630,10 +643,10 @@ class _ResultsScreenState extends State<ResultsScreen>
                 width: 14,
                 height: 14,
                 decoration: BoxDecoration(
-                  color: typeInfo.color,
+                  color: AppTheme.modernGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: typeInfo.color.withValues(alpha: 0.5), blurRadius: 8, spreadRadius: 2),
+                    BoxShadow(color: AppTheme.modernGreen.withValues(alpha: 0.5), blurRadius: 8, spreadRadius: 2),
                     const BoxShadow(color: Colors.white, blurRadius: 2, spreadRadius: 1),
                   ],
                 ),
@@ -643,8 +656,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                   width: 2, 
                   margin: const EdgeInsets.symmetric(vertical: 8), 
                   decoration: BoxDecoration(
-                    color: typeInfo.color.withValues(alpha: 0.5),
-                    boxShadow: [BoxShadow(color: typeInfo.color.withValues(alpha: 0.3), blurRadius: 4)],
+                    color: AppTheme.modernGreen.withValues(alpha: 0.3),
                   )
                 ),
               ),
@@ -656,10 +668,17 @@ class _ResultsScreenState extends State<ResultsScreen>
             child: Container(
               margin: const EdgeInsets.only(bottom: 24),
               decoration: AppTheme.glassDecoration(
-                color: Theme.of(context).cardColor,
-                opacity: Theme.of(context).brightness == Brightness.light ? 0.9 : 0.12,
+                color: Colors.white,
+                opacity: 0.9,
               ).copyWith(
-                border: Border(left: BorderSide(color: typeInfo.color, width: 4)),
+                border: Border(left: BorderSide(color: AppTheme.modernGreen, width: 4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -674,7 +693,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold, 
                               fontSize: 16, 
-                              color: Theme.of(context).colorScheme.onSurface,
+                              color: AppTheme.darkText,
                             ),
                           ),
                         ),
@@ -687,7 +706,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                         _infoChip("${item.durationMin} MINS", Colors.grey.shade600),
                         if (item.costLkr > 0) ...[
                           const SizedBox(width: 12),
-                          _infoChip(_fmtLkr(item.costLkr), AppTheme.accentOchre),
+                          _infoChip(_fmtLkr(item.costLkr), AppTheme.modernGreen),
                         ],
                       ],
                     ),
@@ -697,7 +716,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                         item.notes, 
                         style: GoogleFonts.inter(
                           fontSize: 13, 
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+                          color: AppTheme.darkText.withValues(alpha: 0.7), 
                           height: 1.5,
                         ),
                       ),
@@ -780,7 +799,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               Text(
                 "ESTIMATED TOTAL", 
                 style: GoogleFonts.inter(
-                  color: Theme.of(context).colorScheme.primary, 
+                  color: AppTheme.modernGreen, 
                   fontWeight: FontWeight.bold, 
                   fontSize: 12, 
                   letterSpacing: 1.5,
@@ -794,7 +813,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           Text(
             _fmtLkr(total), 
             style: GoogleFonts.outfit(
-              color: Theme.of(context).colorScheme.onSurface, 
+              color: AppTheme.darkText, 
               fontSize: 32, 
               fontWeight: FontWeight.bold,
             ),
@@ -932,7 +951,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             ),
           ),
           const SizedBox(height: 48),
-          OchreButton(
+          ModernGradientButton(
             label: "Open Route Map",
             onPressed: () {
                HapticFeedback.heavyImpact();

@@ -44,14 +44,20 @@ class _ItineraryTimelineWidgetState extends State<ItineraryTimelineWidget> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  gradient: widget.theme.cardGradient,
+                  gradient: AppTheme.modernGradient,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: widget.theme.accent.withValues(alpha: 0.4)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.modernGreen.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
                 ),
                 child: Text(
                   'Day ${widget.day.day}',
                   style: GoogleFonts.outfit(
-                    color: widget.theme.accent,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                     letterSpacing: 1.2,
@@ -63,7 +69,7 @@ class _ItineraryTimelineWidgetState extends State<ItineraryTimelineWidget> {
                 child: Text(
                   widget.day.dayTheme,
                   style: GoogleFonts.outfit(
-                    color: Colors.white,
+                    color: AppTheme.darkText,
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
                   ),
@@ -72,7 +78,7 @@ class _ItineraryTimelineWidgetState extends State<ItineraryTimelineWidget> {
               ),
               Text(
                 '${_items.length} stops',
-                style: AppTheme.labelStyle,
+                style: AppTheme.labelStyle.copyWith(color: AppTheme.darkText.withValues(alpha: 0.5)),
               ),
             ],
           ),
@@ -164,7 +170,7 @@ class _TimelineItem extends StatelessWidget {
                   Container(
                     width: 2,
                     height: 48,
-                    color: theme.accent.withValues(alpha: 0.2),
+                    color: AppTheme.modernGreen.withValues(alpha: 0.2),
                   ),
               ],
             ),
@@ -176,9 +182,16 @@ class _TimelineItem extends StatelessWidget {
               margin: const EdgeInsets.symmetric(vertical: 4),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
               ),
               child: Row(
                 children: [
@@ -191,7 +204,7 @@ class _TimelineItem extends StatelessWidget {
                           item.time,
                           style: GoogleFonts.outfit(
                             fontSize: 11,
-                            color: theme.accent,
+                            color: AppTheme.modernBlue,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
                           ),
@@ -202,7 +215,7 @@ class _TimelineItem extends StatelessWidget {
                           item.title,
                           style: GoogleFonts.outfit(
                             fontSize: 14,
-                            color: Colors.white,
+                            color: AppTheme.darkText,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -210,7 +223,7 @@ class _TimelineItem extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             item.notes,
-                            style: AppTheme.bodyStyle.copyWith(fontSize: 12),
+                            style: AppTheme.bodyStyle.copyWith(fontSize: 12, color: AppTheme.darkText.withValues(alpha: 0.6)),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -236,7 +249,7 @@ class _TimelineItem extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 8),
                       child: Icon(
                         Icons.drag_handle_rounded,
-                        color: Colors.white24,
+                        color: AppTheme.darkText.withValues(alpha: 0.2),
                         size: 20,
                       ),
                     ),
@@ -254,9 +267,9 @@ class _TimelineItem extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 10, color: Colors.white38),
+        Icon(icon, size: 10, color: AppTheme.darkText.withValues(alpha: 0.4)),
         const SizedBox(width: 3),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.white38)),
+        Text(label, style: TextStyle(fontSize: 10, color: AppTheme.darkText.withValues(alpha: 0.4))),
       ],
     );
   }
@@ -272,7 +285,7 @@ class _TimelineItem extends StatelessWidget {
       case 'nature': return (Icons.park_outlined, const Color(0xFF4CAF50));
       case 'culture': return (Icons.temple_buddhist_outlined, const Color(0xFFFF9800));
       case 'shopping': return (Icons.shopping_bag_outlined, Colors.pinkAccent);
-      default: return (Icons.place_outlined, AppTheme.sigiriyaOchre);
+      default: return (Icons.place_outlined, AppTheme.modernGreen);
     }
   }
 }

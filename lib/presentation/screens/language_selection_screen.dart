@@ -64,7 +64,7 @@ class LanguageSelectionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               // Sinhala Button
-              OchreButton(
+              ModernGradientButton(
                 label: "සිංහල",
                 onPressed: () async {
                   await context.read<LocaleProvider>().setLocale('si');

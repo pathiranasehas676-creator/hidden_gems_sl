@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/discovery_service.dart';
 import '../widgets/batik_background.dart';
+import '../widgets/standard_card.dart';
 import '../widgets/skeleton_loaders.dart';
 import 'place_details_screen.dart';
 
@@ -189,10 +190,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   }
 
   Widget _buildLocationHeader() {
+    final isNature = _selectedFilter.toLowerCase().contains("nature");
     return SliverAppBar(
       expandedHeight: 140,
       pinned: true,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isNature 
+          ? const Color(0xFFF1F8E9) // Pale Green for Nature
+          : Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
       flexibleSpace: FlexibleSpaceBar(
@@ -203,14 +207,18 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.location_on, color: AppTheme.accentOchre, size: 20),
+                  const Icon(Icons.location_on, color: AppTheme.modernBlue, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     "Near you: $_currentDistrict",
-                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+                    style: GoogleFonts.outfit(
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 16, 
+                      color: isNature ? AppTheme.modernGreen : Theme.of(context).colorScheme.onSurface
+                    ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.tune, color: Colors.white),
+                  Icon(Icons.tune, color: isNature ? AppTheme.modernGreen : Theme.of(context).colorScheme.onSurface),
                 ],
               ),
               const SizedBox(height: 16),
@@ -453,7 +461,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                             children: [
                               const Icon(Icons.location_on, size: 12, color: AppTheme.accentOchre),
                               const SizedBox(width: 4),
-                              Text("\${place.distanceKm.toStringAsFixed(1)}km", style: GoogleFonts.inter(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.bold)),
+                              Text("${place.distanceKm.toStringAsFixed(1)}km", style: GoogleFonts.inter(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.bold)),
                               const Spacer(),
                               Text(place.ticketRange, style: GoogleFonts.inter(fontSize: 10, color: Colors.greenAccent, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
@@ -464,9 +472,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.accentOchre.withValues(alpha: 0.1),
+                                  color: AppTheme.modernGreen.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
+                                  border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.3)),
                                 ),
                                 child: Text(
                                   place.aiReason,
@@ -475,7 +483,6 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                                     fontStyle: FontStyle.italic, 
                                     color: Theme.of(context).colorScheme.onSurface,
                                   ),
-                                  maxLines: 2, overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             )
@@ -494,107 +501,16 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   }
 
   Widget _buildListCard(DiscoveryPlace place, AppLocalizations l10n) {
-    return GestureDetector(
+    return StandardCard(
+      title: place.name,
+      subtitle: place.category,
+      imageUrl: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
+      tag: "${place.distanceKm.toStringAsFixed(1)}km",
+      tagColor: AppTheme.modernGreen,
       onTap: () => _openPlaceDetails(place),
-      child: Container(
-        height: 140,
-        decoration: AppTheme.glassDecoration(color: Theme.of(context).cardColor),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 120,
-              height: 140,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.horizontal(left: Radius.circular(24)),
-                child: CachedNetworkImage(
-                  imageUrl: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
-                  errorWidget: (context, url, error) => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            place.name, 
-                            style: GoogleFonts.outfit(
-                              fontSize: 16, 
-                              fontWeight: FontWeight.bold, 
-                              color: Theme.of(context).colorScheme.onSurface, 
-                              height: 1.1,
-                            ), 
-                            maxLines: 2, 
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Icon(Icons.bookmark_border, size: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Icon(Icons.category, size: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            place.category, 
-                            style: GoogleFonts.inter(
-                              fontSize: 10, 
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                            ), 
-                            maxLines: 1, 
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.accentOchre.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.location_on, size: 10, color: Theme.of(context).colorScheme.primary),
-                              const SizedBox(width: 4),
-                              Text(
-                                "${place.distanceKm.toStringAsFixed(1)}km", 
-                                style: GoogleFonts.inter(
-                                  fontSize: 10, 
-                                  fontWeight: FontWeight.bold, 
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          place.ticketRange, 
-                          style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.greenAccent),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ],
-        ),
+      trailing: Text(
+        place.ticketRange,
+        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green),
       ),
     );
   }

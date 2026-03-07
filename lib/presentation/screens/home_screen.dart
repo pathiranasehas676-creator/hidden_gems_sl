@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             _journalUnfold(child: _buildWelcomeCard()),
                             const SizedBox(height: 24),
-                            OchreButton(
+                            ModernGradientButton(
                               label: l10n.planNewTrip,
                               icon: Icons.auto_awesome,
                               onPressed: () {
@@ -96,7 +96,37 @@ class _HomeScreenState extends State<HomeScreen> {
                               _buildSectionHeader(l10n.localGemsOffline),
                               const SizedBox(height: 16),
                               _buildLocalGemsScroller(context),
-                              const SizedBox(height: 32),
+                              const SizedBox(height: 24),
+                             // Modern Search Bar Refinement
+                             Container(
+                               padding: const EdgeInsets.symmetric(horizontal: 16),
+                               height: 54,
+                               decoration: BoxDecoration(
+                                 color: Colors.white,
+                                 borderRadius: BorderRadius.circular(16),
+                                 boxShadow: [
+                                   BoxShadow(
+                                     color: Colors.black.withValues(alpha: 0.05),
+                                     blurRadius: 15,
+                                     offset: const Offset(0, 5),
+                                   ),
+                                 ],
+                               ),
+                               child: Row(
+                                 children: [
+                                   const Icon(Icons.search, color: AppTheme.modernBlue),
+                                   const SizedBox(width: 12),
+                                   Text(
+                                     "Search hidden gems...",
+                                     style: GoogleFonts.inter(
+                                       color: AppTheme.darkText.withValues(alpha: 0.4),
+                                       fontSize: 14,
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             ),
+                             const SizedBox(height: 32),
                             ],
                             const SizedBox(height: 16),
                             _buildCategoriesGrid(),
@@ -270,8 +300,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     letterSpacing: 1,
                   ),
                   children: [
-                    TextSpan(text: "AdvanceTravel", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                    const TextSpan(text: ".me", style: TextStyle(color: Color(0xFFC19A6B))), 
+                    TextSpan(text: "HiddenGems", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                    TextSpan(text: " SL", style: TextStyle(color: Theme.of(context).colorScheme.primary)), 
                   ],
                 ),
               ),
@@ -283,9 +313,15 @@ class _HomeScreenState extends State<HomeScreen> {
         if (user != null)
           Padding(
             padding: const EdgeInsets.only(top: 8, bottom: 8, left: 16),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundImage: NetworkImage(user.photoURL ?? "https://ui-avatars.com/api/?name=${user.displayName}"),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: AppTheme.modernBlue, width: 2),
+              ),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundImage: NetworkImage(user.photoURL ?? "https://ui-avatars.com/api/?name=${user.displayName}"),
+              ),
             ),
           ),
         Padding(
@@ -356,9 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [AppTheme.accentOchre, Colors.orangeAccent],
-                  ).createShader(bounds),
+                  shaderCallback: (bounds) => AppTheme.modernGradient.createShader(bounds),
                   child: Text(
                     "Ayubowan, $name!".toUpperCase(),
                     style: GoogleFonts.inter(
@@ -400,10 +434,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCategoriesGrid() {
     final categories = [
-      ("Nature", Icons.forest_outlined, [AppTheme.successGreen, const Color(0xFF143324)]),
-      ("Culture", Icons.temple_hindu_outlined, const [Color(0xFFE2725B), Color(0xFF8B2513)]),
-      ("Luxury", Icons.diamond_outlined, [AppTheme.accentOchre, const Color(0xFF8B6C13)]),
-      ("Discover", Icons.explore_outlined, [AppTheme.primaryBlue, const Color(0xFF0F2B3D)]),
+      ("Nature", Icons.forest_outlined, [AppTheme.modernGreen, const Color(0xFF1B5E20)]),
+      ("Culture", Icons.temple_hindu_outlined, [const Color(0xFF5D4037), const Color(0xFF3E2723)]),
+      ("Luxury", Icons.diamond_outlined, [const Color(0xFFF9A825), const Color(0xFFF57F17)]),
+      ("Discover", Icons.explore_outlined, [AppTheme.modernBlue, const Color(0xFF0D47A1)]),
     ];
 
     return SizedBox(
@@ -446,7 +480,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(cat.$1, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                        Text(cat.$1, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
                       ],
                     ),
                   ),
@@ -570,9 +604,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.55),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.3),
@@ -622,7 +656,7 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? AppTheme.sigiriyaOchre.withValues(alpha: 0.18) : Colors.transparent,
+          color: active ? AppTheme.modernGreen.withValues(alpha: 0.08) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -630,14 +664,14 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(
               icon,
-              color: active ? AppTheme.sigiriyaOchre : Colors.white38,
+              color: active ? AppTheme.modernGreen : Colors.grey[400],
               size: 22,
             ),
             const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
-                color: active ? AppTheme.sigiriyaOchre : Colors.white38,
+                color: active ? AppTheme.modernGreen : Colors.grey[400],
                 fontSize: 9,
                 fontWeight: active ? FontWeight.bold : FontWeight.normal,
                 letterSpacing: active ? 0.5 : 0,

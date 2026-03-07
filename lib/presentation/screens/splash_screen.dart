@@ -90,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: _controller.value.isInitialized
           ? Stack(
               fit: StackFit.expand,
@@ -105,17 +105,17 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ),
                 
-                // Dark Gradient Overlays for Cinematic Feel
+                // Subtle Overlay for White Theme
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withValues(alpha: 0.4),
+                        Colors.white.withValues(alpha: 0.1),
                         Colors.transparent,
                         Colors.transparent,
-                        Colors.black.withValues(alpha: 0.5),
+                        Colors.white.withValues(alpha: 0.2),
                       ],
                       stops: const [0.0, 0.2, 0.7, 1.0],
                     ),
@@ -154,16 +154,10 @@ class _SplashScreenState extends State<SplashScreen> {
                                       height: 4,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(2),
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFFB8860B), // Dark Gold
-                                            AppTheme.accentOchre,
-                                            Color(0xFFFFF8DC), // Cornsilk/Light Gold
-                                          ],
-                                        ),
+                                        gradient: AppTheme.modernGradient,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: AppTheme.accentOchre.withValues(alpha: 0.4),
+                                            color: AppTheme.modernGreen.withValues(alpha: 0.3),
                                             blurRadius: 12,
                                             spreadRadius: 1,
                                           )
@@ -201,7 +195,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white.withValues(alpha: 0.3),
+                            color: AppTheme.modernGreen.withValues(alpha: 0.5),
                             letterSpacing: 4,
                           ),
                         ),
@@ -210,18 +204,18 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
               ],
             )
-          : Container(
-              decoration: const BoxDecoration(gradient: AppTheme.oceanGradient),
+    : Container(
+              color: Colors.white,
               child: const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(color: AppTheme.accentOchre),
+                    CircularProgressIndicator(color: AppTheme.modernGreen),
                     SizedBox(height: 24),
                     Text(
                       "PREPARING YOUR JOURNEY...",
                       style: TextStyle(
-                        color: Colors.white70,
+                        color: AppTheme.modernGreen,
                         letterSpacing: 4,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,

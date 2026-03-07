@@ -11,7 +11,7 @@ class PlaceDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.silkPearl,
+      backgroundColor: Colors.white,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -48,7 +48,7 @@ class PlaceDetailsScreen extends StatelessWidget {
     return SliverAppBar(
       expandedHeight: 300,
       pinned: true,
-      backgroundColor: AppTheme.primaryBlue,
+      backgroundColor: AppTheme.modernBlue,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
         onPressed: () => Navigator.pop(context),
@@ -91,19 +91,19 @@ class PlaceDetailsScreen extends StatelessWidget {
                 children: [
                   Text(
                     place.name,
-                    style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue, height: 1.1),
+                    style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.modernBlue, height: 1.1),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 14, color: AppTheme.accentOchre),
+                      const Icon(Icons.location_on, size: 14, color: AppTheme.modernBlue),
                       const SizedBox(width: 4),
-                      Text(place.district, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade700)),
+                      Text(place.district, style: GoogleFonts.inter(fontSize: 14, color: AppTheme.darkText.withValues(alpha: 0.7))),
                       if (place.distanceKm > 0) ...[
                         const SizedBox(width: 8),
                         Text("•", style: TextStyle(color: Colors.grey.shade400)),
                         const SizedBox(width: 8),
-                        Text("\${place.distanceKm.toStringAsFixed(1)} km away", style: GoogleFonts.inter(fontSize: 14, color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
+                        Text("\${place.distanceKm.toStringAsFixed(1)} km away", style: GoogleFonts.inter(fontSize: 14, color: AppTheme.modernGreen, fontWeight: FontWeight.bold)),
                       ]
                     ],
                   ),
@@ -136,18 +136,18 @@ class PlaceDetailsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.accentOchre.withValues(alpha: 0.1),
+        color: AppTheme.modernGreen.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome, color: AppTheme.accentOchre, size: 18),
+              const Icon(Icons.auto_awesome, color: AppTheme.modernGreen, size: 18),
               const SizedBox(width: 8),
-              Text("Why this place?", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.accentOchre)),
+              Text("Why this place?", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.modernGreen)),
             ],
           ),
           const SizedBox(height: 8),
@@ -178,11 +178,11 @@ class PlaceDetailsScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, color: AppTheme.primaryBlue, size: 24),
+            Icon(icon, color: AppTheme.modernBlue, size: 24),
             const SizedBox(height: 8),
-            Text(title, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+            Text(title, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.darkText.withValues(alpha: 0.4))),
             const SizedBox(height: 4),
-            Text(value.isEmpty ? "N/A" : value, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.primaryBlue), textAlign: TextAlign.center, maxLines: 2),
+            Text(value.isEmpty ? "N/A" : value, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.modernBlue), textAlign: TextAlign.center, maxLines: 2),
           ],
         ),
       ),
@@ -195,9 +195,9 @@ class PlaceDetailsScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: AppTheme.primaryBlue),
+            Icon(icon, size: 20, color: AppTheme.modernGreen),
             const SizedBox(width: 8),
-            Text(title, style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue)),
+            Text(title, style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.modernGreen)),
           ],
         ),
         const SizedBox(height: 12),
@@ -260,11 +260,12 @@ class PlaceDetailsScreen extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.3)),
               borderRadius: BorderRadius.circular(16),
+              color: AppTheme.modernGreen.withValues(alpha: 0.05),
             ),
             child: IconButton(
-              icon: const Icon(Icons.bookmark_border_rounded, color: AppTheme.primaryBlue),
+              icon: const Icon(Icons.bookmark_border_rounded, color: AppTheme.modernGreen),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Saved to your gems!")));
               },
@@ -272,18 +273,32 @@ class PlaceDetailsScreen extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryBlue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: AppTheme.modernGradient,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.modernGreen.withValues(alpha: 0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  )
+                ],
               ),
-              onPressed: () {
-                // Mock Add to Plan
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Added to current plan!")));
-              },
-              child: Text("Add to my plan", style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                onPressed: () {
+                  // Mock Add to Plan
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Added to current plan!")));
+                },
+                child: Text("Add to my plan", style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
             ),
           )
         ],
