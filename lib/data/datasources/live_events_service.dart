@@ -77,6 +77,56 @@ class LiveEventsService {
     return getEventsForTrip(today, 1);
   }
 
+  /// Returns events happening in the coming week (Phase 3: Coming Up Soon)
+  static List<EventModel> getUpcomingEvents({int limit = 5}) {
+    DateTime today = DateTime.now();
+    final allUpcoming = getEventsForTrip(today, 7);
+    allUpcoming.sort((a, b) {
+      if (a.date != null && b.date != null) return a.date!.compareTo(b.date!);
+      return 0;
+    });
+    return allUpcoming.take(limit).toList();
+  }
+
+  /// Returns events personalized for the user (Phase 3: Top Picks)
+  static List<EventModel> getPersonalizedEvents(String userVibe, List<String> userInterests, {int limit = 3}) {
+    final allEvents = SriLankaEvents.events.map((e) => EventModel.fromJson(e)).toList();
+    
+    // Simple scoring algorithm
+    List<({EventModel event, double score})> scoredEvents = [];
+    
+    for (var event in allEvents) {
+      double score = 0;
+      
+      // Match category to vibe
+      if (event.category.name == userVibe.toLowerCase()) score += 5;
+      
+      // Match tags to interests
+      for (var tag in event.tags) {
+        if (userInterests.any((interest) => interest.toLowerCase().contains(tag.toLowerCase()))) {
+          score += 2;
+        }
+      }
+      
+      // Match music genre for party vibe
+      if (userVibe.toLowerCase() == 'party') {
+        for (var artist in event.lineup) {
+          if (artist.musicGenre != null && 
+              userInterests.any((i) => i.toLowerCase().contains(artist.musicGenre!.toLowerCase()))) {
+            score += 3;
+          }
+        }
+      }
+
+      if (score > 0) {
+        scoredEvents.add((event: event, score: score));
+      }
+    }
+
+    scoredEvents.sort((a, b) => b.score.compareTo(a.score));
+    return scoredEvents.map((e) => e.event).take(limit).toList();
+  }
+
   /// Launch external ticket booking URL
   static Future<void> launchTicketUrl(String url) async {
     final Uri uri = Uri.parse(url);

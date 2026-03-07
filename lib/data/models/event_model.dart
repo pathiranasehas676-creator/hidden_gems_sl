@@ -15,7 +15,7 @@ class Artist {
 
   factory Artist.fromJson(Map<String, dynamic> json) {
     return Artist(
-      name: json['name'],
+      name: json['name'] ?? '',
       imageUrl: json['image_url'],
       musicGenre: json['music_genre'],
       socialLink: json['social_link'],
@@ -54,6 +54,8 @@ class EventModel {
   final List<Artist> lineup;
   final double? latitude;
   final double? longitude;
+  final List<String> tags;
+  final int? priceLkr;
 
   EventModel({
     required this.name,
@@ -67,6 +69,8 @@ class EventModel {
     this.lineup = const [],
     this.latitude,
     this.longitude,
+    this.tags = const [],
+    this.priceLkr,
   });
 
   Color get categoryColor {
@@ -85,8 +89,8 @@ class EventModel {
 
   factory EventModel.fromJson(Map<String, dynamic> json) {
     return EventModel(
-      name: json['name'],
-      description: json['description'],
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
       category: _parseCategory(json['type'] ?? json['category']),
       date: json['date'],
       start: json['start'],
@@ -96,6 +100,8 @@ class EventModel {
       lineup: (json['lineup'] as List?)?.map((a) => Artist.fromJson(a)).toList() ?? [],
       latitude: json['lat'],
       longitude: json['lng'],
+      tags: List<String>.from(json['tags'] ?? []),
+      priceLkr: json['price_lkr'],
     );
   }
 
@@ -135,6 +141,8 @@ class EventModel {
       'lat': latitude,
       'lng': longitude,
       'lineup': lineup.map((a) => a.toJson()).toList(),
+      'tags': tags,
+      'price_lkr': priceLkr,
     };
   }
 }
