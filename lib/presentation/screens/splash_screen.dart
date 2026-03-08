@@ -4,14 +4,18 @@ import 'package:video_player/video_player.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../main.dart';
 import '../../core/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import '../../core/providers/screenshot_provider.dart';
 class SplashScreen extends StatefulWidget {
   final Future<InitializationResult>? initFuture;
   final bool isResume;
+  final Function(InitializationResult)? onComplete;
 
   const SplashScreen({
     super.key,
     this.initFuture,
     this.isResume = false,
+    this.onComplete,
   });
 
   @override
@@ -30,13 +34,29 @@ class _SplashScreenState extends State<SplashScreen> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     
     // Hide Global Screenshot button while on splash
-    GlobalScreenshotWrapper.setVisible(false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ScreenshotProvider>().toggleVisibility(false);
+      }
+    });
 
     _controller = VideoPlayerController.asset("assets/videos/splash.mp4")
       ..initialize().then((_) {
-        if (mounted) setState(() {});
-        _controller.play();
+        if (mounted) {
+          setState(() {});
+          _controller.play();
+        }
+      }).catchError((e) {
+        debugPrint("Video initialization error: $e");
+        if (!_isNavigating) _handleNavigation();
       });
+
+    // Web Fallback: If video doesn't initialize or finish in 6s, proceed anyway
+    Future.delayed(const Duration(seconds: 6), () {
+      if (mounted && !_isNavigating) {
+        _handleNavigation();
+      }
+    });
 
     _controller.setLooping(false);
 
@@ -63,17 +83,8 @@ class _SplashScreenState extends State<SplashScreen> {
     if (widget.isResume) {
       Navigator.of(context).pop();
     } else {
-      if (result != null) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                AdvanceTravelApp(initResult: result!),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 1000),
-          ),
-        );
+      if (result != null && widget.onComplete != null) {
+        widget.onComplete!(result);
       }
     }
   }
@@ -82,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void dispose() {
     // Restore system UI and global UI elements
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    GlobalScreenshotWrapper.setVisible(true);
+    context.read<ScreenshotProvider>().toggleVisibility(true);
     _controller.dispose();
     super.dispose();
   }

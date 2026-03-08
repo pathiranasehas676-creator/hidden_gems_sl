@@ -8,9 +8,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
-import 'dart:io' show HttpOverrides;
+import 'dart:io';
 import 'core/theme/app_theme.dart';
-import 'core/localization/locale_provider.dart';
+import 'core/providers/locale_provider.dart'; // Changed path
 import 'data/datasources/trip_cache_service.dart';
 import 'data/datasources/user_preference_service.dart';
 import 'data/datasources/monetization_service.dart';
@@ -28,8 +28,8 @@ import 'presentation/screens/language_selection_screen.dart';
 import 'presentation/widgets/graceful_error_widget.dart';
 import 'firebase_options.dart';
 import 'core/config/remote_config_service.dart';
-import 'core/theme/vibe_theme_provider.dart';
-import 'core/theme/app_mode_provider.dart';
+import 'core/providers/app_mode_provider.dart';
+import 'core/providers/screenshot_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'core/utils/screenshot_service.dart';
 import 'presentation/widgets/golden_tracer_indicator.dart';
@@ -48,6 +48,15 @@ class InitializationResult {
   });
 
   bool get canProceed => hiveSuccess && !isCompromised;
+}
+
+// SecureNetworkOverrides stays here or core/network
+class SecureNetworkOverrides extends HttpOverrides {
+@override
+ HttpClient createHttpClient(SecurityContext? context) {
+   return super.createHttpClient(context)
+     ..badCertificateCallback = (X509Certificate cert, String host, int port) => false;
+ }
 }
 
 void main() async {
@@ -79,8 +88,8 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => PremiumService()..init()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
-        ChangeNotifierProvider(create: (_) => VibeThemeProvider()),
         ChangeNotifierProvider(create: (_) => AppModeProvider()),
+        ChangeNotifierProvider(create: (_) => ScreenshotProvider()),
       ],
       child: TripMeApp(initFuture: initFuture),
     ),
@@ -191,57 +200,24 @@ void initializeOtherServices() {
 }
 
 // The thin root MaterialApp — just theming + localization, routes to Splash
-class TripMeApp extends StatelessWidget {
+class TripMeApp extends StatefulWidget {
   final Future<InitializationResult> initFuture;
   const TripMeApp({super.key, required this.initFuture});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TripMe.ai',
-      debugShowCheckedModeBanner: false,
-      themeMode: context.watch<AppModeProvider>().currentMode,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('si'),
-        Locale('ta'),
-        Locale('ja'),
-        Locale('ru'),
-        Locale('ko'),
-      ],
-      locale: context.watch<LocaleProvider>().locale,
-      home: SplashScreen(initFuture: initFuture),
-      builder: (context, child) => GlobalScreenshotWrapper(child: child!),
-    );
-  }
+  State<TripMeApp> createState() => _TripMeAppState();
 }
 
-// Keep AdvanceTravelApp for the post-splash routing logic
-class AdvanceTravelApp extends StatefulWidget {
-  final InitializationResult initResult;
-  const AdvanceTravelApp({super.key, required this.initResult});
-
-  @override
-  State<AdvanceTravelApp> createState() => _AdvanceTravelAppState();
-}
-
-class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBindingObserver {
-  late InitializationResult _currentInitResult;
+class _TripMeAppState extends State<TripMeApp> with WidgetsBindingObserver {
+  late InitializationResult _currentInitResult = InitializationResult(hiveSuccess: false, firebaseSuccess: false);
+  bool _isInitDone = false;
+  bool _showMainApp = false;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  bool _isSplashShowing = false;
 
   @override
   void initState() {
     super.initState();
-    _currentInitResult = widget.initResult;
+    _startInitialization();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -251,52 +227,26 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && !_isSplashShowing) {
-      _showSplashScreen();
+  Future<void> _startInitialization() async {
+    final result = await widget.initFuture;
+    if (result.firebaseSuccess) {
+      initializeOtherServices();
     }
-  }
-
-  void _showSplashScreen() {
-    if (navigatorKey.currentState == null) return;
-    _isSplashShowing = true;
-    
-    // Use push to put Splash on top of everything
-    navigatorKey.currentState!.push(
-      PageRouteBuilder(
-        opaque: true, // Make it opaque for full-screen feel
-        transitionDuration: const Duration(milliseconds: 800),
-        pageBuilder: (context, animation, secondaryAnimation) => SplashScreen(
-          initFuture: Future.value(_currentInitResult),
-          isResume: true,
-        ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-      ),
-    ).then((_) {
-      _isSplashShowing = false;
+    setState(() {
+      _currentInitResult = result;
+      _isInitDone = true;
     });
   }
 
   Future<void> _retryInit() async {
-    setState(() {
-      // Temporary state to show loader during retry
-      _currentInitResult = InitializationResult(
-        hiveSuccess: true, 
-        firebaseSuccess: true,
-      ); 
-    });
-    
+    setState(() => _isInitDone = false);
     final result = await performInitialization();
-    
     if (result.firebaseSuccess) {
       initializeOtherServices();
     }
-    
     setState(() {
       _currentInitResult = result;
+      _isInitDone = true;
     });
   }
 
@@ -324,7 +274,18 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
         Locale('ko'),
       ],
       locale: context.watch<LocaleProvider>().locale,
-      home: _buildHomeModule(),
+      home: _showMainApp && _isInitDone
+          ? _buildHomeModule()
+          : SplashScreen(
+              initFuture: widget.initFuture,
+              onComplete: (result) {
+                setState(() {
+                  _currentInitResult = result;
+                  _isInitDone = true;
+                  _showMainApp = true;
+                });
+              },
+            ),
       builder: (context, child) => GlobalScreenshotWrapper(child: child!),
     );
   }
@@ -348,7 +309,6 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
       return const LanguageSelectionScreen();
     }
 
-    // If Hive is ready but Firebase failed, go to Home in Offline Mode
     if (!_currentInitResult.firebaseSuccess) {
       return const HomeScreen(isOffline: true);
     }
@@ -382,9 +342,7 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
         
         if (snapshot.hasError) {
           return Scaffold(
-            body: Center(
-              child: Text("Connection Error: ${snapshot.error}"),
-            ),
+            body: Center(child: Text("Connection Error: ${snapshot.error}")),
           );
         }
 
@@ -397,80 +355,118 @@ class _AdvanceTravelAppState extends State<AdvanceTravelApp> with WidgetsBinding
   }
 }
 
+
 class GlobalScreenshotWrapper extends StatefulWidget {
   final Widget child;
   const GlobalScreenshotWrapper({super.key, required this.child});
-
-  static _GlobalScreenshotWrapperState? _state;
-  
-  static void setVisible(bool visible) {
-    _state?.updateVisibility(visible);
-  }
 
   @override
   State<GlobalScreenshotWrapper> createState() => _GlobalScreenshotWrapperState();
 }
 
-class _GlobalScreenshotWrapperState extends State<GlobalScreenshotWrapper> {
+class _GlobalScreenshotWrapperState extends State<GlobalScreenshotWrapper> with SingleTickerProviderStateMixin {
   final ScreenshotService _screenshotService = ScreenshotService();
-  bool _isVisible = true;
-
-  void updateVisibility(bool visible) {
-    if (mounted && _isVisible != visible) {
-      setState(() => _isVisible = visible);
-    }
-  }
+  late AnimationController _flashController;
 
   @override
   void initState() {
     super.initState();
-    GlobalScreenshotWrapper._state = this;
+    _flashController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+  }
+
+  @override
+  void dispose() {
+    _flashController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleCapture() async {
+    HapticFeedback.heavyImpact();
+    // Trigger Flash
+    _flashController.forward(from: 0.0);
+    await _screenshotService.captureAndShare(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isVisible = context.watch<ScreenshotProvider>().isVisible;
+
     return Screenshot(
       controller: _screenshotService.controller,
       child: Stack(
         children: [
           widget.child,
-          if (_isVisible)
+          if (isVisible)
             Positioned(
-              right: 20,
-              bottom: 120, // Slightly higher to clear any bottom bars
+              right: 16,
+              bottom: 110,
               child: SafeArea(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      _screenshotService.captureAndShare(context);
-                    },
-                    borderRadius: BorderRadius.circular(30),
-                    child: Container(
-                      width: 52,
-                      height: 52,
-                      decoration: AppTheme.glassDecoration(opacity: 0.15, blur: 25).copyWith(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.4), width: 1.5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.modernGreen.withValues(alpha: 0.2),
-                            blurRadius: 15,
-                            spreadRadius: 2,
-                          )
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt_outlined,
-                        color: AppTheme.modernGreen,
-                        size: 26,
+                child: TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 600),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  curve: Curves.elasticOut,
+                  builder: (context, value, child) => Transform.scale(
+                    scale: value,
+                    child: child,
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _handleCapture,
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: AppTheme.glassDecoration(
+                          opacity: 0.2, 
+                          blur: 30,
+                          shape: BoxShape.circle,
+                        ).copyWith(
+                          border: Border.all(
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.5), 
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                            )
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
+          // Flash Effect Overlay
+          FadeTransition(
+            opacity: _flashController.drive(CurveTween(curve: Curves.easeOut).chain(Tween(begin: 0.0, end: 1.0))),
+            child: IgnorePointer(
+              child: Container(
+                color: Colors.white,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            ),
+          ),
+          // Flash Fade Out
+          FadeTransition(
+            opacity: _flashController.drive(CurveTween(curve: Curves.easeIn).chain(Tween(begin: 1.0, end: 0.0))),
+            child: IgnorePointer(
+              child: Container(
+                color: Colors.white,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            ),
+          ),
         ],
       ),
     );

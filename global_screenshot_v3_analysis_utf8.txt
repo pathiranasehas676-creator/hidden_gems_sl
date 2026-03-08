@@ -1,0 +1,14 @@
+﻿Analyzing hidden_gems_sl...                                     
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\theme\app_theme.dart:136:52 - deprecated_member_use
+warning - Unused import: 'core/network/secure_network.dart' - lib\main.dart:21:8 - unused_import
+warning - The declaration '_ProfileHeader' isn't referenced - lib\presentation\screens\event_calendar_screen.dart:27:7 - unused_element
+   info - The import of 'package:flutter/services.dart' is unnecessary because all of the used elements are also provided by the import of 'dart:ui' - lib\presentation\screens\profile_screen.dart:5:8 - unnecessary_import
+
+flutter : 4 issues found. (ran in 38.0s)
+At line:1 char:1
++ flutter analyze --no-pub > global_screenshot_v3_analysis.txt 2>&1; Ge ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (4 issues found. (ran in 38.0s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

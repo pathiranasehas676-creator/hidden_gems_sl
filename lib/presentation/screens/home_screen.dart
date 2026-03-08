@@ -99,36 +99,30 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 16),
                               _buildLocalGemsScroller(context),
                               const SizedBox(height: 24),
-                             // Modern Search Bar Refinement
-                             Container(
-                               padding: const EdgeInsets.symmetric(horizontal: 16),
-                               height: 54,
-                               decoration: BoxDecoration(
-                                 color: Colors.white,
-                                 borderRadius: BorderRadius.circular(16),
-                                 boxShadow: [
-                                   BoxShadow(
-                                     color: Colors.black.withValues(alpha: 0.05),
-                                     blurRadius: 15,
-                                     offset: const Offset(0, 5),
-                                   ),
-                                 ],
-                               ),
-                               child: Row(
-                                 children: [
-                                   const Icon(Icons.search, color: AppTheme.modernBlue),
-                                   const SizedBox(width: 12),
-                                   Text(
-                                     "Search hidden gems...",
-                                     style: GoogleFonts.inter(
-                                       color: AppTheme.darkText.withValues(alpha: 0.4),
-                                       fontSize: 14,
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                             ),
-                             const SizedBox(height: 32),
+                              // Modern Search Bar Refinement
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                height: 54,
+                                decoration: AppTheme.glassDecoration(
+                                  opacity: 0.1, 
+                                  blur: 20,
+                                  isDark: Theme.of(context).brightness == Brightness.dark,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.search, color: AppTheme.sigiriyaOchre),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      "Search secret locations...",
+                                      style: GoogleFonts.inter(
+                                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 32),
                             ],
                             const SizedBox(height: 16),
                             _buildCategoriesGrid(),

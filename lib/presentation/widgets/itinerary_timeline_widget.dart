@@ -8,13 +8,11 @@ import '../../data/models/trip_plan_model.dart';
 /// Users can long-press and reorder items within the day.
 class ItineraryTimelineWidget extends StatefulWidget {
   final ItineraryDay day;
-  final VibeTheme theme;
   final Function(List<ItineraryItem>)? onReorder;
 
   const ItineraryTimelineWidget({
     super.key,
     required this.day,
-    required this.theme,
     this.onReorder,
   });
 
@@ -118,7 +116,6 @@ class _ItineraryTimelineWidgetState extends State<ItineraryTimelineWidget> {
               item: item,
               index: index,
               isLast: isLast,
-              theme: widget.theme,
             );
           },
         ),
@@ -131,14 +128,12 @@ class _TimelineItem extends StatelessWidget {
   final ItineraryItem item;
   final int index;
   final bool isLast;
-  final VibeTheme theme;
 
   const _TimelineItem({
     super.key,
     required this.item,
     required this.index,
     required this.isLast,
-    required this.theme,
   });
 
   @override

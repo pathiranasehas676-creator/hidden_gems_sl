@@ -10,6 +10,7 @@ class UserProfile {
   String vibeTheme; // "ceylon_blue" | "jungle_green" | "sunset_red" | "lotus_pink" | "midnight_gold"
   String themeMode; // "system", "light", "dark"
   List<String> tripHistory; // past destinations for AI memory
+  bool showScreenshotButton; // Whether to show the floating camera button
 
   UserProfile({
     required this.preferredStyles,
@@ -23,6 +24,7 @@ class UserProfile {
     this.vibeTheme = 'ceylon_blue',
     this.themeMode = 'system',
     List<String>? tripHistory,
+    this.showScreenshotButton = true,
   })  : sosContacts = sosContacts ?? [],
         tripHistory = tripHistory ?? [];
 
@@ -34,6 +36,7 @@ class UserProfile {
       vibe: 'explorer',
       vibeTheme: 'ceylon_blue',
       themeMode: 'system',
+      showScreenshotButton: true,
     );
   }
 
@@ -49,6 +52,7 @@ class UserProfile {
         'vibeTheme': vibeTheme,
         'themeMode': themeMode,
         'tripHistory': tripHistory,
+        'showScreenshotButton': showScreenshotButton,
       };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
@@ -63,5 +67,6 @@ class UserProfile {
         vibeTheme: json['vibeTheme'] ?? 'ceylon_blue',
         themeMode: json['themeMode'] ?? 'system',
         tripHistory: List<String>.from(json['tripHistory'] ?? []),
+        showScreenshotButton: json['showScreenshotButton'] ?? true,
       );
 }

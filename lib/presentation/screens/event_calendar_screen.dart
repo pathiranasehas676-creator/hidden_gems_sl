@@ -8,18 +8,33 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:lottie/lottie.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/live_events_service.dart';
 import '../../data/datasources/user_preference_service.dart';
 import '../../data/datasources/trip_cache_service.dart';
 import '../../data/models/event_model.dart';
 import '../widgets/batik_background.dart';
+import '../widgets/skeleton_loaders.dart';
 
 class EventCalendarScreen extends StatefulWidget {
   const EventCalendarScreen({super.key});
 
   @override
   State<EventCalendarScreen> createState() => _EventCalendarScreenState();
+}
+
+class _ProfileHeader extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  _ProfileHeader({required this.child});
+  @override
+  double get minExtent => 120;
+  @override
+  double get maxExtent => 120;
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => child;
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => false;
 }
 
 class _EventCalendarScreenState extends State<EventCalendarScreen> {
@@ -29,6 +44,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
   List<EventModel> _upcomingEvents = [];
   List<EventModel> _topPicks = [];
   EventCategory? _selectedCategory;
+  bool _isLoading = true;
   final _userProfile = UserPreferenceService.getProfile();
   final ScreenshotController _screenshotController = ScreenshotController();
 
@@ -45,13 +61,16 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
     _loadData();
   }
 
-  void _loadData() {
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(milliseconds: 1200)); 
     _updateEvents();
     _upcomingEvents = LiveEventsService.getUpcomingEvents();
     _topPicks = LiveEventsService.getPersonalizedEvents(
       _userProfile.vibe, 
       [..._userProfile.preferredStyles, ..._selectedMusicPreferences],
     );
+    setState(() => _isLoading = false);
   }
 
   void _updateEvents() {
@@ -137,7 +156,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
           style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         background: Container(
@@ -156,12 +175,12 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
       actions: [
         IconButton(
           onPressed: _showPreferenceDialog,
-          icon: const Icon(Icons.tune_rounded, color: Colors.white),
+          icon: Icon(Icons.tune_rounded, color: Theme.of(context).colorScheme.onSurface),
           tooltip: "Personalize Vibe",
         ),
         IconButton(
           onPressed: _shareScreen,
-          icon: const Icon(Icons.ios_share, color: Colors.white),
+          icon: Icon(Icons.ios_share, color: Theme.of(context).colorScheme.onSurface),
         ),
         const SizedBox(width: 8),
       ],
@@ -169,6 +188,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
   }
 
   Widget _buildComingSoonSection() {
+    if (_isLoading) return _buildComingSoonShimmer();
     if (_upcomingEvents.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -182,12 +202,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
               const SizedBox(width: 8),
               Text(
                 "COMING UP SOON",
-                style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                  color: Colors.white.withValues(alpha: 0.7),
-                ),
+                style: AppTheme.labelStyle,
               ),
             ],
           ),
@@ -201,8 +216,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             itemCount: _upcomingEvents.length,
             separatorBuilder: (context, index) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
-              final event = _upcomingEvents[index];
-              return _buildUpcomingCard(event);
+              return _buildUpcomingCard(_upcomingEvents[index]);
             },
           ),
         ),
@@ -210,71 +224,113 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
     );
   }
 
+  Widget _buildComingSoonShimmer() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ModernTracerShimmer.box(context, width: 150, height: 16),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 180,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 3,
+              itemBuilder: (_, __) => Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: ModernTracerShimmer(
+                  child: Container(
+                    width: 250,
+                    decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(24)),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildUpcomingCard(EventModel event) {
+    return _buildEventCard(event, isWide: true);
+  }
+
+  Widget _buildEventCard(EventModel event, {bool isWide = false}) {
+    final isPinned = TripCacheService.isEventPinned(event.name);
+    final isRecommended = _isRecommended(event);
+
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedDay = DateTime.now().add(Duration(days: indexDifference(DateTime.now(), event)));
-          _updateEvents();
-        });
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => _buildEventDetailsModal(event, isPinned, isRecommended),
+        );
       },
       child: Container(
-        width: 280,
-        decoration: AppTheme.glassDecoration(opacity: 0.2).copyWith(
+        width: isWide ? 280 : double.infinity,
+        decoration: AppTheme.glassDecoration(
+          opacity: 0.1,
+          isDark: Theme.of(context).brightness == Brightness.dark,
+        ).copyWith(
           borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            colors: [
-              event.categoryColor.withValues(alpha: 0.3),
-              Colors.white.withValues(alpha: 0.05),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          border: Border.all(
+            color: isRecommended ? AppTheme.accentOchre.withValues(alpha: 0.4) : event.categoryColor.withValues(alpha: 0.2),
+            width: isRecommended ? 1.5 : 1,
           ),
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: event.categoryColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    event.date ?? "SOON",
-                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                    event.category.name.toUpperCase(),
+                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: event.categoryColor),
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios, size: 12, color: Colors.white38),
+                if (isRecommended)
+                  const Icon(Icons.auto_awesome, color: AppTheme.accentOchre, size: 16),
               ],
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  event.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  event.location ?? "Sri Lanka",
-                  style: GoogleFonts.inter(fontSize: 12, color: Colors.white60),
-                ),
-              ],
+            const SizedBox(height: 16),
+            Text(
+              event.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.outfit(
+                fontSize: 18, 
+                fontWeight: FontWeight.bold, 
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
+            const SizedBox(height: 4),
             Row(
               children: [
-                ...event.tags.take(2).map((tag) => Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Text("#$tag", style: GoogleFonts.inter(fontSize: 10, color: event.categoryColor)),
-                )),
+                Icon(Icons.location_on_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                const SizedBox(width: 4),
+                Text(
+                  event.location ?? "Sri Lanka",
+                  style: GoogleFonts.inter(
+                    fontSize: 12, 
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+                const Spacer(),
+                if (isPinned)
+                  const Icon(Icons.bookmark, size: 14, color: AppTheme.accentOchre),
               ],
             ),
           ],
@@ -283,17 +339,114 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
     );
   }
 
-  int indexDifference(DateTime start, EventModel event) {
-    if (event.date == null) return 0;
-    try {
-      final parts = event.date!.split("-");
-      final eventDate = DateTime(start.year, int.parse(parts[0]), int.parse(parts[1]));
-      return eventDate.difference(start).inDays;
-    } catch (_) { return 0; }
+  Widget _buildEventDetailsModal(EventModel event, bool isPinned, bool isRecommended) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.85,
+      maxChildSize: 0.95,
+      minChildSize: 0.5,
+      builder: (context, scrollController) => Container(
+        decoration: AppTheme.glassDecoration(
+          opacity: 0.95, 
+          blur: 40,
+          isDark: Theme.of(context).brightness == Brightness.dark,
+        ).copyWith(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(36)),
+        ),
+        child: ListView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(32),
+          children: [
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: event.categoryColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    event.category.name.toUpperCase(),
+                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: event.categoryColor),
+                  ),
+                ),
+                _buildActionButtons(event, isPinned),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Text(
+              event.name,
+              style: GoogleFonts.outfit(
+                fontSize: 28, 
+                fontWeight: FontWeight.bold, 
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.location_on_outlined, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                const SizedBox(width: 6),
+                Text(
+                  event.location ?? "Sri Lanka",
+                  style: GoogleFonts.inter(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), 
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Text(
+              event.description,
+              style: GoogleFonts.inter(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8), 
+                fontSize: 15, 
+                height: 1.6,
+              ),
+            ),
+            const SizedBox(height: 32),
+            if (event.lineup.isNotEmpty) ...[
+              Text("LINEUP", style: AppTheme.labelStyle),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: event.lineup.map((artist) => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
+                  ),
+                  child: Text(
+                    artist.name,
+                    style: GoogleFonts.inter(
+                      color: Theme.of(context).colorScheme.onSurface, 
+                      fontSize: 13, 
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )).toList(),
+              ),
+              const SizedBox(height: 32),
+            ],
+            _buildBigActionButton(event),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildTopPicksSection() {
-    if (_topPicks.isEmpty) return const SizedBox.shrink();
+    if (!_isLoading && _topPicks.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,110 +455,47 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Row(
             children: [
-              const Icon(Icons.auto_awesome, color: AppTheme.accentOchre, size: 18),
+              const Icon(Icons.star_rounded, color: AppTheme.sigiriyaOchre, size: 20),
               const SizedBox(width: 8),
               Text(
-                "TOP PICKS FOR YOU",
-                style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                  color: Colors.white.withValues(alpha: 0.7),
-                ),
+                "CURATED FOR YOU",
+                style: AppTheme.labelStyle,
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         SizedBox(
           height: 220,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            scrollDirection: Axis.horizontal,
-            itemCount: _topPicks.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 16),
-            itemBuilder: (context, index) {
-              final event = _topPicks[index];
-              return _buildTopPickCard(event);
-            },
-          ),
+          child: _isLoading 
+            ? ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                itemCount: 3,
+                itemBuilder: (_, __) => Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: ModernTracerShimmer(
+                    child: Container(
+                      width: 170,
+                      decoration: BoxDecoration(
+                        color: Colors.white10,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                scrollDirection: Axis.horizontal,
+                itemCount: _topPicks.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 16),
+                itemBuilder: (context, index) {
+                  return _buildEventCard(_topPicks[index], isWide: true);
+                },
+              ),
         ),
       ],
-    );
-  }
-
-  Widget _buildTopPickCard(EventModel event) {
-    return Container(
-      width: 300,
-      decoration: AppTheme.glassDecoration(opacity: 0.15).copyWith(
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3), width: 1.5),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.2,
-                child: Image.network(
-                  "https://source.unsplash.com/featured/?sri-lanka,party,${event.tags.isNotEmpty ? event.tags.first : 'event'}",
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(color: Colors.black26),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: AppTheme.accentOchre.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          "98% MATCH",
-                          style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.accentOchre),
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.white10,
-                        child: Icon(Icons.favorite_border, size: 16, color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        event.name,
-                        maxLines: 2,
-                        style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        event.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                  _buildBigActionButton(event, isCompact: true),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -436,18 +526,26 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue : Colors.white.withValues(alpha: 0.05),
+          color: isSelected 
+              ? AppTheme.primaryBlue 
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? AppTheme.primaryBlue.withValues(alpha: 0.5) : Colors.white10),
-          boxShadow: isSelected ? [BoxShadow(color: AppTheme.primaryBlue.withValues(alpha: 0.3), blurRadius: 10, offset: Offset(0, 4))] : [],
+          border: Border.all(
+            color: isSelected 
+                ? AppTheme.primaryBlue 
+                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+          ),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            color: isSelected ? Colors.white : Colors.white70,
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        child: Center(
+          child: Text(
+            label,
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected 
+                  ? Colors.white 
+                  : Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         ),
       ),
@@ -455,10 +553,14 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
   }
 
   Widget _buildCalendarCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
-      decoration: AppTheme.glassDecoration(opacity: 0.15, blur: 20).copyWith(
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      decoration: AppTheme.glassDecoration(
+        opacity: 0.1, 
+        blur: 20,
+        isDark: isDark,
       ),
       padding: const EdgeInsets.all(8),
       child: TableCalendar<EventModel>(
@@ -475,27 +577,30 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
         },
         calendarFormat: CalendarFormat.month,
         headerStyle: HeaderStyle(
-          titleTextStyle: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          titleTextStyle: GoogleFonts.outfit(
+            color: colorScheme.onSurface, 
+            fontSize: 18, 
+            fontWeight: FontWeight.bold,
+          ),
           formatButtonVisible: false,
-          leftChevronIcon: const Icon(Icons.chevron_left, color: Colors.white70),
-          rightChevronIcon: const Icon(Icons.chevron_right, color: Colors.white70),
+          leftChevronIcon: Icon(Icons.chevron_left, color: colorScheme.onSurface.withValues(alpha: 0.6)),
+          rightChevronIcon: Icon(Icons.chevron_right, color: colorScheme.onSurface.withValues(alpha: 0.6)),
         ),
-        daysOfWeekStyle: const DaysOfWeekStyle(
-          weekdayStyle: TextStyle(color: Colors.white60, fontSize: 13),
-          weekendStyle: TextStyle(color: AppTheme.accentOchre, fontSize: 13),
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
+          weekendStyle: const TextStyle(color: AppTheme.sigiriyaOchre, fontSize: 13),
         ),
         calendarStyle: CalendarStyle(
-          defaultTextStyle: const TextStyle(color: Colors.white, fontSize: 14),
-          weekendTextStyle: const TextStyle(color: Colors.white70, fontSize: 14),
-          outsideTextStyle: const TextStyle(color: Colors.white24, fontSize: 14),
+          defaultTextStyle: TextStyle(color: colorScheme.onSurface, fontSize: 14),
+          outsideTextStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 14),
           todayDecoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+            color: AppTheme.sigiriyaOchre.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
           selectedDecoration: const BoxDecoration(
-            color: AppTheme.primaryBlue,
+            color: AppPalette.ceylonBlue,
             shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: AppTheme.primaryBlue, blurRadius: 15, spreadRadius: 2)],
+            boxShadow: [BoxShadow(color: AppPalette.ceylonBlue, blurRadius: 15, spreadRadius: 0)],
           ),
         ),
         eventLoader: (day) {
@@ -516,7 +621,6 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                   decoration: BoxDecoration(
                     color: event.categoryColor,
                     shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(color: event.categoryColor.withValues(alpha: 0.5), blurRadius: 4)],
                   ),
                 );
               }).toList(),
@@ -528,180 +632,97 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
   }
 
   Widget _buildEventList() {
-    if (_selectedEvents.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40),
-          child: Column(
-            children: [
-              Icon(Icons.calendar_today_outlined, size: 48, color: Colors.white.withValues(alpha: 0.1)),
-              const SizedBox(height: 16),
-              Text(
-                "No events for this date",
-                style: GoogleFonts.inter(color: Colors.white38, fontSize: 14),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    if (_isLoading) return _buildSkeletonList();
+    if (_selectedEvents.isEmpty) return _buildEmptyState();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "DAILY LINEUP",
-          style: GoogleFonts.outfit(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-            color: Colors.white70,
-          ),
+          "AVAILABLE EVENTS",
+          style: AppTheme.labelStyle,
         ),
         const SizedBox(height: 16),
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _selectedEvents.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 20),
-          itemBuilder: (context, index) => _buildEventCard(_selectedEvents[index]),
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
+          itemBuilder: (context, index) {
+            final event = _selectedEvents[index];
+            return _buildEventCard(event);
+          },
         ),
       ],
     );
   }
 
-  Widget _buildEventCard(EventModel event) {
-    final isRecommended = _isRecommended(event);
-    final isPinned = TripCacheService.isEventPinned(event.name);
-
-    return Hero(
-      tag: "event_${event.name}",
-      child: Material(
-        color: Colors.transparent,
-        child: Stack(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 8),
-              decoration: AppTheme.glassDecoration(opacity: 0.1).copyWith(
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: isRecommended ? AppTheme.accentOchre.withValues(alpha: 0.4) : event.categoryColor.withValues(alpha: 0.2),
-                  width: isRecommended ? 1.5 : 1,
-                ),
-              ),
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: event.categoryColor.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    event.category.name.toUpperCase(),
-                                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: event.categoryColor),
-                                  ),
-                                ),
-                                if (isRecommended) ...[
-                                  const SizedBox(width: 10),
-                                  const Icon(Icons.auto_awesome, color: AppTheme.accentOchre, size: 14),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              event.name,
-                              style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                      _buildActionButtons(event, isPinned),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, size: 14, color: Colors.white54),
-                      const SizedBox(width: 4),
-                      Text(
-                        event.location ?? "Sri Lanka",
-                        style: GoogleFonts.inter(color: Colors.white54, fontSize: 13),
-                      ),
-                      const Spacer(),
-                      if (event.priceLkr != null)
-                        Text(
-                          event.priceLkr! == 0 ? "FREE" : "Rs. ${event.priceLkr}",
-                          style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.accentOchre),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    event.description,
-                    style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.7), fontSize: 14, height: 1.6),
-                  ),
-                  if (event.lineup.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    Text(
-                      "WHO'S PLAYING",
-                      style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white38, letterSpacing: 1),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 44,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: event.lineup.length,
-                        separatorBuilder: (context, index) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) {
-                          final artist = event.lineup[index];
-                          return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-                            ),
-                            alignment: Alignment.center,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  artist.name,
-                                  style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                                ),
-                                if (artist.musicGenre != null)
-                                  Text(
-                                    artist.musicGenre!,
-                                    style: GoogleFonts.inter(color: Colors.white38, fontSize: 9),
-                                  ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 28),
-                  _buildBigActionButton(event),
-                ],
+  Widget _buildSkeletonList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ModernTracerShimmer.box(context, width: 120, height: 16),
+        const SizedBox(height: 20),
+        ...List.generate(3, (index) => Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: ModernTracerShimmer(
+            child: Container(
+              height: 100,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
-          ],
-        ),
+          ),
+        )),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      decoration: AppTheme.glassDecoration(opacity: 0.05),
+      child: Column(
+        children: [
+          Lottie.network(
+            'https://assets9.lottiefiles.com/packages/lf20_m6reunre.json', 
+            height: 150,
+            errorBuilder: (_, __, ___) => Icon(Icons.event_busy, size: 60, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            "No events discovered",
+            style: GoogleFonts.outfit(
+              fontSize: 18, 
+              fontWeight: FontWeight.bold, 
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Try adjusting your filters or selecting a different date",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 14, 
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(height: 24),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _selectedCategory = null;
+                _updateEvents();
+              });
+            },
+            child: Text(
+              "CLEAR ALL FILTERS",
+              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.sigiriyaOchre),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -713,13 +734,13 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
         if (event.lat != null && event.lng != null)
           IconButton(
             onPressed: () => _openInMaps(event.lat!, event.lng!, event.name),
-            icon: const Icon(Icons.map_outlined, color: Colors.white54),
+            icon: Icon(Icons.map_outlined, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
           ),
         IconButton(
           onPressed: () => _togglePin(event),
           icon: Icon(
             isPinned ? Icons.bookmark : Icons.bookmark_border,
-            color: isPinned ? AppTheme.accentOchre : Colors.white54,
+            color: isPinned ? AppTheme.accentOchre : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
           ),
         ),
       ],
@@ -766,12 +787,19 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             children: [
               Text(
                 "Customize Your Vibe",
-                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                style: GoogleFonts.outfit(
+                  fontSize: 24, 
+                  fontWeight: FontWeight.bold, 
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 "Tell us what music gets you moving.",
-                style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
+                style: GoogleFonts.inter(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 24),
               Wrap(
@@ -792,13 +820,17 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppTheme.accentOchre : Colors.white.withValues(alpha: 0.1),
+                        color: isSelected 
+                            ? AppTheme.accentOchre 
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         genre,
                         style: GoogleFonts.inter(
-                          color: isSelected ? Colors.black : Colors.white70,
+                          color: isSelected 
+                              ? Colors.black 
+                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -846,13 +878,13 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
 
   Future<void> _shareScreen() async {
     try {
-    final Uint8List? image = await _screenshotController.capture();
-    if (image != null) {
-      final directory = await getApplicationDocumentsDirectory();
-      final imagePath = await File('${directory.path}/serendib_events.png').create();
-      await imagePath.writeAsBytes(image);
-      await Share.shareXFiles([XFile(imagePath.path)], text: "Uncovering Hidden Sri Lanka's Party Scene with HiddenGems SL! 🇱🇰🌌");
-    }
+      final Uint8List? image = await _screenshotController.capture();
+      if (image != null) {
+        final directory = await getApplicationDocumentsDirectory();
+        final imagePath = await File('${directory.path}/serendib_events.png').create();
+        await imagePath.writeAsBytes(image);
+        await Share.shareXFiles([XFile(imagePath.path)], text: "Exploring the best of Sri Lanka! 🇱🇰🌌");
+      }
     } catch (_) {}
   }
 }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:provider/provider.dart';
-import '../../core/theme/vibe_theme_provider.dart';
 
 class BatikBackground extends StatelessWidget {
   final Widget child;
@@ -10,18 +8,30 @@ class BatikBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Read active vibe theme — rebuilds the whole bg when user changes theme
-    final vibeTheme = context.watch<VibeThemeProvider>().current;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      decoration: BoxDecoration(gradient: vibeTheme.background),
+      decoration: BoxDecoration(
+        gradient: isDark 
+            ? const LinearGradient(
+                colors: [Color(0xFF002035), Color(0xFF0D1117)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : const LinearGradient(
+                colors: [Color(0xFFF8F9FA), Color(0xFFE9ECEF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+      ),
       child: Stack(
         children: [
           Positioned.fill(
             child: RepaintBoundary(
               child: CustomPaint(
                 painter: BatikPainter(
-                  color: vibeTheme.accent.withValues(alpha: opacity),
+                  color: theme.colorScheme.primary.withValues(alpha: opacity),
                 ),
               ),
             ),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -8,12 +9,16 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/datasources/user_preference_service.dart';
 import '../../data/datasources/premium_service.dart';
+import '../../data/datasources/trip_cache_service.dart';
+import '../../data/models/event_model.dart';
 import '../widgets/batik_background.dart';
+import '../widgets/skeleton_loaders.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
-import '../../core/localization/locale_provider.dart';
+import '../../core/providers/locale_provider.dart';
 import 'emergency_kit_screen.dart';
-import '../../core/theme/vibe_theme_provider.dart';
-import '../../core/theme/app_mode_provider.dart';
+import 'event_calendar_screen.dart';
+import '../../core/providers/app_mode_provider.dart';
+import '../../core/providers/screenshot_provider.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -25,10 +30,23 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late var profile = UserPreferenceService.getProfile();
+  List<EventModel> _interestedEvents = [];
+  bool _isLoadingEvents = true;
 
   @override
   void initState() {
     super.initState();
+    _loadInterestedEvents();
+  }
+
+  Future<void> _loadInterestedEvents() async {
+    setState(() => _isLoadingEvents = true);
+    await Future.delayed(const Duration(milliseconds: 600));
+    final rawEvents = TripCacheService.getInterestedEvents();
+    setState(() {
+      _interestedEvents = rawEvents.map((e) => EventModel.fromJson(json.decode(e))).toList();
+      _isLoadingEvents = false;
+    });
   }
 
   void _showLanguagePicker(BuildContext context) {
@@ -74,7 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface),
                     ),
                     onTap: () {
-                      context.read<LocaleProvider>().setLocale(lang['code']!);
+                      context.read<LocaleProvider>().setLocale(Locale(lang['code']!));
                       Navigator.pop(context);
                     },
                   );
@@ -142,7 +160,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: Theme.of(context).dividerColor.withValues(alpha: 0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: Theme.of(context).dividerColor.withValues(alpha: 0.1), 
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 32),
           ),
           const SizedBox(height: 8),
@@ -180,12 +201,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 24),
                     _buildStatsRow(),
                     const SizedBox(height: 32),
-                    _buildThemePicker(),
-                    const SizedBox(height: 32),
                     _buildThemeModeToggle(),
                     const SizedBox(height: 32),
                     _buildVibeSelector(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 40),
+                    _buildMyEventsHub(),
+                    const SizedBox(height: 40),
                     _buildSettingsSection(l10n),
                     const SizedBox(height: 100),
                   ],
@@ -318,7 +339,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               padding: const EdgeInsets.all(24),
-              decoration: AppTheme.glassDecoration(),
+              decoration: AppTheme.glassDecoration(opacity: 0.08),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -362,6 +383,162 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _verticalDivider() {
     return Container(height: 30, width: 1, color: Theme.of(context).dividerColor.withValues(alpha: 0.2));
+  }
+
+  Widget _buildMyEventsHub() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "MY INTERESTED EVENTS",
+              style: AppTheme.labelStyle,
+            ),
+            if (_interestedEvents.isNotEmpty)
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const EventCalendarScreen()),
+                ),
+                child: Text(
+                  "VIEW CALENDAR",
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.sigiriyaOchre,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (_isLoadingEvents)
+          _buildHubShimmer()
+        else if (_interestedEvents.isEmpty)
+          _buildEmptyEventsState()
+        else
+          SizedBox(
+            height: 160,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              itemCount: _interestedEvents.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 16),
+              itemBuilder: (context, index) {
+                return _buildMiniEventCard(_interestedEvents[index]);
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildHubShimmer() {
+    return SizedBox(
+      height: 160,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 3,
+        itemBuilder: (_, __) => Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: ModernTracerShimmer(
+            child: Container(
+              width: 140,
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyEventsState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(32),
+      decoration: AppTheme.glassDecoration(opacity: 0.05),
+      child: Column(
+        children: [
+          Icon(Icons.event_available_outlined, color: Colors.white.withValues(alpha: 0.2), size: 40),
+          const SizedBox(height: 12),
+          Text(
+            "No events pinned yet",
+            style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const EventCalendarScreen()),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: AppTheme.sigiriyaOchre.withValues(alpha: 0.5)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text(
+              "EXPLORE EVENTS",
+              style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.sigiriyaOchre),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniEventCard(EventModel event) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const EventCalendarScreen()),
+      ),
+      child: Container(
+        width: 150,
+        decoration: AppTheme.glassDecoration(opacity: 0.1).copyWith(
+          border: Border.all(color: event.categoryColor.withValues(alpha: 0.3)),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: event.categoryColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                event.category.name.toUpperCase(),
+                style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: event.categoryColor),
+              ),
+            ),
+            const Spacer(),
+            Text(
+              event.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.calendar_today, size: 10, color: Colors.white54),
+                const SizedBox(width: 4),
+                Text(
+                  event.date ?? "SOON",
+                  style: GoogleFonts.inter(fontSize: 10, color: Colors.white54),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildVibeSelector() {
@@ -422,136 +599,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 
 
-  // ── Theme Picker ─────────────────────────────────────────────────────────
-  Widget _buildThemePicker() {
+
+  // ── Dark/Light Mode Toggle ────────────────────────────────────────────────
+  Widget _buildThemeModeToggle() {
+    final modeProvider = context.watch<AppModeProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.palette_outlined, color: AppTheme.sigiriyaOchre, size: 18),
-            const SizedBox(width: 8),
-            Text(
-              'APP THEME',
-              style: AppTheme.labelStyle,
-            ),
-          ],
-        ),
+        Text("APPEARANCE STYLE", style: AppTheme.labelStyle),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 90,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemCount: VibeThemes.all.length,
-            itemBuilder: (context, i) {
-              final theme = VibeThemes.all[i];
-              final provider = context.watch<VibeThemeProvider>();
-              final isActive = provider.current.id == theme.id;
-              return GestureDetector(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  context.read<VibeThemeProvider>().setTheme(theme);
-                  setState(() {
-                    profile = UserPreferenceService.getProfile();
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  width: 80,
-                  decoration: BoxDecoration(
-                    gradient: theme.background,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isActive
-                          ? theme.accent
-                          : Colors.white12,
-                      width: isActive ? 2 : 1,
-                    ),
-                    boxShadow: isActive
-                        ? [BoxShadow(color: theme.accent.withValues(alpha: 0.4), blurRadius: 12)]
-                        : [],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(theme.emoji, style: const TextStyle(fontSize: 22)),
-                      const SizedBox(height: 4),
-                      Text(
-                        theme.name.split(' ').first,
-                        style: GoogleFonts.outfit(
-                          fontSize: 9,
-                          color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      if (isActive)
-                        const Icon(Icons.check_circle, color: Colors.white, size: 14),
-                    ],
-                  ),
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: AppTheme.glassDecoration(
+            opacity: 0.05,
+            isDark: isDark,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: _modeOption(
+                  "ZEN LIGHT",
+                  Icons.wb_sunny_outlined,
+                  modeProvider.currentMode == ThemeMode.light,
+                  () => modeProvider.setMode(ThemeMode.light),
                 ),
-              );
-            },
+              ),
+              Expanded(
+                child: _modeOption(
+                  "MIDNIGHT",
+                  Icons.nightlight_round_outlined,
+                  modeProvider.currentMode == ThemeMode.dark,
+                  () => modeProvider.setMode(ThemeMode.dark),
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  // ── Dark/Light Mode Toggle ────────────────────────────────────────────────
-  Widget _buildThemeModeToggle() {
-    final modeProvider = context.watch<AppModeProvider>();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+  Widget _modeOption(String label, IconData icon, bool isSelected, VoidCallback onTap) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? theme.colorScheme.primary.withValues(alpha: 0.15) 
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.brightness_medium_outlined, color: AppTheme.sigiriyaOchre, size: 18),
+            Icon(
+              icon, 
+              size: 16, 
+              color: isSelected 
+                  ? theme.colorScheme.primary 
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
             const SizedBox(width: 8),
             Text(
-              'APPEARANCE',
-              style: AppTheme.labelStyle,
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected 
+                    ? theme.colorScheme.onSurface 
+                    : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                letterSpacing: 0.5,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: SegmentedButton<ThemeMode>(
-            segments: const [
-              ButtonSegment(
-                value: ThemeMode.light,
-                label: Text('Light', style: TextStyle(fontSize: 13)),
-                icon: Icon(Icons.light_mode_outlined, size: 18),
-              ),
-              ButtonSegment(
-                value: ThemeMode.system,
-                label: Text('System', style: TextStyle(fontSize: 13)),
-                icon: Icon(Icons.settings_suggest_outlined, size: 18),
-              ),
-              ButtonSegment(
-                value: ThemeMode.dark,
-                label: Text('Dark', style: TextStyle(fontSize: 13)),
-                icon: Icon(Icons.dark_mode_outlined, size: 18),
-              ),
-            ],
-            selected: {modeProvider.currentMode},
-            onSelectionChanged: (Set<ThemeMode> newSelection) {
-              HapticFeedback.lightImpact();
-              modeProvider.setThemeMode(newSelection.first);
-            },
-            style: SegmentedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              selectedBackgroundColor: Theme.of(context).colorScheme.primary,
-              selectedForegroundColor: Colors.white,
-              foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-              side: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.2)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -562,6 +689,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Icons.photo_camera_outlined, 
           l10n.uploadPhoto,
           onTap: () => _pickImage(l10n),
+        ),
+        _settingsTile(
+          Icons.camera_alt_outlined, 
+          "Screenshot Utility",
+          trailing: Switch(
+            value: context.watch<ScreenshotProvider>().isVisible,
+            onChanged: (val) => context.read<ScreenshotProvider>().toggleVisibility(val),
+            activeTrackColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+            activeThumbColor: Theme.of(context).colorScheme.primary,
+          ),
         ),
         _settingsTile(Icons.notifications_active_outlined, "Notifications"),
         _settingsTile(
@@ -583,10 +720,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _settingsTile(IconData icon, String title, {VoidCallback? onTap}) {
+  Widget _settingsTile(IconData icon, String title, {VoidCallback? onTap, Widget? trailing}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppTheme.glassDecoration(),
+      decoration: AppTheme.glassDecoration(
+        opacity: 0.05,
+        isDark: Theme.of(context).brightness == Brightness.dark,
+      ),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
@@ -601,7 +741,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           title,
           style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
         ),
-        trailing: Icon(Icons.chevron_right, size: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+        trailing: trailing ?? Icon(Icons.chevron_right, size: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
         onTap: onTap ?? () {},
       ),
     );

@@ -82,15 +82,16 @@ class UserPreferenceService {
     await saveProfile(profile);
   }
 
-  static Future<void> updateVibeTheme(String themeId) async {
-    final profile = getProfile();
-    profile.vibeTheme = themeId;
-    await saveProfile(profile);
-  }
 
   static Future<void> updateThemeMode(String mode) async {
     final profile = getProfile();
     profile.themeMode = mode;
+    await saveProfile(profile);
+  }
+
+  static Future<void> updateScreenshotMode(bool show) async {
+    final profile = getProfile();
+    profile.showScreenshotButton = show;
     await saveProfile(profile);
   }
 }
