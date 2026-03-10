@@ -113,7 +113,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
         ],
       ),
       body: Container(
-        color: Colors.white,
+        color: Colors.transparent,
         child: BatikBackground(
           child: Stack(
             children: [
@@ -361,7 +361,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       child: Row(
                         children: [
-                          const Icon(Icons.location_on, size: 14, color: AppTheme.sigiriyaOchre),
+                          const Icon(Icons.location_on, size: 14, color: AppTheme.modernBlue),
                           const SizedBox(width: 10),
                           Text(city, style: GoogleFonts.outfit(color: Colors.white, fontSize: 14)),
                         ],
@@ -381,7 +381,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.modernBlue.withOpacity(0.1)),
         boxShadow: [
@@ -474,7 +474,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
       decoration: BoxDecoration(
-        color: Colors.white, 
+        color: Theme.of(context).cardColor, 
         border: Border(top: BorderSide(color: AppTheme.modernGreen.withOpacity(0.05)))
       ),
       child: PrimaryButton(

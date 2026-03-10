@@ -77,19 +77,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final isOffline = widget.isOffline;
-    return Scaffold(
-      extendBody: true,
-      backgroundColor: Colors.transparent, // Background handled by BatikBackground
-      body: Stack(
-        children: [
-          BatikBackground(
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
+  Widget _buildHomeContent(AppLocalizations l10n, bool isOffline) {
+    return Stack(
+      children: [
+        BatikBackground(
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
                 _buildAppBar(context),
                 SliverToBoxAdapter(
                   child: AnimationLimiter(
@@ -158,6 +152,24 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final isOffline = widget.isOffline;
+    return Scaffold(
+      extendBody: true,
+      backgroundColor: Colors.transparent, // Background handled by BatikBackground
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildHomeContent(l10n, isOffline),
+          const DiscoveryScreen(),
+          const EventCalendarScreen(),
+          const ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: _buildBottomNav(context, l10n),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -168,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppTheme.sigiriyaOchre.withOpacity(0.5),
+              color: AppTheme.modernGreen.withOpacity(0.5),
               blurRadius: 20,
               spreadRadius: 2,
             ),
@@ -182,10 +194,10 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (context) => const TripFormScreen()),
             );
           },
-          backgroundColor: AppTheme.sigiriyaOchre,
+          backgroundColor: AppTheme.modernGreen,
           elevation: 0,
           shape: const CircleBorder(),
-          child: const Icon(Icons.auto_awesome, color: Colors.black, size: 28),
+          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
         ),
       ),
     );
@@ -197,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.glassDecoration(opacity: 0.15, blur: 20).copyWith(
-        border: Border.all(color: AppTheme.accentOchre.withOpacity(0.5), width: 1.5),
+        border: Border.all(color: AppTheme.modernGreen.withOpacity(0.3), width: 0.5),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
@@ -207,10 +219,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentOchre.withOpacity(0.2),
+                  color: AppTheme.modernGreen.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.celebration, color: AppTheme.accentOchre, size: 24),
+                child: const Icon(Icons.celebration, color: AppTheme.modernGreen, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -499,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final categories = [
       ("Nature", Icons.forest_outlined, AppTheme.modernGreen),
       ("Beaches", Icons.waves_rounded, Colors.blue),
-      ("Culture", Icons.temple_hindu_outlined, AppTheme.sigiriyaOchre),
+      ("Culture", Icons.temple_hindu_outlined, AppTheme.modernBlue),
       ("Adventure", Icons.explore_outlined, AppTheme.modernGreen),
     ];
 
@@ -582,7 +594,7 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         boxShadow: AppTheme.premiumShadow,
-        border: Border.all(color: AppTheme.accentOchre.withOpacity(0.3), width: 1),
+        border: Border.all(color: AppTheme.modernGreen.withOpacity(0.3), width: 0.5),
         image: const DecorationImage(
           image: NetworkImage("https://images.unsplash.com/photo-1546708973-b339540b5162?q=80&w=2670&auto=format&fit=crop"),
           fit: BoxFit.cover,
@@ -614,7 +626,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _miniChip("MOST POPULAR", AppTheme.accentOchre),
+                          _miniChip("MOST POPULAR", AppTheme.modernGreen),
                           const SizedBox(height: 6),
                           Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
                           Text(desc, style: GoogleFonts.inter(fontSize: 12, color: Colors.white70), maxLines: 1),
@@ -667,6 +679,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return BottomAppBar(
       color: Colors.transparent,
       elevation: 0,
+      padding: EdgeInsets.zero,
       notchMargin: 10,
       shape: const CircularNotchedRectangle(),
       clipBehavior: Clip.antiAlias,
@@ -674,12 +687,12 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 70, // Increased height for better label visibility
         padding: const EdgeInsets.symmetric(vertical: 4),
         decoration: AppTheme.glassDecoration(
-          opacity: Theme.of(context).brightness == Brightness.dark ? 0.08 : 0.4,
-          blur: 30, // Increased blur for premium feel
+          opacity: Theme.of(context).brightness == Brightness.dark ? 0.3 : 0.6,
+          blur: 40, // Increased blur for premium feel
           isDark: Theme.of(context).brightness == Brightness.dark,
         ).copyWith(
           border: Border(
-            top: BorderSide(color: AppTheme.sigiriyaOchre.withOpacity(0.2), width: 1.5),
+            top: BorderSide(color: AppTheme.modernGreen.withOpacity(0.2), width: 1.5),
           ),
           boxShadow: [
             BoxShadow(
@@ -696,14 +709,14 @@ class _HomeScreenState extends State<HomeScreen> {
               setState(() => _selectedIndex = 0);
             }),
             _navItem("Explore", Icons.travel_explore_rounded, 1, onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryScreen()));
+              setState(() => _selectedIndex = 1);
             }),
             const SizedBox(width: 48), // FAB Notch Space
             _navItem("Events", Icons.calendar_month_rounded, 2, onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const EventCalendarScreen()));
+              setState(() => _selectedIndex = 2);
             }),
             _navItem(l10n.profile, Icons.person_rounded, 3, onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+              setState(() => _selectedIndex = 3);
             }),
           ],
         ),
@@ -724,7 +737,7 @@ class _HomeScreenState extends State<HomeScreen> {
         curve: Curves.easeOutBack,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: active ? AppTheme.sigiriyaOchre.withOpacity(0.12) : Colors.transparent,
+          color: active ? AppTheme.modernGreen.withOpacity(0.12) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -735,17 +748,17 @@ class _HomeScreenState extends State<HomeScreen> {
               duration: const Duration(milliseconds: 300),
               child: Icon(
                 icon,
-                color: active ? AppTheme.sigiriyaOchre : Colors.grey[500],
-                size: 22,
+                color: active ? AppTheme.modernGreen : Colors.white.withOpacity(0.4),
+                size: 24,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: GoogleFonts.inter(
-                color: active ? AppTheme.sigiriyaOchre : Colors.grey[500],
-                fontSize: 11,
-                fontWeight: active ? FontWeight.bold : FontWeight.w600,
+                color: active ? AppTheme.modernGreen : Colors.white.withOpacity(0.4),
+                fontSize: 10,
+                fontWeight: active ? FontWeight.bold : FontWeight.w500,
                 letterSpacing: active ? 0.5 : 0,
               ),
             ),
@@ -787,7 +800,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.accentOchre),
+                    const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.modernBlue),
                     Text(gem.$3, style: AppTheme.labelStyle(context)),
                   ],
                 ),

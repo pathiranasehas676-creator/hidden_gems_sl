@@ -10,7 +10,6 @@ import '../../core/theme/app_theme.dart';
 import '../../data/datasources/user_preference_service.dart';
 import '../../data/datasources/premium_service.dart';
 import '../../data/datasources/trip_cache_service.dart';
-import '../../data/models/event_model.dart';
 import '../widgets/batik_background.dart';
 import '../widgets/skeleton_loaders.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
@@ -30,24 +29,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late var profile = UserPreferenceService.getProfile();
-  List<EventModel> _interestedEvents = [];
-  bool _isLoadingEvents = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadInterestedEvents();
-  }
-
-  Future<void> _loadInterestedEvents() async {
-    setState(() => _isLoadingEvents = true);
-    await Future.delayed(const Duration(milliseconds: 600));
-    final rawEvents = TripCacheService.getInterestedEvents();
-    setState(() {
-      _interestedEvents = rawEvents.map((e) => EventModel.fromJson(json.decode(e))).toList();
-      _isLoadingEvents = false;
-    });
-  }
+  // Events hub relocated.
 
   void _showLanguagePicker(BuildContext context) {
     final languages = [
@@ -204,8 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildThemeModeToggle(),
                     const SizedBox(height: 32),
                     _buildVibeSelector(),
-                    const SizedBox(height: 40),
-                    _buildMyEventsHub(),
+
                     const SizedBox(height: 40),
                     _buildSettingsSection(l10n),
                     const SizedBox(height: 100),
@@ -252,41 +233,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Gold Progress Ring
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppTheme.sigiriyaOchre,
-                            width: 3,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.sigiriyaOchre.withOpacity(0.3),
-                              blurRadius: 20,
-                              spreadRadius: 2,
-                            )
-                          ],
-                        ),
-                      ),
-                      // Avatar
-                      Hero(
-                        tag: 'profile_pic',
-                        child: Container(
-                          width: 104,
-                          height: 104,
-                          decoration: const BoxDecoration(shape: BoxShape.circle),
-                          child: ClipOval(
-                            child: profile.profileImagePath != null
-                                ? Image.file(
-                                    File(profile.profileImagePath!),
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => 
-                                      _defaultAvatar(isPremium),
-                                  )
-                                : _defaultAvatar(isPremium),
+                      // Pulsing Green Aura Ring
+                      _GlowingProfileRing(
+                        child: Hero(
+                          tag: 'profile_pic',
+                          child: Container(
+                            width: 104,
+                            height: 104,
+                            decoration: const BoxDecoration(shape: BoxShape.circle),
+                            child: ClipOval(
+                              child: profile.profileImagePath != null
+                                  ? Image.file(
+                                      File(profile.profileImagePath!),
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => 
+                                        _defaultAvatar(isPremium),
+                                    )
+                                  : _defaultAvatar(isPremium),
+                            ),
                           ),
                         ),
                       ),
@@ -297,11 +261,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: AppTheme.sigiriyaOchre,
+                            color: AppTheme.modernGreen,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 2),
+                            border: Border.all(color: AppTheme.primaryBlue, width: 2),
                           ),
-                          child: const Icon(Icons.edit, color: Colors.black, size: 12),
+                          child: const Icon(Icons.edit, color: Colors.white, size: 12),
                         ),
                       ),
                     ],
@@ -392,161 +356,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(height: 30, width: 1, color: Theme.of(context).dividerColor.withOpacity(0.2));
   }
 
-  Widget _buildMyEventsHub() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "MY INTERESTED EVENTS",
-              style: AppTheme.labelStyle(context),
-            ),
-            if (_interestedEvents.isNotEmpty)
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const EventCalendarScreen()),
-                ),
-                child: Text(
-                  "VIEW CALENDAR",
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.sigiriyaOchre,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        if (_isLoadingEvents)
-          _buildHubShimmer()
-        else if (_interestedEvents.isEmpty)
-          _buildEmptyEventsState()
-        else
-          SizedBox(
-            height: 160,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              itemCount: _interestedEvents.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 16),
-              itemBuilder: (context, index) {
-                return _buildMiniEventCard(_interestedEvents[index]);
-              },
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildHubShimmer() {
-    return SizedBox(
-      height: 160,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 3,
-        itemBuilder: (_, __) => Padding(
-          padding: const EdgeInsets.only(right: 16),
-          child: ModernTracerShimmer(
-            child: Container(
-              width: 140,
-              decoration: BoxDecoration(
-                color: Colors.white10,
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyEventsState() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(32),
-      decoration: AppTheme.glassDecoration(opacity: 0.05),
-      child: Column(
-        children: [
-          Icon(Icons.event_available_outlined, color: Colors.white.withOpacity(0.2), size: 40),
-          const SizedBox(height: 12),
-          Text(
-            "No events pinned yet",
-            style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-          ),
-          const SizedBox(height: 16),
-          OutlinedButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const EventCalendarScreen()),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.sigiriyaOchre.withOpacity(0.5)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: Text(
-              "EXPLORE EVENTS",
-              style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.sigiriyaOchre),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMiniEventCard(EventModel event) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const EventCalendarScreen()),
-      ),
-      child: Container(
-        width: 150,
-        decoration: AppTheme.glassDecoration(opacity: 0.1).copyWith(
-          border: Border.all(color: event.categoryColor.withOpacity(0.3)),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: event.categoryColor.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                event.category.name.toUpperCase(),
-                style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: event.categoryColor),
-              ),
-            ),
-            const Spacer(),
-            Text(
-              event.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.calendar_today, size: 10, color: Colors.white54),
-                const SizedBox(width: 4),
-                Text(
-                  event.date ?? "SOON",
-                  style: GoogleFonts.inter(fontSize: 10, color: Colors.white54),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildVibeSelector() {
     final vibes = ["explorer", "luxury", "photographer", "budget"];
@@ -755,6 +564,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
         trailing: trailing ?? Icon(Icons.chevron_right, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
         onTap: onTap ?? () {},
       ),
+    );
+  }
+}
+
+class _GlowingProfileRing extends StatefulWidget {
+  final Widget child;
+  const _GlowingProfileRing({required this.child});
+
+  @override
+  State<_GlowingProfileRing> createState() => _GlowingProfileRingState();
+}
+
+class _GlowingProfileRingState extends State<_GlowingProfileRing> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Replicates a smooth, infinite "Smart Animate" style pulse from Figma
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000))..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: 114 + (_controller.value * 12), // Subtle pulsing expansion
+          height: 114 + (_controller.value * 12),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppTheme.modernGreen.withOpacity(0.3 + (_controller.value * 0.5)),
+              width: 1.5 + (_controller.value * 2.0),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.modernGreen.withOpacity(0.1 + (_controller.value * 0.3)),
+                blurRadius: 15 + (_controller.value * 20),
+                spreadRadius: 2 + (_controller.value * 8),
+              )
+            ],
+          ),
+          child: Center(child: widget.child),
+        );
+      },
     );
   }
 }

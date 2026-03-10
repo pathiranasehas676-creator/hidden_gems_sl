@@ -25,6 +25,7 @@ import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/splash_screen.dart';
 import 'presentation/screens/language_selection_screen.dart';
+import 'presentation/screens/terms_screen.dart';
 import 'presentation/widgets/graceful_error_widget.dart';
 import 'firebase_options.dart';
 import 'core/config/remote_config_service.dart';
@@ -302,6 +303,10 @@ class _TripMeAppState extends State<TripMeApp> with WidgetsBindingObserver {
     final profile = UserPreferenceService.getProfile();
     if (profile.languageCode == null) {
       return const LanguageSelectionScreen();
+    }
+
+    if (!profile.hasAgreedToTerms) {
+      return const TermsScreen();
     }
 
     if (!_currentInitResult.firebaseSuccess) {

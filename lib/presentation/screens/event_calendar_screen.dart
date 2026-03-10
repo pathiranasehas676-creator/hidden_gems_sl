@@ -198,11 +198,11 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Row(
             children: [
-              const Icon(Icons.bolt, color: AppTheme.accentOchre, size: 18),
+              const Icon(Icons.bolt, color: AppTheme.modernGreen, size: 18),
               const SizedBox(width: 8),
               Text(
                 "COMING UP SOON",
-                style: AppTheme.labelStyle(context),
+                style: AppTheme.labelStyle(context).copyWith(color: AppTheme.modernGreen),
               ),
             ],
           ),
@@ -279,7 +279,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isRecommended 
-                ? AppTheme.sigiriyaOchre 
+                ? AppTheme.modernGreen 
                 : event.categoryColor.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.4),
             width: isRecommended ? 2.0 : 1.0,
           ),
@@ -304,7 +304,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                   ),
                 ),
                 if (isRecommended)
-                  const Icon(Icons.auto_awesome, color: AppTheme.accentOchre, size: 16),
+                  const Icon(Icons.auto_awesome, color: AppTheme.modernGreen, size: 16),
               ],
             ),
             const SizedBox(height: 16),
@@ -332,7 +332,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                 ),
                 const Spacer(),
                 if (isPinned)
-                  const Icon(Icons.bookmark, size: 14, color: AppTheme.accentOchre),
+                  const Icon(Icons.bookmark, size: 14, color: AppTheme.modernGreen),
               ],
             ),
           ],
@@ -457,11 +457,11 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Row(
             children: [
-              const Icon(Icons.star_rounded, color: AppTheme.sigiriyaOchre, size: 20),
+              const Icon(Icons.star_rounded, color: AppTheme.modernGreen, size: 20),
               const SizedBox(width: 8),
               Text(
                 "CURATED FOR YOU",
-                style: AppTheme.labelStyle(context),
+                style: AppTheme.labelStyle(context).copyWith(color: AppTheme.modernGreen),
               ),
             ],
           ),
@@ -590,13 +590,13 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
         ),
         daysOfWeekStyle: DaysOfWeekStyle(
           weekdayStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.5), fontSize: 13),
-          weekendStyle: const TextStyle(color: AppTheme.sigiriyaOchre, fontSize: 13),
+          weekendStyle: const TextStyle(color: AppTheme.modernGreen, fontSize: 13),
         ),
         calendarStyle: CalendarStyle(
           defaultTextStyle: TextStyle(color: colorScheme.onSurface, fontSize: 14),
           outsideTextStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.2), fontSize: 14),
           todayDecoration: BoxDecoration(
-            color: AppTheme.sigiriyaOchre.withOpacity(0.2),
+            color: AppTheme.modernGreen.withOpacity(0.2),
             shape: BoxShape.circle,
           ),
           selectedDecoration: const BoxDecoration(
@@ -742,7 +742,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
           onPressed: () => _togglePin(event),
           icon: Icon(
             isPinned ? Icons.bookmark : Icons.bookmark_border,
-            color: isPinned ? AppTheme.accentOchre : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            color: isPinned ? AppTheme.modernGreen : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
           ),
         ),
       ],
@@ -823,7 +823,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
                         color: isSelected 
-                            ? AppTheme.accentOchre 
+                            ? AppTheme.modernGreen 
                             : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -831,7 +831,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                         genre,
                         style: GoogleFonts.inter(
                           color: isSelected 
-                              ? Colors.black 
+                              ? Colors.white 
                               : Theme.of(context).colorScheme.onSurface,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                         ),

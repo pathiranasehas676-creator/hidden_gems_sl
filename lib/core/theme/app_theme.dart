@@ -116,8 +116,8 @@ class AppTheme {
       borderRadius: shape == BoxShape.circle ? null : (radius ?? BorderRadius.circular(20)),
       shape: shape,
       border: Border.all(
-        color: Colors.white.withOpacity(isDark ? 0.05 : 0.2),
-        width: 1.0,
+        color: modernGreen.withOpacity(isDark ? 0.15 : 0.3),
+        width: 0.5, // Thinner, more premium border line
       ),
       boxShadow: [
         BoxShadow(
@@ -246,13 +246,13 @@ class AppTheme {
   static ThemeData get darkTheme => ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    primaryColor: AppPalette.nightAccentGold,
+    primaryColor: AppPalette.nightAccentGreen,
     scaffoldBackgroundColor: AppPalette.nightScaffold,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppPalette.nightAccentGold,
+      seedColor: AppPalette.nightAccentGreen,
       brightness: Brightness.dark,
-      primary: AppPalette.nightAccentGold,
-      secondary: AppPalette.nightAccentGreen,
+      primary: AppPalette.nightAccentGreen,
+      secondary: AppPalette.nightAccentGold,
       surface: AppPalette.nightSurface,
       onPrimary: AppPalette.nightScaffold,
       onSecondary: AppPalette.nightScaffold,
@@ -276,8 +276,8 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppPalette.nightAccentGold,
-        foregroundColor: AppPalette.nightScaffold,
+        backgroundColor: AppPalette.nightAccentGreen,
+        foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
@@ -296,7 +296,7 @@ class AppTheme {
       foregroundColor: AppPalette.nightScaffold,
     ),
     chipTheme: ChipThemeData(
-      selectedColor: AppPalette.nightAccentGold.withOpacity(0.2),
+      selectedColor: AppPalette.nightAccentGreen.withOpacity(0.2),
       labelStyle: GoogleFonts.inter(fontSize: 12, color: AppPalette.nightTextPrimary),
     ),
   );

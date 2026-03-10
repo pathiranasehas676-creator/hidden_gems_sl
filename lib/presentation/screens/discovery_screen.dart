@@ -253,7 +253,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.search, color: AppTheme.sigiriyaOchre, size: 22),
+                    Icon(Icons.search, color: AppTheme.modernGreen, size: 22),
                     const SizedBox(width: 12),
                     Expanded(
                       child: TextField(
@@ -301,15 +301,15 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               label: Text(filter),
               selected: isSelected,
               onSelected: (_) => _onFilterChanged(filter),
-              selectedColor: AppTheme.sigiriyaOchre,
+              selectedColor: AppTheme.modernGreen.withOpacity(0.2),
               backgroundColor: Colors.white.withOpacity(0.05),
               labelStyle: GoogleFonts.inter(
-                color: isSelected ? Colors.black : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: isSelected ? AppTheme.modernGreen : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 fontSize: 12,
               ),
               side: BorderSide(
-                color: isSelected ? AppTheme.sigiriyaOchre : Colors.white.withOpacity(0.1),
+                color: isSelected ? AppTheme.modernGreen : Colors.white.withOpacity(0.1),
                 width: 1,
               ),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -444,7 +444,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: isOracle 
                 ? AppTheme.glassDecoration(color: Theme.of(context).cardColor, opacity: 0.05, blur: 30).copyWith(
-                    border: Border.all(color: AppTheme.sigiriyaOchre.withOpacity(0.5), width: 1.5),
+                    border: Border.all(color: AppTheme.modernGreen.withOpacity(0.5), width: 1.5),
                   )
                 : AppTheme.glassDecoration(color: Theme.of(context).cardColor, opacity: 0.05, blur: 30),
               child: Column(
@@ -483,11 +483,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(Icons.location_on, size: 12, color: AppTheme.accentOchre),
+                              const Icon(Icons.location_on, size: 12, color: AppTheme.modernBlue),
                               const SizedBox(width: 4),
-                              Text("${place.distanceKm.toStringAsFixed(1)}km", style: GoogleFonts.inter(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.bold)),
+                              Text("${place.distanceKm.toStringAsFixed(1)}km", style: GoogleFonts.inter(fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), fontWeight: FontWeight.bold)),
                               const Spacer(),
-                              Text(place.ticketRange, style: GoogleFonts.inter(fontSize: 10, color: Colors.greenAccent, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              Text(place.ticketRange, style: GoogleFonts.inter(fontSize: 10, color: AppTheme.modernGreen, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                           if (isOracle && place.aiReason.isNotEmpty) ...[
@@ -505,7 +505,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                                   style: GoogleFonts.inter(
                                     fontSize: 10, 
                                     fontStyle: FontStyle.italic, 
-                                    color: Theme.of(context).colorScheme.onSurface,
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
                                   ),
                                 ),
                               ),
@@ -580,7 +580,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                     const Spacer(),
                     Row(
                       children: [
-                        const Icon(Icons.location_on, size: 14, color: AppTheme.sigiriyaOchre),
+                        const Icon(Icons.location_on, size: 14, color: AppTheme.modernBlue),
                         const SizedBox(width: 4),
                         Text(
                           "${place.distanceKm.toStringAsFixed(1)} km",

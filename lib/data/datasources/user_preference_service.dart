@@ -94,4 +94,10 @@ class UserPreferenceService {
     profile.showScreenshotButton = show;
     await saveProfile(profile);
   }
+
+  static Future<void> updateTermsAgreement(bool agreed) async {
+    final profile = getProfile();
+    profile.hasAgreedToTerms = agreed;
+    await saveProfile(profile);
+  }
 }

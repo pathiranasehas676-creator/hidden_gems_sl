@@ -11,6 +11,7 @@ class UserProfile {
   String themeMode; // "system", "light", "dark"
   List<String> tripHistory; // past destinations for AI memory
   bool showScreenshotButton; // Whether to show the floating camera button
+  bool hasAgreedToTerms; // Whether the user accepted Privacy Policy & Terms
 
   UserProfile({
     required this.preferredStyles,
@@ -25,6 +26,7 @@ class UserProfile {
     this.themeMode = 'system',
     List<String>? tripHistory,
     this.showScreenshotButton = true,
+    this.hasAgreedToTerms = false,
   })  : sosContacts = sosContacts ?? [],
         tripHistory = tripHistory ?? [];
 
@@ -37,6 +39,7 @@ class UserProfile {
       vibeTheme: 'ceylon_blue',
       themeMode: 'system',
       showScreenshotButton: true,
+      hasAgreedToTerms: false,
     );
   }
 
@@ -53,6 +56,7 @@ class UserProfile {
         'themeMode': themeMode,
         'tripHistory': tripHistory,
         'showScreenshotButton': showScreenshotButton,
+        'hasAgreedToTerms': hasAgreedToTerms,
       };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
@@ -68,5 +72,6 @@ class UserProfile {
         themeMode: json['themeMode'] ?? 'system',
         tripHistory: List<String>.from(json['tripHistory'] ?? []),
         showScreenshotButton: json['showScreenshotButton'] ?? true,
+        hasAgreedToTerms: json['hasAgreedToTerms'] ?? false,
       );
 }

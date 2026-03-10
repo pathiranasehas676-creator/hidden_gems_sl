@@ -4,6 +4,7 @@ import '../../core/theme/app_theme.dart';
 import '../../data/datasources/trip_cache_service.dart';
 import '../../data/models/trip_plan_model.dart';
 import '../widgets/batik_background.dart';
+import '../widgets/interested_events_hub.dart';
 import 'results_screen.dart';
 
 class SavedPlansScreen extends StatefulWidget {
@@ -92,7 +93,22 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
         ],
       ),
       body: BatikBackground(
-        child: _plans.isEmpty ? _buildEmpty() : _buildList(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 120, 20, 100),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const InterestedEventsHub(),
+              const SizedBox(height: 48),
+              Text(
+                "SAVED JOURNEYS",
+                style: AppTheme.labelStyle(context),
+              ),
+              const SizedBox(height: 16),
+              if (_plans.isEmpty) _buildEmpty() else _buildList(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -126,7 +142,9 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
 
   Widget _buildList() {
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 120, 20, 100),
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: _plans.length,
       separatorBuilder: (_, __) => const SizedBox(height: 14),
       itemBuilder: (context, i) {
