@@ -69,8 +69,8 @@ class GracefulErrorWidget extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: color.withValues(alpha: 0.1),
-                border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
+                color: color.withOpacity(0.1),
+                border: Border.all(color: color.withOpacity(0.3), width: 1.5),
               ),
               child: Icon(icon, color: color, size: 40),
             ),
@@ -90,7 +90,7 @@ class GracefulErrorWidget extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 13,
-                color: AppTheme.darkText.withValues(alpha: 0.6),
+                color: AppTheme.darkText.withOpacity(0.6),
                 height: 1.6,
               ),
             ),
@@ -102,7 +102,7 @@ class GracefulErrorWidget extends StatelessWidget {
                 label: Text(buttonLabel!),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: color,
-                  side: BorderSide(color: color.withValues(alpha: 0.6)),
+                  side: BorderSide(color: color.withOpacity(0.6)),
                   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),

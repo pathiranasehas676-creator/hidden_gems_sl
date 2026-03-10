@@ -14,7 +14,7 @@ import '../../data/models/event_model.dart';
 import '../widgets/batik_background.dart';
 import '../widgets/skeleton_loaders.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
-import '../../core/providers/locale_provider.dart';
+import '../../core/localization/locale_provider.dart';
 import 'emergency_kit_screen.dart';
 import 'event_calendar_screen.dart';
 import '../../core/providers/app_mode_provider.dart';
@@ -161,13 +161,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).dividerColor.withValues(alpha: 0.1), 
+              color: Theme.of(context).dividerColor.withOpacity(0.1), 
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 32),
           ),
           const SizedBox(height: 8),
-          Text(label, style: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 12)),
+          Text(label, style: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 12)),
         ],
       ),
     );
@@ -221,82 +221,110 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildAppBar(bool isPremium, AppLocalizations l10n) {
     return SliverAppBar(
-      expandedHeight: 220,
+      expandedHeight: 260,
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
       flexibleSpace: FlexibleSpaceBar(
-        centerTitle: true,
         background: Stack(
           alignment: Alignment.center,
           children: [
-            if (isPremium)
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.secondary,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              )
-            else
-              Container(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)),
-            
-            // Profile Image with Glow
-            GestureDetector(
-              onTap: () => _pickImage(l10n),
-              child: Hero(
-                tag: 'profile_pic',
-                child: Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: (isPremium ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface).withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                      )
-                    ],
-                    border: Border.all(
-                      color: isPremium ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withValues(alpha: 0.5),
-                      width: 3,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: profile.profileImagePath != null
-                        ? Image.file(
-                            File(profile.profileImagePath!),
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => 
-                              _defaultAvatar(isPremium),
-                          )
-                        : _defaultAvatar(isPremium),
-                  ),
+            // Dark Overlay Gradient
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withOpacity(0.6),
+                    AppTheme.primaryBlue,
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
               ),
             ),
             
-            // Edit Overlay Icon
-            Positioned(
-              right: MediaQuery.of(context).size.width / 2 - 55,
-              bottom: 60,
-              child: GestureDetector(
-                onTap: () => _pickImage(l10n),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Theme.of(context).cardColor, width: 2),
+            // Profile Image with Gold Ring
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
+                GestureDetector(
+                  onTap: () => _pickImage(l10n),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Gold Progress Ring
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppTheme.sigiriyaOchre,
+                            width: 3,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.sigiriyaOchre.withOpacity(0.3),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                            )
+                          ],
+                        ),
+                      ),
+                      // Avatar
+                      Hero(
+                        tag: 'profile_pic',
+                        child: Container(
+                          width: 104,
+                          height: 104,
+                          decoration: const BoxDecoration(shape: BoxShape.circle),
+                          child: ClipOval(
+                            child: profile.profileImagePath != null
+                                ? Image.file(
+                                    File(profile.profileImagePath!),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => 
+                                      _defaultAvatar(isPremium),
+                                  )
+                                : _defaultAvatar(isPremium),
+                          ),
+                        ),
+                      ),
+                      // Camera Icon Badge
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppTheme.sigiriyaOchre,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 2),
+                          ),
+                          child: const Icon(Icons.edit, color: Colors.black, size: 12),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Icon(Icons.camera_alt, color: Theme.of(context).colorScheme.onPrimary, size: 16),
                 ),
-              ),
+                const SizedBox(height: 16),
+                Text(
+                  isPremium ? "Premium Traveler" : "Oracle Traveler",
+                  style: GoogleFonts.outfit(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  "Level 1 Oracle Initiate",
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppTheme.sigiriyaOchre,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -306,54 +334,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _defaultAvatar(bool isPremium) {
     return Container(
-      color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+      color: Theme.of(context).dividerColor.withOpacity(0.1),
       child: Icon(
         isPremium ? Icons.stars : Icons.person,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
         size: 50,
       ),
     );
   }
 
   Widget _buildStatsRow() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Positioned(
-          top: -20, left: 20,
-          child: Container(
-            width: 60, height: 60,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.accentOchre.withValues(alpha: 0.3)),
-          ),
-        ),
-        Positioned(
-          bottom: -20, right: 20,
-          child: Container(
-            width: 80, height: 80,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: AppTheme.primaryBlue.withValues(alpha: 0.8)),
-          ),
-        ),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: AppTheme.glassDecoration(opacity: 0.08),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _statItem(profile.totalTripsGenerated.toString(), "TRIPS"),
-                  _verticalDivider(),
-                  _statItem(profile.visitedPlaces.length.toString(), "PLACES"),
-                  _verticalDivider(),
-                  _statItem("LVL 1", "RANK"),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: AppTheme.glassDecoration(
+        opacity: 0.08,
+        blur: 20,
+        isDark: true,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _statItem(profile.totalTripsGenerated.toString(), "Trips"),
+          _verticalDivider(),
+          _statItem(profile.visitedPlaces.length.toString(), "Places"),
+          _verticalDivider(),
+          _statItem("1", "Oracle Lvl"),
+        ],
+      ),
     );
   }
 
@@ -372,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           label,
           style: GoogleFonts.inter(
             fontSize: 10,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             fontWeight: FontWeight.bold,
             letterSpacing: 1,
           ),
@@ -382,7 +389,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _verticalDivider() {
-    return Container(height: 30, width: 1, color: Theme.of(context).dividerColor.withValues(alpha: 0.2));
+    return Container(height: 30, width: 1, color: Theme.of(context).dividerColor.withOpacity(0.2));
   }
 
   Widget _buildMyEventsHub() {
@@ -394,7 +401,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Text(
               "MY INTERESTED EVENTS",
-              style: AppTheme.labelStyle,
+              style: AppTheme.labelStyle(context),
             ),
             if (_interestedEvents.isNotEmpty)
               GestureDetector(
@@ -465,7 +472,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: AppTheme.glassDecoration(opacity: 0.05),
       child: Column(
         children: [
-          Icon(Icons.event_available_outlined, color: Colors.white.withValues(alpha: 0.2), size: 40),
+          Icon(Icons.event_available_outlined, color: Colors.white.withOpacity(0.2), size: 40),
           const SizedBox(height: 12),
           Text(
             "No events pinned yet",
@@ -478,7 +485,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (context) => const EventCalendarScreen()),
             ),
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.sigiriyaOchre.withValues(alpha: 0.5)),
+              side: BorderSide(color: AppTheme.sigiriyaOchre.withOpacity(0.5)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: Text(
@@ -500,7 +507,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         width: 150,
         decoration: AppTheme.glassDecoration(opacity: 0.1).copyWith(
-          border: Border.all(color: event.categoryColor.withValues(alpha: 0.3)),
+          border: Border.all(color: event.categoryColor.withOpacity(0.3)),
         ),
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -509,7 +516,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: event.categoryColor.withValues(alpha: 0.2),
+                color: event.categoryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -576,12 +583,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(12),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        decoration: AppTheme.glassDecoration(
+          opacity: Theme.of(context).brightness == Brightness.dark ? (isSelected ? 0.15 : 0.05) : 0.6,
+          blur: 30,
+          isDark: Theme.of(context).brightness == Brightness.dark,
+        ).copyWith(
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withValues(alpha: 0.2),
+            color: isSelected ? AppTheme.sigiriyaOchre.withOpacity(0.8) : Colors.white.withOpacity(0.1),
+            width: isSelected ? 1.5 : 1,
           ),
         ),
         child: Text(
@@ -589,7 +600,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            color: isSelected ? Colors.black : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             letterSpacing: 1,
           ),
         ),
@@ -608,7 +619,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("APPEARANCE STYLE", style: AppTheme.labelStyle),
+        Text("APPEARANCE STYLE", style: AppTheme.labelStyle(context)),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(4),
@@ -650,7 +661,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected 
-              ? theme.colorScheme.primary.withValues(alpha: 0.15) 
+              ? theme.colorScheme.primary.withOpacity(0.15) 
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -662,7 +673,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               size: 16, 
               color: isSelected 
                   ? theme.colorScheme.primary 
-                  : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                  : theme.colorScheme.onSurface.withOpacity(0.4),
             ),
             const SizedBox(width: 8),
             Text(
@@ -672,7 +683,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 color: isSelected 
                     ? theme.colorScheme.onSurface 
-                    : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                    : theme.colorScheme.onSurface.withOpacity(0.4),
                 letterSpacing: 0.5,
               ),
             ),
@@ -696,7 +707,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           trailing: Switch(
             value: context.watch<ScreenshotProvider>().isVisible,
             onChanged: (val) => context.read<ScreenshotProvider>().toggleVisibility(val),
-            activeTrackColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+            activeTrackColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
             activeThumbColor: Theme.of(context).colorScheme.primary,
           ),
         ),
@@ -731,9 +742,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+            color: Theme.of(context).dividerColor.withOpacity(0.1),
             shape: BoxShape.circle,
-            border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.2)),
+            border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.2)),
           ),
           child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
         ),
@@ -741,7 +752,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           title,
           style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
         ),
-        trailing: trailing ?? Icon(Icons.chevron_right, size: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+        trailing: trailing ?? Icon(Icons.chevron_right, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
         onTap: onTap ?? () {},
       ),
     );

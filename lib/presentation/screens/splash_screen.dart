@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: _controller.value.isInitialized
           ? Stack(
               fit: StackFit.expand,
@@ -123,10 +123,10 @@ class _SplashScreenState extends State<SplashScreen> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.white.withValues(alpha: 0.1),
+                        Colors.white.withOpacity(0.1),
                         Colors.transparent,
                         Colors.transparent,
-                        Colors.white.withValues(alpha: 0.2),
+                        Colors.white.withOpacity(0.2),
                       ],
                       stops: const [0.0, 0.2, 0.7, 1.0],
                     ),
@@ -151,7 +151,7 @@ class _SplashScreenState extends State<SplashScreen> {
                               width: 280,
                               height: 4,
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.05),
+                                color: Colors.white.withOpacity(0.05),
                                 borderRadius: BorderRadius.circular(2),
                               ),
                               child: ClipRRect(
@@ -168,7 +168,7 @@ class _SplashScreenState extends State<SplashScreen> {
                                         gradient: AppTheme.modernGradient,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: AppTheme.modernGreen.withValues(alpha: 0.3),
+                                            color: AppTheme.modernGreen.withOpacity(0.3),
                                             blurRadius: 12,
                                             spreadRadius: 1,
                                           )
@@ -185,9 +185,9 @@ class _SplashScreenState extends State<SplashScreen> {
                                           gradient: LinearGradient(
                                             colors: [
                                               Colors.transparent,
-                                              Colors.white.withValues(alpha: 0.3),
-                                              Colors.white.withValues(alpha: 0.7),
-                                              Colors.white.withValues(alpha: 0.3),
+                                              Colors.white.withOpacity(0.3),
+                                              Colors.white.withOpacity(0.7),
+                                              Colors.white.withOpacity(0.3),
                                               Colors.transparent,
                                             ],
                                           ),
@@ -206,7 +206,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.modernGreen.withValues(alpha: 0.5),
+                            color: AppTheme.modernGreen.withOpacity(0.5),
                             letterSpacing: 4,
                           ),
                         ),

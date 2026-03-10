@@ -165,7 +165,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryBlue.withValues(alpha: 0.8),
+                AppTheme.primaryBlue.withOpacity(0.8),
                 Colors.transparent,
               ],
             ),
@@ -202,7 +202,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
               const SizedBox(width: 8),
               Text(
                 "COMING UP SOON",
-                style: AppTheme.labelStyle,
+                style: AppTheme.labelStyle(context),
               ),
             ],
           ),
@@ -273,13 +273,15 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
       child: Container(
         width: isWide ? 280 : double.infinity,
         decoration: AppTheme.glassDecoration(
-          opacity: 0.1,
+          opacity: Theme.of(context).brightness == Brightness.dark ? 0.1 : 0.8,
           isDark: Theme.of(context).brightness == Brightness.dark,
         ).copyWith(
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isRecommended ? AppTheme.accentOchre.withValues(alpha: 0.4) : event.categoryColor.withValues(alpha: 0.2),
-            width: isRecommended ? 1.5 : 1,
+            color: isRecommended 
+                ? AppTheme.sigiriyaOchre 
+                : event.categoryColor.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.4),
+            width: isRecommended ? 2.0 : 1.0,
           ),
         ),
         padding: const EdgeInsets.all(20),
@@ -293,7 +295,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: event.categoryColor.withValues(alpha: 0.15),
+                    color: event.categoryColor.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -319,13 +321,13 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.location_on_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                Icon(Icons.location_on_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
                 const SizedBox(width: 4),
                 Text(
                   event.location ?? "Sri Lanka",
                   style: GoogleFonts.inter(
                     fontSize: 12, 
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                   ),
                 ),
                 const Spacer(),
@@ -369,7 +371,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: event.categoryColor.withValues(alpha: 0.2),
+                    color: event.categoryColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -392,12 +394,12 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.location_on_outlined, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                Icon(Icons.location_on_outlined, size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
                 const SizedBox(width: 6),
                 Text(
                   event.location ?? "Sri Lanka",
                   style: GoogleFonts.inter(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), 
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), 
                     fontSize: 14,
                   ),
                 ),
@@ -407,14 +409,14 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             Text(
               event.description,
               style: GoogleFonts.inter(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8), 
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8), 
                 fontSize: 15, 
                 height: 1.6,
               ),
             ),
             const SizedBox(height: 32),
             if (event.lineup.isNotEmpty) ...[
-              Text("LINEUP", style: AppTheme.labelStyle),
+              Text("LINEUP", style: AppTheme.labelStyle(context)),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
@@ -422,9 +424,9 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                 children: event.lineup.map((artist) => Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
+                    border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1)),
                   ),
                   child: Text(
                     artist.name,
@@ -459,7 +461,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
               const SizedBox(width: 8),
               Text(
                 "CURATED FOR YOU",
-                style: AppTheme.labelStyle,
+                style: AppTheme.labelStyle(context),
               ),
             ],
           ),
@@ -528,12 +530,12 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
         decoration: BoxDecoration(
           color: isSelected 
               ? AppTheme.primaryBlue 
-              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+              : Theme.of(context).cardColor.withOpacity(0.4),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected 
                 ? AppTheme.primaryBlue 
-                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                : Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
           ),
         ),
         child: Center(
@@ -541,10 +543,10 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             label,
             style: GoogleFonts.outfit(
               fontSize: 12,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
               color: isSelected 
                   ? Colors.white 
-                  : Theme.of(context).colorScheme.onSurface,
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
             ),
           ),
         ),
@@ -583,18 +585,18 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             fontWeight: FontWeight.bold,
           ),
           formatButtonVisible: false,
-          leftChevronIcon: Icon(Icons.chevron_left, color: colorScheme.onSurface.withValues(alpha: 0.6)),
-          rightChevronIcon: Icon(Icons.chevron_right, color: colorScheme.onSurface.withValues(alpha: 0.6)),
+          leftChevronIcon: Icon(Icons.chevron_left, color: colorScheme.onSurface.withOpacity(0.6)),
+          rightChevronIcon: Icon(Icons.chevron_right, color: colorScheme.onSurface.withOpacity(0.6)),
         ),
         daysOfWeekStyle: DaysOfWeekStyle(
-          weekdayStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 13),
+          weekdayStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.5), fontSize: 13),
           weekendStyle: const TextStyle(color: AppTheme.sigiriyaOchre, fontSize: 13),
         ),
         calendarStyle: CalendarStyle(
           defaultTextStyle: TextStyle(color: colorScheme.onSurface, fontSize: 14),
-          outsideTextStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 14),
+          outsideTextStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.2), fontSize: 14),
           todayDecoration: BoxDecoration(
-            color: AppTheme.sigiriyaOchre.withValues(alpha: 0.2),
+            color: AppTheme.sigiriyaOchre.withOpacity(0.2),
             shape: BoxShape.circle,
           ),
           selectedDecoration: const BoxDecoration(
@@ -640,7 +642,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
       children: [
         Text(
           "AVAILABLE EVENTS",
-          style: AppTheme.labelStyle,
+          style: AppTheme.labelStyle(context),
         ),
         const SizedBox(height: 16),
         ListView.separated(
@@ -669,7 +671,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             child: Container(
               height: 100,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
@@ -689,7 +691,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
           Lottie.network(
             'https://assets9.lottiefiles.com/packages/lf20_m6reunre.json', 
             height: 150,
-            errorBuilder: (_, __, ___) => Icon(Icons.event_busy, size: 60, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
+            errorBuilder: (_, __, ___) => Icon(Icons.event_busy, size: 60, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2)),
           ),
           const SizedBox(height: 24),
           Text(
@@ -706,7 +708,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14, 
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             ),
           ),
           const SizedBox(height: 24),
@@ -734,13 +736,13 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
         if (event.lat != null && event.lng != null)
           IconButton(
             onPressed: () => _openInMaps(event.lat!, event.lng!, event.name),
-            icon: Icon(Icons.map_outlined, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+            icon: Icon(Icons.map_outlined, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
           ),
         IconButton(
           onPressed: () => _togglePin(event),
           icon: Icon(
             isPinned ? Icons.bookmark : Icons.bookmark_border,
-            color: isPinned ? AppTheme.accentOchre : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            color: isPinned ? AppTheme.accentOchre : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
           ),
         ),
       ],
@@ -797,7 +799,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
               Text(
                 "Tell us what music gets you moving.",
                 style: GoogleFonts.inter(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), 
                   fontSize: 14,
                 ),
               ),
@@ -822,7 +824,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                       decoration: BoxDecoration(
                         color: isSelected 
                             ? AppTheme.accentOchre 
-                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
@@ -830,8 +832,8 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                         style: GoogleFonts.inter(
                           color: isSelected 
                               ? Colors.black 
-                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              : Theme.of(context).colorScheme.onSurface,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                         ),
                       ),
                     ),
@@ -848,10 +850,11 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryBlue,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: Text("APPLY PREFERENCES", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                  child: Text("APPLY PREFERENCES", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ),
             ],

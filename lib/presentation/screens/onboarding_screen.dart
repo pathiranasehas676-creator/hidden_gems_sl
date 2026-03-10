@@ -72,7 +72,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   alignment: Alignment.topRight,
                   child: TextButton(
                     onPressed: _finish,
-                    child: Text("Skip", style: TextStyle(color: AppTheme.modernGreen.withValues(alpha: 0.5))),
+                    child: Text("Skip", style: TextStyle(color: AppTheme.modernGreen.withOpacity(0.5))),
                   ),
                 ),
                 // Pages
@@ -112,9 +112,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               height: 140,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.modernGreen.withValues(alpha: 0.08),
+                color: AppTheme.modernGreen.withOpacity(0.08),
                 border: Border.all(
-                  color: AppTheme.modernGreen.withValues(alpha: 0.25),
+                  color: AppTheme.modernGreen.withOpacity(0.25),
                   width: 1.5,
                 ),
               ),
@@ -135,7 +135,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           Text(
             "Tell the Oracle where you want to go.\nGet a full personalized itinerary for Sri Lanka in seconds.",
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkText.withValues(alpha: 0.7), height: 1.5),
+            style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkText.withOpacity(0.7), height: 1.5),
           ),
         ],
       ),
@@ -173,7 +173,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           Text(
             "Explore over 150 off-the-beaten-path locations curated by locals and AI — places you won't find in any guidebook.",
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkText.withValues(alpha: 0.7), height: 1.5),
+            style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkText.withOpacity(0.7), height: 1.5),
           ),
         ],
       ),
@@ -191,7 +191,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           Icon(icon, color: AppTheme.modernBlue, size: 28),
           const SizedBox(height: 8),
           Text(label, textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 11, color: AppTheme.darkText.withValues(alpha: 0.7), fontWeight: FontWeight.w500)),
+              style: GoogleFonts.inter(fontSize: 11, color: AppTheme.darkText.withOpacity(0.7), fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -208,8 +208,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.modernBlue.withValues(alpha: 0.1),
-              border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.3)),
+              color: AppTheme.modernBlue.withOpacity(0.1),
+              border: Border.all(color: AppTheme.modernGreen.withOpacity(0.3)),
             ),
             child: const Text("🇱🇰", style: TextStyle(fontSize: 60)),
           ),
@@ -225,7 +225,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           Text(
             "Sinhala, English, Tamil and more.\nOffline maps, emergency SOS, budget tracking — everything you need for the perfect Sri Lankan adventure.",
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkText.withValues(alpha: 0.7), height: 1.5),
+            style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkText.withOpacity(0.7), height: 1.5),
           ),
         ],
       ),
@@ -253,7 +253,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.modernGreen.withValues(alpha: 0.3),
+                  color: AppTheme.modernGreen.withOpacity(0.3),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 )
@@ -286,7 +286,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       width: active ? 24 : 8,
       height: 8,
       decoration: BoxDecoration(
-        color: active ? AppTheme.modernGreen : AppTheme.modernGreen.withValues(alpha: 0.1),
+        color: active ? AppTheme.modernGreen : AppTheme.modernGreen.withOpacity(0.1),
         borderRadius: BorderRadius.circular(4),
       ),
     );

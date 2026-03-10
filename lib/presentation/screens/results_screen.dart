@@ -209,7 +209,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                               "Your Personalized Journey",
                               style: GoogleFonts.inter(
                                 fontSize: 10, 
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                               ),
                             ),
                           ],
@@ -231,7 +231,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                               ),
                             ),
                             child: Center(
-                              child: Icon(Icons.landscape, size: 100, color: Colors.white.withValues(alpha: 0.2)),
+                              child: Icon(Icons.landscape, size: 100, color: Colors.white.withOpacity(0.2)),
                             ),
                           ),
                           errorWidget: (context, url, error) => Container(
@@ -243,7 +243,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                               ),
                             ),
                             child: Center(
-                              child: Icon(Icons.broken_image, size: 100, color: Colors.white.withValues(alpha: 0.2)),
+                              child: Icon(Icons.broken_image, size: 100, color: Colors.white.withOpacity(0.2)),
                             ),
                           ),
                         ),
@@ -252,9 +252,9 @@ class _ResultsScreenState extends State<ResultsScreen>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.4),
+                                Theme.of(context).scaffoldBackgroundColor.withOpacity(0.4),
                                 Colors.transparent,
-                                Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
+                                Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
@@ -269,7 +269,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                     preferredSize: const Size.fromHeight(48),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.95),
+                        color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.95),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
@@ -285,7 +285,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                         ),
                         indicatorPadding: const EdgeInsets.symmetric(horizontal: -12, vertical: 4),
                         labelColor: Colors.white,
-                        unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                        unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                         labelStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold),
                         tabs: [
                           Tab(text: l10n.itinerary),
@@ -339,9 +339,9 @@ class _ResultsScreenState extends State<ResultsScreen>
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  border: Border(top: BorderSide(color: AppTheme.silkPearl.withValues(alpha: 0.1), width: 1)),
+                  border: Border(top: BorderSide(color: AppTheme.silkPearl.withOpacity(0.1), width: 1)),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))
+                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2))
                   ],
                 ),
                 child: SafeArea(
@@ -427,7 +427,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             height: 36,
             child: CircularProgressIndicator(
               value: score / 100,
-              backgroundColor: AppTheme.modernBlue.withValues(alpha: 0.1),
+              backgroundColor: AppTheme.modernBlue.withOpacity(0.1),
               color: AppTheme.modernGreen,
               strokeWidth: 3,
             ),
@@ -549,10 +549,10 @@ class _ResultsScreenState extends State<ResultsScreen>
           radius: BorderRadius.circular(20),
           color: Colors.white,
         ).copyWith(
-          border: Border.all(color: AppTheme.modernBlue.withValues(alpha: 0.05)),
+          border: Border.all(color: AppTheme.modernBlue.withOpacity(0.05)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             )
@@ -567,7 +567,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                 shape: BoxShape.circle, 
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.modernGreen.withValues(alpha: 0.3),
+                    color: AppTheme.modernGreen.withOpacity(0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   )
@@ -646,7 +646,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                   color: AppTheme.modernGreen,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: AppTheme.modernGreen.withValues(alpha: 0.5), blurRadius: 8, spreadRadius: 2),
+                    BoxShadow(color: AppTheme.modernGreen.withOpacity(0.5), blurRadius: 8, spreadRadius: 2),
                     const BoxShadow(color: Colors.white, blurRadius: 2, spreadRadius: 1),
                   ],
                 ),
@@ -656,7 +656,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                   width: 2, 
                   margin: const EdgeInsets.symmetric(vertical: 8), 
                   decoration: BoxDecoration(
-                    color: AppTheme.modernGreen.withValues(alpha: 0.3),
+                    color: AppTheme.modernGreen.withOpacity(0.3),
                   )
                 ),
               ),
@@ -674,7 +674,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                 border: Border(left: BorderSide(color: AppTheme.modernGreen, width: 4)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: Colors.black.withOpacity(0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   )
@@ -697,7 +697,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                             ),
                           ),
                         ),
-                        Icon(typeInfo.icon, size: 18, color: typeInfo.color.withValues(alpha: 0.5)),
+                        Icon(typeInfo.icon, size: 18, color: typeInfo.color.withOpacity(0.5)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -716,7 +716,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                         item.notes, 
                         style: GoogleFonts.inter(
                           fontSize: 13, 
-                          color: AppTheme.darkText.withValues(alpha: 0.7), 
+                          color: AppTheme.darkText.withOpacity(0.7), 
                           height: 1.5,
                         ),
                       ),
@@ -824,7 +824,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 12,
-              backgroundColor: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+              backgroundColor: Theme.of(context).dividerColor.withOpacity(0.1),
               valueColor: AlwaysStoppedAnimation<Color>(
                 isOver ? Colors.orangeAccent : Theme.of(context).colorScheme.primary,
               ),
@@ -837,7 +837,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               Text(
                 "User Budget: ${_fmtLkr(userBudget)}", 
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), 
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), 
                   fontSize: 12,
                 ),
               ),
@@ -888,7 +888,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                 Text(
                   "$percent% of total", 
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), 
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), 
                     fontSize: 10,
                   ),
                 ),
@@ -898,7 +898,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           Text(
             _fmtLkr(amount), 
             style: GoogleFonts.outfit(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8), 
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8), 
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -927,7 +927,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.map_rounded, size: 64, color: Theme.of(context).colorScheme.primary),
@@ -946,7 +946,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             "Plot your entire journey across the teardrop isle. View detailed route segments and travel times.",
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), 
               height: 1.5,
             ),
           ),
@@ -980,7 +980,7 @@ class _ResultsScreenState extends State<ResultsScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -1002,7 +1002,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                       Text(
                         "Caught in a sudden shower? Switch to this.", 
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), 
                           fontSize: 12,
                         ),
                       ),
@@ -1031,7 +1031,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             color: Theme.of(context).cardColor,
             opacity: Theme.of(context).brightness == Brightness.light ? 0.9 : 0.2,
           ).copyWith(
-            border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+            border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1039,7 +1039,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentOchre.withValues(alpha: 0.1),
+                  color: AppTheme.accentOchre.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.lock_outline, color: AppTheme.accentOchre, size: 48),
@@ -1074,7 +1074,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               onPressed: () => Provider.of<PremiumService>(context, listen: false).buyPremium(),
               child: Text(
                 "Go Premium for Ad-Free Experience", 
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
               ),
             ),
           ],
@@ -1091,14 +1091,14 @@ class _ResultsScreenState extends State<ResultsScreen>
         color: Theme.of(context).cardColor,
         opacity: Theme.of(context).brightness == Brightness.light ? 1.0 : 0.2, // Make it pop in light mode
       ).copyWith(
-        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5), width: 2),
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.5), width: 2),
       ),
       child: Column(
         children: [
           Stack(
             alignment: Alignment.center,
             children: [
-              Icon(Icons.stars, color: AppTheme.accentOchre.withValues(alpha: 0.2), size: 80),
+              Icon(Icons.stars, color: AppTheme.accentOchre.withOpacity(0.2), size: 80),
               const Icon(Icons.rocket_launch_rounded, color: AppTheme.primaryBlue, size: 40),
             ],
           ),
@@ -1135,7 +1135,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.accentOchre.withValues(alpha: 0.4),
+                  color: AppTheme.accentOchre.withOpacity(0.4),
                   blurRadius: 15,
                   offset: const Offset(0, 8),
                 )
@@ -1178,9 +1178,9 @@ class _ResultsScreenState extends State<ResultsScreen>
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        side: BorderSide(color: Colors.white.withOpacity(0.1)),
       ),
-      color: Colors.white.withValues(alpha: 0.05),
+      color: Colors.white.withOpacity(0.05),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -1199,7 +1199,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               item.reason, 
               style: GoogleFonts.inter(
                 fontSize: 14, 
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), 
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), 
                 height: 1.5,
               ),
             ),
@@ -1253,9 +1253,9 @@ class _ResultsScreenState extends State<ResultsScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.orange.withValues(alpha: 0.1),
+        color: Colors.orange.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+        border: Border.all(color: Colors.orange.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1311,7 +1311,7 @@ class _ResultsScreenState extends State<ResultsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(label,

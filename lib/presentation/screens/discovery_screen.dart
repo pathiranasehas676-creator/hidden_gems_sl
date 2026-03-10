@@ -35,7 +35,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   final List<String> _filters = [
-    "All", "Nature 🌿", "Culture 🏛️", "Food ☕", "Beach 🏖️", "Family 👨‍👩‍👧‍👦", "Indoor ☔", "Budget 💸", "Luxury 💎"
+    "All", "Nature 🌿", "Waterfall 🌊", "Hiking 🥾", "Culture 🏛️", "Coastal 🌊", "Family 👨‍👩‍👧‍👦", "Budget 💸"
   ];
 
   @override
@@ -81,38 +81,69 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   }
 
   void _applyFilter() {
-    if (_selectedFilter == "All") {
+    // Clean the filter text (remove emojis and trim)
+    final cleanFilter = _selectedFilter.replaceAll(RegExp(r'[^\w\s]'), '').trim().toLowerCase();
+    
+    if (cleanFilter == "all") {
       setState(() {
         _filteredList = _allPlaces;
         _isLoading = false;
       });
       return;
     }
-    
-    final cleanFilter = _selectedFilter.split(" ").first.toLowerCase();
-    
+
     setState(() {
-      _filteredList = _allPlaces.where((p) {
+      _isLoading = true;
+    });
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+      
+      final List<DiscoveryPlace> results = _allPlaces.where((p) {
         final cat = p.category.toLowerCase();
-        if (cleanFilter == "nature") return cat.contains("nature") || cat.contains("water") || cat.contains("hik") || cat.contains("mountain");
-        if (cleanFilter == "culture") return cat.contains("culture") || cat.contains("histor") || cat.contains("vill");
-        if (cleanFilter == "beach") return cat.contains("coast") || cat.contains("beach");
-        if (cleanFilter == "food") return p.facilities.any((f) => f.toLowerCase().contains("food") || f.toLowerCase().contains("tea") || f.toLowerCase().contains("shop"));
-        if (cleanFilter == "budget") return p.ticketRange.toLowerCase().contains("free") || p.ticketRange.contains("50") || p.ticketRange.contains("100");
-        if (cleanFilter == "luxury") return p.ticketRange.contains("500") || p.ticketRange.contains("1000");
-        if (cleanFilter == "indoor") return p.facilities.any((f) => f.toLowerCase().contains("indoor") || f.toLowerCase().contains("roof") || f.toLowerCase().contains("cave"));
-        if (cleanFilter == "family") return p.vehicleAccess.toLowerCase().contains("all vehicles") || p.roadType.toLowerCase().contains("paved");
-        return cat.contains(cleanFilter);
+        final name = p.name.toLowerCase();
+        final district = p.district.toLowerCase();
+        
+        if (cleanFilter == "nature") {
+          return cat.contains("nature") || cat.contains("hiking") || cat.contains("waterfall") || cat.contains("park") || cat.contains("village");
+        }
+        if (cleanFilter == "waterfall") {
+          return cat.contains("waterfall") || name.contains("waterall") || name.contains("ella");
+        }
+        if (cleanFilter == "hiking") {
+          return cat.contains("hiking") || cat.contains("mountain") || cat.contains("peak") || name.contains("peak");
+        }
+        if (cleanFilter == "culture") {
+          return cat.contains("culture") || cat.contains("histor") || cat.contains("temple") || cat.contains("village");
+        }
+        if (cleanFilter == "coastal") {
+          return cat.contains("coast") || cat.contains("beach") || cat.contains("ocean") || district.contains("galle") || district.contains("jaffna");
+        }
+        if (cleanFilter == "budget") {
+          return p.ticketRange.toLowerCase().contains("free") || p.ticketRange.contains("50") || p.ticketRange.contains("100");
+        }
+        if (cleanFilter == "family") {
+          return p.vehicleAccess.toLowerCase().contains("all vehicles") || p.roadType.toLowerCase().contains("paved");
+        }
+        
+        return cat.contains(cleanFilter) || name.contains(cleanFilter) || district.contains(cleanFilter);
       }).toList();
-      _isLoading = false;
+
+      setState(() {
+        _filteredList = results;
+        _isLoading = false;
+      });
     });
   }
 
   void _onFilterChanged(String filter) {
-    if (_selectedFilter == filter) return;
     HapticFeedback.selectionClick();
     setState(() {
-      _selectedFilter = filter;
+      if (_selectedFilter == filter) {
+        _selectedFilter = "All"; // Toggle off back to All
+      } else {
+        _selectedFilter = filter;
+      }
       _searchQuery = "";
       _searchController.clear();
     });
@@ -190,48 +221,39 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   }
 
   Widget _buildLocationHeader() {
-    final isNature = _selectedFilter.toLowerCase().contains("nature");
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SliverAppBar(
-      expandedHeight: 140,
+      expandedHeight: 180,
       pinned: true,
-      backgroundColor: isNature 
-          ? const Color(0xFFF1F8E9) // Pale Green for Nature
-          : Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: AppTheme.primaryBlue,
       elevation: 0,
-      surfaceTintColor: Colors.transparent,
       flexibleSpace: FlexibleSpaceBar(
         background: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 50, 20, 0),
+          padding: const EdgeInsets.fromLTRB(20, 60, 20, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.location_on, color: AppTheme.modernBlue, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Near you: $_currentDistrict",
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.bold, 
-                      fontSize: 16, 
-                      color: isNature ? AppTheme.modernGreen : Theme.of(context).colorScheme.onSurface
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(Icons.tune, color: isNature ? AppTheme.modernGreen : Theme.of(context).colorScheme.onSurface),
-                ],
+              Text(
+                "Discover",
+                style: GoogleFonts.outfit(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 16),
               Container(
-                height: 50,
+                height: 54,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: AppTheme.glassDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  opacity: Theme.of(context).brightness == Brightness.light ? 0.8 : 0.12,
+                  opacity: 0.05,
+                  blur: 30,
+                  isDark: true,
+                  radius: BorderRadius.circular(27),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.secondary, size: 20),
+                    Icon(Icons.search, color: AppTheme.sigiriyaOchre, size: 22),
                     const SizedBox(width: 12),
                     Expanded(
                       child: TextField(
@@ -239,17 +261,18 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         onSubmitted: _onSearchSubmitted,
                         textInputAction: TextInputAction.search,
                         decoration: InputDecoration(
-                          hintText: "What's your vibe today?",
+                          hintText: "Search destinations...",
                           hintStyle: GoogleFonts.inter(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), 
+                            color: Colors.white.withOpacity(0.4),
                             fontSize: 14,
                           ),
                           border: InputBorder.none,
                           isDense: true,
                         ),
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
+                    Icon(Icons.tune, color: Colors.white.withOpacity(0.6), size: 20),
                   ],
                 ),
               )
@@ -278,15 +301,16 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               label: Text(filter),
               selected: isSelected,
               onSelected: (_) => _onFilterChanged(filter),
-              selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              labelStyle: TextStyle(
-                color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              selectedColor: AppTheme.sigiriyaOchre,
+              backgroundColor: Colors.white.withOpacity(0.05),
+              labelStyle: GoogleFonts.inter(
+                color: isSelected ? Colors.black : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 fontSize: 12,
               ),
               side: BorderSide(
-                color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                color: isSelected ? AppTheme.sigiriyaOchre : Colors.white.withOpacity(0.1),
+                width: 1,
               ),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
@@ -328,9 +352,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: Colors.white.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  border: Border.all(color: Colors.white.withOpacity(0.1)),
                 ),
                 child: Icon(Icons.search_off, size: 40, color: Colors.grey.shade400),
               ),
@@ -347,7 +371,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               Text(
                 "Try increasing distance or removing filters.", 
                 style: GoogleFonts.inter(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), 
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), 
                   fontSize: 14,
                 ),
               ),
@@ -419,10 +443,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               width: isOracle ? 240 : 160,
               margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: isOracle 
-                ? AppTheme.glassDecoration(color: Theme.of(context).cardColor).copyWith(
-                    border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+                ? AppTheme.glassDecoration(color: Theme.of(context).cardColor, opacity: 0.05, blur: 30).copyWith(
+                    border: Border.all(color: AppTheme.sigiriyaOchre.withOpacity(0.5), width: 1.5),
                   )
-                : AppTheme.glassDecoration(color: Theme.of(context).cardColor),
+                : AppTheme.glassDecoration(color: Theme.of(context).cardColor, opacity: 0.05, blur: 30),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -434,7 +458,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         imageUrl: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
+                        placeholder: (context, url) => Container(color: Theme.of(context).dividerColor.withOpacity(0.1)),
                         errorWidget: (context, url, error) => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
                       ),
                     ),
@@ -472,9 +496,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.modernGreen.withValues(alpha: 0.1),
+                                  color: AppTheme.modernGreen.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.3)),
+                                  border: Border.all(color: AppTheme.modernGreen.withOpacity(0.3)),
                                 ),
                                 child: Text(
                                   place.aiReason,
@@ -501,16 +525,88 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   }
 
   Widget _buildListCard(DiscoveryPlace place, AppLocalizations l10n) {
-    return StandardCard(
-      title: place.name,
-      subtitle: place.category,
-      imageUrl: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
-      tag: "${place.distanceKm.toStringAsFixed(1)}km",
-      tagColor: AppTheme.modernGreen,
-      onTap: () => _openPlaceDetails(place),
-      trailing: Text(
-        place.ticketRange,
-        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green),
+    return Container(
+      height: 120,
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: AppTheme.glassDecoration(
+        opacity: Theme.of(context).brightness == Brightness.dark ? 0.05 : 0.4,
+        blur: 30,
+        isDark: Theme.of(context).brightness == Brightness.dark,
+      ),
+      child: InkWell(
+        onTap: () => _openPlaceDetails(place),
+        borderRadius: BorderRadius.circular(20),
+        child: Row(
+          children: [
+            // Image Left
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                bottomLeft: Radius.circular(20),
+              ),
+              child: CachedNetworkImage(
+                imageUrl: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=2078&auto=format&fit=crop",
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+              ),
+            ),
+            // Content Right
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      place.name,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      place.category,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on, size: 14, color: AppTheme.sigiriyaOchre),
+                        const SizedBox(width: 4),
+                        Text(
+                          "${place.distanceKm.toStringAsFixed(1)} km",
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          place.ticketRange,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.modernGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

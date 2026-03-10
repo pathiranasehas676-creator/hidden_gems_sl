@@ -104,7 +104,7 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
                 : Container(
                     color: AppTheme.primaryBlue,
                     child: Center(
-                      child: Icon(Icons.photo_camera_outlined, color: Colors.white.withValues(alpha: 0.1), size: 120),
+                      child: Icon(Icons.photo_camera_outlined, color: Colors.white.withOpacity(0.1), size: 120),
                     ),
                   ),
             ),
@@ -117,9 +117,9 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withValues(alpha: 0.7),
+                      Colors.black.withOpacity(0.7),
                       Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
+                      Colors.black.withOpacity(0.8),
                     ],
                     stops: const [0.0, 0.4, 1.0],
                   ),
@@ -177,7 +177,7 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
                   height: 300,
                   margin: const EdgeInsets.symmetric(horizontal: 32),
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.5), width: 2),
+                    border: Border.all(color: AppTheme.accentOchre.withOpacity(0.5), width: 2),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: _ScanningOverlay(),
@@ -221,7 +221,7 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: AppTheme.glassDecoration(opacity: 0.2).copyWith(
-        border: Border.all(color: AppTheme.accentOchre.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTheme.accentOchre.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +289,7 @@ class _ScanningOverlayState extends State<_ScanningOverlay> with SingleTickerPro
                   color: AppTheme.accentOchre,
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.accentOchre.withValues(alpha: 0.6),
+                      color: AppTheme.accentOchre.withOpacity(0.6),
                       blurRadius: 15,
                       spreadRadius: 2,
                     )

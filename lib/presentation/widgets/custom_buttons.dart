@@ -26,7 +26,7 @@ class ModernGradientButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: onPressed != null ? [
           BoxShadow(
-            color: AppTheme.modernGreen.withValues(alpha: 0.3),
+            color: AppTheme.modernGreen.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           )
@@ -94,7 +94,7 @@ class PrimaryButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: onPressed != null ? [
           BoxShadow(
-            color: AppTheme.modernBlue.withValues(alpha: 0.2),
+            color: AppTheme.modernBlue.withOpacity(0.2),
             blurRadius: 12,
             offset: const Offset(0, 4),
           )

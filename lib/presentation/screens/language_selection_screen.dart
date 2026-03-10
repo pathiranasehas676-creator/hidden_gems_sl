@@ -59,7 +59,7 @@ class LanguageSelectionScreen extends StatelessWidget {
               PrimaryButton(
                 label: "Continue in English",
                 onPressed: () async {
-                  await context.read<LocaleProvider>().setLocale('en');
+                  await context.read<LocaleProvider>().setLocale(const Locale('en'));
                 },
               ),
               const SizedBox(height: 16),
@@ -67,7 +67,7 @@ class LanguageSelectionScreen extends StatelessWidget {
               ModernGradientButton(
                 label: "සිංහල",
                 onPressed: () async {
-                  await context.read<LocaleProvider>().setLocale('si');
+                  await context.read<LocaleProvider>().setLocale(const Locale('si'));
                 },
               ),
               const SizedBox(height: 16),
@@ -75,14 +75,14 @@ class LanguageSelectionScreen extends StatelessWidget {
               PrimaryButton(
                 label: "தமிழ்",
                 onPressed: () async {
-                  await context.read<LocaleProvider>().setLocale('ta');
+                  await context.read<LocaleProvider>().setLocale(const Locale('ta'));
                 },
               ),
               const SizedBox(height: 24),
               TextButton(
                 onPressed: () async {
                   // Default behavior is English
-                  await context.read<LocaleProvider>().setLocale('en');
+                  await context.read<LocaleProvider>().setLocale(const Locale('en'));
                 },
                 child: Text(
                   "SKIP FOR NOW",

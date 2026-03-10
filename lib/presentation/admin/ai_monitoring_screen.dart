@@ -55,15 +55,15 @@ class _AIMonitoringScreenState extends State<AIMonitoringScreen>
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.06),
+              color: Colors.white.withOpacity(0.06),
               borderRadius: BorderRadius.circular(12),
             ),
             child: TabBar(
               controller: _tabController,
               indicator: BoxDecoration(
-                color: AppTheme.sigiriyaOchre.withValues(alpha: 0.15),
+                color: AppTheme.sigiriyaOchre.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.sigiriyaOchre.withValues(alpha: 0.4)),
+                border: Border.all(color: AppTheme.sigiriyaOchre.withOpacity(0.4)),
               ),
               labelColor: AppTheme.sigiriyaOchre,
               unselectedLabelColor: Colors.white38,
@@ -166,9 +166,9 @@ class _AIMonitoringScreenState extends State<AIMonitoringScreen>
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: sevColor.withValues(alpha: 0.05),
+                color: sevColor.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: sevColor.withValues(alpha: 0.25)),
+                border: Border.all(color: sevColor.withOpacity(0.25)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,7 +181,7 @@ class _AIMonitoringScreenState extends State<AIMonitoringScreen>
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: sevColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: sevColor.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
                         child: Text(severity.toUpperCase(), style: TextStyle(color: sevColor, fontSize: 9, fontWeight: FontWeight.bold)),
                       ),
                     ],
@@ -216,9 +216,9 @@ class _AIMonitoringScreenState extends State<AIMonitoringScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Text(label, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
     );
@@ -247,9 +247,9 @@ class _AIRequestLogItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isLowConf ? Colors.orangeAccent.withValues(alpha: 0.04) : const Color(0xFF1E293B),
+        color: isLowConf ? Colors.orangeAccent.withOpacity(0.04) : const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isLowConf ? Colors.orangeAccent.withValues(alpha: 0.3) : Colors.white10),
+        border: Border.all(color: isLowConf ? Colors.orangeAccent.withOpacity(0.3) : Colors.white10),
       ),
       child: Row(
         children: [
@@ -307,7 +307,7 @@ class _AIRequestLogItem extends StatelessWidget {
                 selected: {severity},
                 onSelectionChanged: (s) => setDS(() => severity = s.first),
                 style: SegmentedButton.styleFrom(
-                  selectedBackgroundColor: Colors.orangeAccent.withValues(alpha: 0.2),
+                  selectedBackgroundColor: Colors.orangeAccent.withOpacity(0.2),
                   selectedForegroundColor: Colors.orangeAccent,
                   foregroundColor: Colors.white38,
                 ),
@@ -321,7 +321,7 @@ class _AIRequestLogItem extends StatelessWidget {
                   hintText: "Describe the incorrect AI response...",
                   hintStyle: GoogleFonts.inter(color: Colors.white24, fontSize: 12),
                   filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
+                  fillColor: Colors.white.withOpacity(0.05),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white12)),
                 ),
               ),
@@ -343,7 +343,7 @@ class _AIRequestLogItem extends StatelessWidget {
                 });
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: const Text("Flagged for review."), backgroundColor: Colors.orangeAccent.withValues(alpha: 0.8)),
+                    SnackBar(content: const Text("Flagged for review."), backgroundColor: Colors.orangeAccent.withOpacity(0.8)),
                   );
                 }
               },

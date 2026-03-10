@@ -98,7 +98,7 @@ class PlaceDetailsScreen extends StatelessWidget {
                     children: [
                       const Icon(Icons.location_on, size: 14, color: AppTheme.modernBlue),
                       const SizedBox(width: 4),
-                      Text(place.district, style: GoogleFonts.inter(fontSize: 14, color: AppTheme.darkText.withValues(alpha: 0.7))),
+                      Text(place.district, style: GoogleFonts.inter(fontSize: 14, color: AppTheme.darkText.withOpacity(0.7))),
                       if (place.distanceKm > 0) ...[
                         const SizedBox(width: 8),
                         Text("•", style: TextStyle(color: Colors.grey.shade400)),
@@ -113,9 +113,9 @@ class PlaceDetailsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.amber.withValues(alpha: 0.1),
+                color: Colors.amber.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                border: Border.all(color: Colors.amber.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
@@ -136,9 +136,9 @@ class PlaceDetailsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.modernGreen.withValues(alpha: 0.05),
+        color: AppTheme.modernGreen.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.modernGreen.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +180,7 @@ class PlaceDetailsScreen extends StatelessWidget {
           children: [
             Icon(icon, color: AppTheme.modernBlue, size: 24),
             const SizedBox(height: 8),
-            Text(title, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.darkText.withValues(alpha: 0.4))),
+            Text(title, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.darkText.withOpacity(0.4))),
             const SizedBox(height: 4),
             Text(value.isEmpty ? "N/A" : value, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.modernBlue), textAlign: TextAlign.center, maxLines: 2),
           ],
@@ -241,9 +241,9 @@ class PlaceDetailsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
     );
@@ -260,9 +260,9 @@ class PlaceDetailsScreen extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.3)),
+              border: Border.all(color: AppTheme.modernGreen.withOpacity(0.3)),
               borderRadius: BorderRadius.circular(16),
-              color: AppTheme.modernGreen.withValues(alpha: 0.05),
+              color: AppTheme.modernGreen.withOpacity(0.05),
             ),
             child: IconButton(
               icon: const Icon(Icons.bookmark_border_rounded, color: AppTheme.modernGreen),
@@ -280,7 +280,7 @@ class PlaceDetailsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.modernGreen.withValues(alpha: 0.3),
+                    color: AppTheme.modernGreen.withOpacity(0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   )

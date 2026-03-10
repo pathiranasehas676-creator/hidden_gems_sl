@@ -72,11 +72,11 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                   builder: (_) => AlertDialog(
                     backgroundColor: Theme.of(context).cardColor,
                     title: Text('Clear All Saved Plans', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                    content: Text('This cannot be undone.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
+                    content: Text('This cannot be undone.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7))),
                     actions: [
                       TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)))),
+                          child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)))),
                       TextButton(
                           onPressed: () => Navigator.pop(context, true),
                           child: const Text('Clear', style: TextStyle(color: Colors.redAccent))),
@@ -105,9 +105,9 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               shape: BoxShape.circle,
-              border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+              border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
             ),
             child: Icon(Icons.bookmark_outlined, size: 48, color: Theme.of(context).colorScheme.primary),
           ),
@@ -163,9 +163,9 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
                     ),
                     child: Icon(Icons.travel_explore, color: Theme.of(context).colorScheme.primary, size: 24),
                   ),
@@ -193,7 +193,7 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
                         const SizedBox(height: 6),
                         Text(
                           'Saved $cachedAgo',
-                          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+                          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                         ),
                       ],
                     ),
@@ -212,9 +212,9 @@ class _SavedPlansScreenState extends State<SavedPlansScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 11, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7)),
+        Icon(icon, size: 11, color: Theme.of(context).colorScheme.primary.withOpacity(0.7)),
         const SizedBox(width: 3),
-        Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+        Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
       ],
     );
   }

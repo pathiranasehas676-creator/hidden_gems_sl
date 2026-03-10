@@ -18,9 +18,9 @@ class LocaleProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> setLocale(String languageCode) async {
-    _locale = Locale(languageCode);
-    await UserPreferenceService.updateLanguage(languageCode);
+  Future<void> setLocale(Locale newLocale) async {
+    _locale = newLocale;
+    await UserPreferenceService.updateLanguage(newLocale.languageCode);
     notifyListeners();
   }
 }

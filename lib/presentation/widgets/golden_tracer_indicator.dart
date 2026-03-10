@@ -71,7 +71,7 @@ class _ModernTracerPainter extends CustomPainter {
       final opacity = 0.4 + (0.6 * (1.0 - (p - 0.5).abs() * 2));
       
       final paint = Paint()
-        ..color = color.withValues(alpha: opacity)
+        ..color = color.withOpacity(opacity)
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, p * 3); // hardware accelerated blur
 
       // base radius 4. scaled by scale.

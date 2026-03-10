@@ -226,7 +226,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
                   return CustomPaint(
                     painter: JourneyPathPainter(
                       progress: _mapController.value,
-                      color: AppTheme.modernGreen.withValues(alpha: 0.1),
+                      color: AppTheme.modernGreen.withOpacity(0.1),
                     ),
                   );
                 },
@@ -241,11 +241,11 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppTheme.modernGreen.withValues(alpha: 0.05),
+                      color: AppTheme.modernGreen.withOpacity(0.05),
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.modernGreen.withValues(alpha: 0.2), width: 0.5),
+                      border: Border.all(color: AppTheme.modernGreen.withOpacity(0.2), width: 0.5),
                       boxShadow: [
-                        BoxShadow(color: AppTheme.modernGreen.withValues(alpha: 0.1), blurRadius: 40, spreadRadius: 10),
+                        BoxShadow(color: AppTheme.modernGreen.withOpacity(0.1), blurRadius: 40, spreadRadius: 10),
                       ],
                     ),
                     child: Icon(
@@ -308,16 +308,16 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppTheme.modernBlue.withValues(alpha: 0.05),
+        color: AppTheme.modernBlue.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.modernBlue.withValues(alpha: 0.1)),
+        border: Border.all(color: AppTheme.modernBlue.withOpacity(0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: AppTheme.modernGreen),
           const SizedBox(width: 8),
-          Text(label, style: GoogleFonts.inter(color: AppTheme.darkText.withValues(alpha: 0.7), fontSize: 13, fontWeight: FontWeight.w500)),
+          Text(label, style: GoogleFonts.inter(color: AppTheme.darkText.withOpacity(0.7), fontSize: 13, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -352,7 +352,7 @@ class _LoadingPlanScreenState extends State<LoadingPlanScreen>
         ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text("Refine Request", style: TextStyle(color: AppTheme.darkText.withValues(alpha: 0.5))),
+          child: Text("Refine Request", style: TextStyle(color: AppTheme.darkText.withOpacity(0.5))),
         ),
       ],
     );
@@ -387,7 +387,7 @@ class JourneyPathPainter extends CustomPainter {
     path.close();
 
     // Draw background path
-    canvas.drawPath(path, paint..color = color.withValues(alpha: 0.1));
+    canvas.drawPath(path, paint..color = color.withOpacity(0.1));
 
     // Draw animated progress path
     final pathMetrics = path.computeMetrics().first;
@@ -398,7 +398,7 @@ class JourneyPathPainter extends CustomPainter {
     final pos = pathMetrics.getTangentForOffset(pathMetrics.length * progress)?.position;
     if (pos != null) {
       canvas.drawCircle(pos, 6, dotPaint);
-      canvas.drawCircle(pos, 12, dotPaint..color = AppTheme.modernGreen.withValues(alpha: 0.3));
+      canvas.drawCircle(pos, 12, dotPaint..color = AppTheme.modernGreen.withOpacity(0.3));
     }
   }
 

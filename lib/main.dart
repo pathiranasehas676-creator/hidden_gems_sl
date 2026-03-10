@@ -10,7 +10,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import 'core/theme/app_theme.dart';
-import 'core/providers/locale_provider.dart'; // Changed path
+import 'core/localization/locale_provider.dart'; 
 import 'data/datasources/trip_cache_service.dart';
 import 'data/datasources/user_preference_service.dart';
 import 'data/datasources/monetization_service.dart';
@@ -50,14 +50,7 @@ class InitializationResult {
   bool get canProceed => hiveSuccess && !isCompromised;
 }
 
-// SecureNetworkOverrides stays here or core/network
-class SecureNetworkOverrides extends HttpOverrides {
-@override
- HttpClient createHttpClient(SecurityContext? context) {
-   return super.createHttpClient(context)
-     ..badCertificateCallback = (X509Certificate cert, String host, int port) => false;
- }
-}
+// SecureNetwork from core/network/secure_network.dart is used instead.
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,7 +68,9 @@ void main() async {
   }
 
   // Apply Strict HTTPS Security and SSL Pinning configuration globally
-  HttpOverrides.global = SecureNetworkOverrides();
+  if (!kIsWeb) {
+    HttpOverrides.global = SecureNetworkOverrides();
+  }
 
   // FLAG_SECURE is now handled directly in android/app/src/main/kotlin/com/hidden/gems/hidden_gems_sl/MainActivity.kt
   // for better compatibility and build reliability.
@@ -423,12 +418,12 @@ class _GlobalScreenshotWrapperState extends State<GlobalScreenshotWrapper> with 
                           shape: BoxShape.circle,
                         ).copyWith(
                           border: Border.all(
-                            color: AppTheme.primaryBlue.withValues(alpha: 0.5), 
+                            color: AppTheme.primaryBlue.withOpacity(0.5), 
                             width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+                              color: AppTheme.primaryBlue.withOpacity(0.2),
                               blurRadius: 20,
                               spreadRadius: 2,
                             )
@@ -446,26 +441,23 @@ class _GlobalScreenshotWrapperState extends State<GlobalScreenshotWrapper> with 
               ),
             ),
           // Flash Effect Overlay
-          FadeTransition(
-            opacity: _flashController.drive(CurveTween(curve: Curves.easeOut).chain(Tween(begin: 0.0, end: 1.0))),
-            child: IgnorePointer(
-              child: Container(
-                color: Colors.white,
-                width: double.infinity,
-                height: double.infinity,
-              ),
-            ),
-          ),
-          // Flash Fade Out
-          FadeTransition(
-            opacity: _flashController.drive(CurveTween(curve: Curves.easeIn).chain(Tween(begin: 1.0, end: 0.0))),
-            child: IgnorePointer(
-              child: Container(
-                color: Colors.white,
-                width: double.infinity,
-                height: double.infinity,
-              ),
-            ),
+          AnimatedBuilder(
+            animation: _flashController,
+            builder: (context, child) {
+              if (_flashController.value == 0) return const SizedBox.shrink();
+              return IgnorePointer(
+                child: Opacity(
+                  opacity: _flashController.value < 0.5 
+                      ? _flashController.value * 2 
+                      : (1.0 - _flashController.value) * 2,
+                  child: Container(
+                    color: Colors.white,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

@@ -46,7 +46,7 @@ class _ItineraryTimelineWidgetState extends State<ItineraryTimelineWidget> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.modernGreen.withValues(alpha: 0.2),
+                      color: AppTheme.modernGreen.withOpacity(0.2),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     )
@@ -76,7 +76,7 @@ class _ItineraryTimelineWidgetState extends State<ItineraryTimelineWidget> {
               ),
               Text(
                 '${_items.length} stops',
-                style: AppTheme.labelStyle.copyWith(color: AppTheme.darkText.withValues(alpha: 0.5)),
+                style: AppTheme.labelStyle(context).copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
               ),
             ],
           ),
@@ -155,9 +155,9 @@ class _TimelineItem extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: typeInfo.$2.withValues(alpha: 0.15),
+                    color: typeInfo.$2.withOpacity(0.15),
                     shape: BoxShape.circle,
-                    border: Border.all(color: typeInfo.$2.withValues(alpha: 0.5)),
+                    border: Border.all(color: typeInfo.$2.withOpacity(0.5)),
                   ),
                   child: Icon(typeInfo.$1, size: 16, color: typeInfo.$2),
                 ),
@@ -165,7 +165,7 @@ class _TimelineItem extends StatelessWidget {
                   Container(
                     width: 2,
                     height: 48,
-                    color: AppTheme.modernGreen.withValues(alpha: 0.2),
+                    color: AppTheme.modernGreen.withOpacity(0.2),
                   ),
               ],
             ),
@@ -179,10 +179,10 @@ class _TimelineItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+                border: Border.all(color: Colors.black.withOpacity(0.05)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
+                    color: Colors.black.withOpacity(0.02),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   )
@@ -218,7 +218,7 @@ class _TimelineItem extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             item.notes,
-                            style: AppTheme.bodyStyle.copyWith(fontSize: 12, color: AppTheme.darkText.withValues(alpha: 0.6)),
+                            style: AppTheme.bodyStyle(context).copyWith(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -244,7 +244,7 @@ class _TimelineItem extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 8),
                       child: Icon(
                         Icons.drag_handle_rounded,
-                        color: AppTheme.darkText.withValues(alpha: 0.2),
+                        color: AppTheme.darkText.withOpacity(0.2),
                         size: 20,
                       ),
                     ),
@@ -262,9 +262,9 @@ class _TimelineItem extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 10, color: AppTheme.darkText.withValues(alpha: 0.4)),
+        Icon(icon, size: 10, color: AppTheme.darkText.withOpacity(0.4)),
         const SizedBox(width: 3),
-        Text(label, style: TextStyle(fontSize: 10, color: AppTheme.darkText.withValues(alpha: 0.4))),
+        Text(label, style: TextStyle(fontSize: 10, color: AppTheme.darkText.withOpacity(0.4))),
       ],
     );
   }

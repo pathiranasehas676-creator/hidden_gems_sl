@@ -20,7 +20,7 @@ class ModernTracerShimmer extends StatelessWidget {
 
     return Shimmer.fromColors(
       baseColor: isDark ? const Color(0xFF262B2A) : Colors.grey[200]!,
-      highlightColor: AppTheme.modernGreen.withValues(alpha: 0.2),
+      highlightColor: AppTheme.modernGreen.withOpacity(0.2),
       period: const Duration(milliseconds: 1500),
       child: child,
     );
@@ -67,9 +67,9 @@ class DiscoveryCardSkeleton extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         height: 200,
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+          border: Border.all(color: Colors.black.withOpacity(0.05)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),

@@ -198,7 +198,7 @@ class _MapRouteScreenState extends State<MapRouteScreen> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withValues(alpha: 0.95),
+                color: AppTheme.primaryBlue.withOpacity(0.95),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: AppTheme.premiumShadow,
                 border: Border.all(color: Colors.white10),

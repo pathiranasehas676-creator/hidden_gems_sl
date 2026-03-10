@@ -11,15 +11,15 @@ class AppPalette {
   static const Color zenTextSecondary = Color(0xFF64748B);
   static const Color zenBorder = Color(0xFFE2E8F0);
 
-  // --- Deep Night (The "Sigiriya" Dark Palette) ---
-  static const Color nightScaffold = Color(0xFF0F172A); // Near black navy
-  static const Color nightSurface = Color(0xFF1E293B);  // Slate 800
-  static const Color nightCard = Color(0xFF1E293B);     // Consistent surface
-  static const Color nightAccentBlue = Color(0xFF38BDF8); // Sky 400
-  static const Color nightAccentGreen = Color(0xFF34D399); // Emerald 400
-  static const Color nightTextPrimary = Color(0xFFF1F5F9); // Slate 100
-  static const Color nightTextSecondary = Color(0xFF94A3B8); // Slate 400
-  static const Color nightBorder = Color(0xFF334155);    // Slate 700
+  // --- Deep Night (The "Figma" Dark Palette) ---
+  static const Color nightScaffold = Color(0xFF0A0D11); // Deep Charcoal
+  static const Color nightSurface = Color(0xFF141A21);  // Slightly lighter
+  static const Color nightCard = Color(0xFF141A21);     
+  static const Color nightAccentGold = Color(0xFFC19A6B); // Gold
+  static const Color nightAccentGreen = Color(0xFF10B981); // Emerald
+  static const Color nightTextPrimary = Color(0xFFFFFFFF); 
+  static const Color nightTextSecondary = Color(0x99FFFFFF); // 60% White
+  static const Color nightBorder = Color(0x1AFFFFFF);    // 10% White
 
   // --- Legacy & Brand Anchors ---
   static const Color ceylonBlue = Color(0xFF003B5C);
@@ -35,11 +35,11 @@ class AppPalette {
 
 class AppTheme {
   // --- Standard Static Constants (For Backward Compatibility) ---
-  static const Color modernGreen = AppPalette.modernGreen;
-  static const Color modernBlue = AppPalette.modernBlue;
-  static const Color ceylonBlue = AppPalette.ceylonBlue;
-  static const Color sigiriyaOchre = AppPalette.sigiriyaOchre;
-  static const Color accentOchre = AppPalette.sigiriyaOchre;
+  static const Color modernGreen = AppPalette.nightAccentGreen;
+  static const Color modernBlue = AppPalette.nightAccentGold;
+  static const Color ceylonBlue = AppPalette.nightScaffold;
+  static const Color sigiriyaOchre = AppPalette.nightAccentGold;
+  static const Color accentOchre = AppPalette.nightAccentGold;
   
   // Missing Aliases found in audit
   static const Color primaryBlue = AppPalette.ceylonBlue;
@@ -63,7 +63,7 @@ class AppTheme {
   // --- Luxury Shadows ---
   static List<BoxShadow> get premiumShadow => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.10),
+          color: Colors.black.withOpacity(0.10),
           blurRadius: 20,
           offset: const Offset(0, 8),
         ),
@@ -71,7 +71,7 @@ class AppTheme {
 
   static List<BoxShadow> get softShadow => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.06),
+          color: Colors.black.withOpacity(0.06),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),
@@ -79,7 +79,7 @@ class AppTheme {
 
   // --- Premium Gradients ---
   static const LinearGradient modernGradient = LinearGradient(
-    colors: [AppPalette.modernGreen, AppPalette.modernBlue],
+    colors: [AppPalette.nightAccentGold, AppPalette.nightAccentGreen],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
@@ -92,7 +92,7 @@ class AppTheme {
 
   /// The ONE background all screens should use — deep navy to near-black
   static const LinearGradient appBackground = LinearGradient(
-    colors: [Color(0xFF002035), Color(0xFF0D1117)],
+    colors: [Color(0xFF0A0D11), Color(0xFF080A0E)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -100,31 +100,31 @@ class AppTheme {
   // --- Glassmorphism Optimized ---
   /// Creates a premium glassmorphic effect that adapts to theme brightness.
   static BoxDecoration glassDecoration({
-    double opacity = 0.12, 
-    double blur = 25,
+    double opacity = 0.05, 
+    double blur = 30,
     BorderRadius? radius,
     Color? color,
     BoxShape shape = BoxShape.rectangle,
     bool isDark = false,
   }) {
     final bgColor = isDark 
-        ? AppPalette.nightSurface.withValues(alpha: 0.6) 
-        : (color ?? Colors.white.withValues(alpha: 0.4));
+        ? (color ?? AppPalette.nightCard)
+        : (color ?? Colors.white);
         
     return BoxDecoration(
-      color: bgColor.withValues(alpha: opacity),
+      color: bgColor.withOpacity(opacity),
       borderRadius: shape == BoxShape.circle ? null : (radius ?? BorderRadius.circular(20)),
       shape: shape,
       border: Border.all(
-        color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.2),
-        width: 1.2,
+        color: Colors.white.withOpacity(isDark ? 0.05 : 0.2),
+        width: 1.0,
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-          blurRadius: 15,
-          spreadRadius: -2,
-          offset: const Offset(0, 4),
+          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+          blurRadius: 30, // matches blur
+          spreadRadius: -5,
+          offset: const Offset(0, 8),
         )
       ],
     );
@@ -137,6 +137,13 @@ class AppTheme {
   }
 
   // --- Advanced Text Styles ---
+  static TextStyle get oracleBrandHeading => GoogleFonts.outfit(
+    fontSize: 28,
+    fontWeight: FontWeight.w900,
+    color: AppPalette.nightAccentGold,
+    letterSpacing: 1.5,
+  );
+
   static TextStyle get budgetEmphasis => GoogleFonts.outfit(
     fontSize: 24,
     fontWeight: FontWeight.w900,
@@ -145,18 +152,18 @@ class AppTheme {
   );
 
   /// Consistent label style (section headers, tags)
-  static TextStyle get labelStyle => GoogleFonts.outfit(
+  static TextStyle labelStyle(BuildContext context) => GoogleFonts.outfit(
     fontSize: 12,
     fontWeight: FontWeight.bold,
     letterSpacing: 1.5,
-    color: Colors.white60,
+    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
   );
 
   /// Consistent body text style
-  static TextStyle get bodyStyle => GoogleFonts.inter(
+  static TextStyle bodyStyle(BuildContext context) => GoogleFonts.inter(
     fontSize: 14,
     fontWeight: FontWeight.w400,
-    color: Colors.white70,
+    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
   );
 
   /// Ochre-accented left-border for cards
@@ -165,7 +172,7 @@ class AppTheme {
     double opacity = 0.06,
   }) {
     return BoxDecoration(
-      color: Colors.white.withValues(alpha: opacity),
+      color: Colors.white.withOpacity(opacity),
       borderRadius: BorderRadius.circular(borderRadius),
       border: Border(
         left: BorderSide(color: AppPalette.sigiriyaOchre, width: 3),
@@ -223,14 +230,14 @@ class AppTheme {
         borderRadius: BorderRadius.circular(24),
         side: const BorderSide(color: AppPalette.zenBorder, width: 1),
       ),
-      shadowColor: Colors.black.withValues(alpha: 0.05),
+      shadowColor: Colors.black.withOpacity(0.05),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: AppPalette.zenGreen,
       foregroundColor: Colors.white,
     ),
     chipTheme: ChipThemeData(
-      selectedColor: AppPalette.zenGreen.withValues(alpha: 0.15),
+      selectedColor: AppPalette.zenGreen.withOpacity(0.15),
       labelStyle: GoogleFonts.inter(fontSize: 12),
     ),
   );
@@ -239,12 +246,12 @@ class AppTheme {
   static ThemeData get darkTheme => ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    primaryColor: AppPalette.nightAccentBlue,
+    primaryColor: AppPalette.nightAccentGold,
     scaffoldBackgroundColor: AppPalette.nightScaffold,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppPalette.nightAccentBlue,
+      seedColor: AppPalette.nightAccentGold,
       brightness: Brightness.dark,
-      primary: AppPalette.nightAccentBlue,
+      primary: AppPalette.nightAccentGold,
       secondary: AppPalette.nightAccentGreen,
       surface: AppPalette.nightSurface,
       onPrimary: AppPalette.nightScaffold,
@@ -269,7 +276,7 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppPalette.nightAccentBlue,
+        backgroundColor: AppPalette.nightAccentGold,
         foregroundColor: AppPalette.nightScaffold,
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -289,7 +296,7 @@ class AppTheme {
       foregroundColor: AppPalette.nightScaffold,
     ),
     chipTheme: ChipThemeData(
-      selectedColor: AppPalette.nightAccentBlue.withValues(alpha: 0.2),
+      selectedColor: AppPalette.nightAccentGold.withOpacity(0.2),
       labelStyle: GoogleFonts.inter(fontSize: 12, color: AppPalette.nightTextPrimary),
     ),
   );

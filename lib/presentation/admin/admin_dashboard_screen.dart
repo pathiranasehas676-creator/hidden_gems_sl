@@ -181,7 +181,7 @@ class AdminDashboardScreen extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8)),
+          BoxShadow(color: AppTheme.accentOchre.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 8)),
         ],
       ),
       child: ElevatedButton.icon(
@@ -229,7 +229,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   gradient: const LinearGradient(colors: [AppTheme.accentOchre, Colors.orangeAccent]),
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
-                    BoxShadow(color: AppTheme.accentOchre.withValues(alpha: 0.5), blurRadius: 6, spreadRadius: 0)
+                    BoxShadow(color: AppTheme.accentOchre.withOpacity(0.5), blurRadius: 6, spreadRadius: 0)
                   ]
                 ),
               ),
@@ -256,7 +256,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B).withValues(alpha: 0.5),
+        color: const Color(0xFF1E293B).withOpacity(0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white10),
         boxShadow: AppTheme.premiumShadow,
@@ -264,7 +264,7 @@ class _StatCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withValues(alpha: 0.05),
+            Colors.white.withOpacity(0.05),
             Colors.transparent,
           ],
         )
@@ -277,9 +277,9 @@ class _StatCard extends StatelessWidget {
                Container(
                  padding: const EdgeInsets.all(10),
                  decoration: BoxDecoration(
-                   color: color.withValues(alpha: 0.1),
+                   color: color.withOpacity(0.1),
                    shape: BoxShape.circle,
-                   boxShadow: [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 12, spreadRadius: 2)],
+                   boxShadow: [BoxShadow(color: color.withOpacity(0.2), blurRadius: 12, spreadRadius: 2)],
                  ),
                  child: Icon(icon, color: color, size: 24),
                ),
@@ -287,9 +287,9 @@ class _StatCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isPositive ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.15),
+                  color: (isPositive ? Colors.greenAccent : Colors.redAccent).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: (isPositive ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.3)),
+                  border: Border.all(color: (isPositive ? Colors.greenAccent : Colors.redAccent).withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
@@ -343,7 +343,7 @@ class _QuickActionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.white10),
         ),
@@ -353,7 +353,7 @@ class _QuickActionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppTheme.accentOchre.withValues(alpha: 0.1),
+                color: AppTheme.accentOchre.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.arrow_forward_ios, size: 14, color: AppTheme.accentOchre),
@@ -385,11 +385,11 @@ class _DashboardPanel extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E293B).withValues(alpha: 0.5),
+            color: const Color(0xFF1E293B).withOpacity(0.5),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: Colors.white10),
             boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 10))
+              BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 10))
             ],
           ),
           child: Column(

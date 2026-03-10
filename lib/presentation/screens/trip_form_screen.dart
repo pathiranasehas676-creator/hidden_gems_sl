@@ -108,7 +108,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
               HapticFeedback.lightImpact();
               Navigator.pop(context);
             },
-            child: Text("Exit", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))),
+            child: Text("Exit", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
           ),
         ],
       ),
@@ -148,7 +148,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     return Container(
       width: 140,
       height: 6,
-      decoration: BoxDecoration(color: AppTheme.modernGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(3)),
+      decoration: BoxDecoration(color: AppTheme.modernGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(3)),
       child: Stack(
         children: [
           AnimatedContainer(
@@ -200,7 +200,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("How many days?", style: GoogleFonts.inter(fontSize: 14, color: AppTheme.darkText.withValues(alpha: 0.6))),
+              Text("How many days?", style: GoogleFonts.inter(fontSize: 14, color: AppTheme.darkText.withOpacity(0.6))),
               Text("$_days Days", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.modernGreen)),
             ],
           ),
@@ -208,7 +208,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
             value: _days.toDouble(),
             min: 1, max: 21, divisions: 20,
             activeColor: AppTheme.modernGreen,
-            inactiveColor: AppTheme.modernGreen.withValues(alpha: 0.1),
+            inactiveColor: AppTheme.modernGreen.withOpacity(0.1),
             onChanged: (v) => setState(() => _days = v.toInt()),
           ),
           const SizedBox(height: 32),
@@ -257,7 +257,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
             backgroundColor: Theme.of(context).cardColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withValues(alpha: 0.2)),
+              side: BorderSide(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withOpacity(0.2)),
             ),
           );
         }).toList(),
@@ -313,16 +313,16 @@ class _TripFormScreenState extends State<TripFormScreen> {
             decoration: InputDecoration(
               labelText: label,
               hintText: hint,
-              labelStyle: TextStyle(color: AppTheme.darkText.withValues(alpha: 0.7)),
-              hintStyle: TextStyle(color: AppTheme.darkText.withValues(alpha: 0.3)),
+              labelStyle: TextStyle(color: AppTheme.darkText.withOpacity(0.7)),
+              hintStyle: TextStyle(color: AppTheme.darkText.withOpacity(0.3)),
               prefixIcon: Icon(icon, color: AppTheme.modernBlue),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppTheme.modernBlue.withValues(alpha: 0.3)),
+                borderSide: BorderSide(color: AppTheme.modernBlue.withOpacity(0.3)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppTheme.modernBlue.withValues(alpha: 0.1)),
+                borderSide: BorderSide(color: AppTheme.modernBlue.withOpacity(0.1)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -346,7 +346,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Theme.of(context).dividerColor),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 16),
+                  BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 16),
                 ],
               ),
               child: ListView.builder(
@@ -383,10 +383,10 @@ class _TripFormScreenState extends State<TripFormScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.modernBlue.withValues(alpha: 0.1)),
+        border: Border.all(color: AppTheme.modernBlue.withOpacity(0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
           )
         ],
@@ -394,7 +394,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("ESTIMATED BUDGET", style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+          Text("ESTIMATED BUDGET", style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
           const SizedBox(height: 8),
           TextFormField(
             controller: _budgetController,
@@ -402,7 +402,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               prefixText: "LKR ", 
-              prefixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+              prefixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
               border: InputBorder.none
             ),
           ),
@@ -436,7 +436,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                  color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor.withOpacity(0.2),
                   width: isSelected ? 2 : 1,
                 ),
               ),
@@ -448,7 +448,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     );
   }
 
-  Widget _itemHeader(String label) => Text(label.toUpperCase(), style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), letterSpacing: 1));
+  Widget _itemHeader(String label) => Text(label.toUpperCase(), style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), letterSpacing: 1));
 
   Widget _outlinedTile({required IconData icon, required String label, required String value, required VoidCallback onTap}) {
     return InkWell(
@@ -461,7 +461,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
             Icon(icon, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 16),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(label, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+              Text(label, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
               Text(value, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface)),
             ]),
           ],
@@ -475,7 +475,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
       decoration: BoxDecoration(
         color: Colors.white, 
-        border: Border(top: BorderSide(color: AppTheme.modernGreen.withValues(alpha: 0.05)))
+        border: Border(top: BorderSide(color: AppTheme.modernGreen.withOpacity(0.05)))
       ),
       child: PrimaryButton(
         label: _currentStep == _totalSteps - 1 ? "CONSULT ORACLE" : "CONTINUE",
