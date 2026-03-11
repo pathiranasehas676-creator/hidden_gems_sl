@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'core/theme/app_theme.dart';
 import 'core/localization/locale_provider.dart'; 
@@ -133,8 +134,12 @@ Future<InitializationResult> performInitialization() async {
       await Firebase.initializeApp(
         options: options,
       ).timeout(const Duration(seconds: 15));
+      
+      // Enable Firestore Offline Persistence to save reads
+      FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+      
       firebaseStatus = true;
-      debugPrint("Firebase initialized successfully.");
+      debugPrint("Firebase initialized successfully with Offline Persistence.");
     } else {
       debugPrint("Skipping Firebase initialization due to missing config.");
     }
@@ -270,6 +275,9 @@ class _TripMeAppState extends State<TripMeApp> with WidgetsBindingObserver {
         Locale('ko'),
       ],
       locale: context.watch<LocaleProvider>().locale,
+      routes: {
+        '/login': (context) => const LoginScreen(),
+      },
       home: _showMainApp && _isInitDone
           ? _buildHomeModule()
           : SplashScreen(
@@ -347,6 +355,10 @@ class _TripMeAppState extends State<TripMeApp> with WidgetsBindingObserver {
         }
 
         if (snapshot.hasData) {
+          final currentProfile = UserPreferenceService.getProfile();
+          if (!currentProfile.hasAgreedToTerms) {
+            return const TermsScreen();
+          }
           return const HomeScreen();
         }
         return const LoginScreen();

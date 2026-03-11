@@ -14,6 +14,7 @@ import '../widgets/batik_background.dart';
 import '../widgets/skeleton_loaders.dart';
 import 'package:hidden_gems_sl/l10n/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
+import '../../data/datasources/auth_service.dart';
 import 'emergency_kit_screen.dart';
 import 'event_calendar_screen.dart';
 import '../../core/providers/app_mode_provider.dart';
@@ -536,11 +537,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         _settingsTile(Icons.privacy_tip_outlined, "Privacy Policy"),
         _settingsTile(Icons.help_outline_rounded, "Support Center"),
+        const SizedBox(height: 16),
+        _settingsTile(
+          Icons.logout_rounded, 
+          "Logout",
+          textColor: Colors.redAccent,
+          iconColor: Colors.redAccent,
+          onTap: () async {
+            // Confirm logout
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                backgroundColor: Theme.of(context).cardColor,
+                title: Text("Logout", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                content: Text("Are you sure you want to log out of TripMe?", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                actions: [
+                  TextButton(
+                    child: const Text("Cancel"),
+                    onPressed: () => Navigator.pop(context, false),
+                  ),
+                  TextButton(
+                    child: const Text("Logout", style: TextStyle(color: Colors.redAccent)),
+                    onPressed: () => Navigator.pop(context, true),
+                  ),
+                ],
+              ),
+            );
+
+            if (confirm == true) {
+              await AuthService().signOut();
+              if (context.mounted) {
+                // Navigate back to LoginScreen and clear the whole routing stack
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              }
+            }
+          },
+        ),
       ],
     );
   }
 
-  Widget _settingsTile(IconData icon, String title, {VoidCallback? onTap, Widget? trailing}) {
+  Widget _settingsTile(IconData icon, String title, {VoidCallback? onTap, Widget? trailing, Color? textColor, Color? iconColor}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: AppTheme.glassDecoration(
@@ -555,11 +592,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             shape: BoxShape.circle,
             border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.2)),
           ),
-          child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
+          child: Icon(icon, color: iconColor ?? Theme.of(context).colorScheme.primary, size: 20),
         ),
         title: Text(
           title,
-          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: textColor ?? Theme.of(context).colorScheme.onSurface),
         ),
         trailing: trailing ?? Icon(Icons.chevron_right, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
         onTap: onTap ?? () {},

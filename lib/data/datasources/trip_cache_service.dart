@@ -302,6 +302,25 @@ class TripCacheService {
     }
   }
 
+  static void markLastServerCheck(String key) {
+    try {
+      final box = Hive.box<String>(_globalDataBox);
+      box.put('${key}_last_check', DateTime.now().millisecondsSinceEpoch.toString());
+    } catch (_) {}
+  }
+
+  static bool shouldCheckServer(String key, {Duration ttl = const Duration(hours: 12)}) {
+    try {
+      final box = Hive.box<String>(_globalDataBox);
+      final raw = box.get('${key}_last_check');
+      if (raw == null) return true;
+      final lastCheck = DateTime.fromMillisecondsSinceEpoch(int.parse(raw));
+      return DateTime.now().difference(lastCheck) > ttl;
+    } catch (_) {
+      return true;
+    }
+  }
+
   static String? getGlobalData(String key) {
     try {
       final box = Hive.box<String>(_globalDataBox);

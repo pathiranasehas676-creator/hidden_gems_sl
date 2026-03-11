@@ -25,6 +25,13 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   late VideoPlayerController _controller;
   bool _isNavigating = false;
+  ScreenshotProvider? _screenshotProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _screenshotProvider ??= context.read<ScreenshotProvider>();
+  }
 
   @override
   void initState() {
@@ -93,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void dispose() {
     // Restore system UI and global UI elements
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    context.read<ScreenshotProvider>().toggleVisibility(true);
+    _screenshotProvider?.toggleVisibility(true);
     _controller.dispose();
     super.dispose();
   }

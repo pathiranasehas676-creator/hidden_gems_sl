@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Backend proxy modules (Huge file count bloat)
+node_modules/
+proxy-backend/node_modules/
+tripme_backend/node_modules/
+
+# Obsolete large media tracker
+assets/videos/splash.mp4

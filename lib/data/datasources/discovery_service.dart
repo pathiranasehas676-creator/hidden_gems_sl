@@ -94,28 +94,40 @@ class DiscoveryService {
     List<dynamic> data = [];
     
     try {
-      final remoteConfig = await RemoteConfigService.getInstance();
-      final remoteTimestamp = remoteConfig.dataRefreshTimestamp;
-      final localTimestamp = TripCacheService.getGlobalDataTimestamp('places');
-      
       final String? cachedData = TripCacheService.getGlobalData('places');
 
-      if (cachedData != null && localTimestamp >= remoteTimestamp) {
+      // 1. Level-1 Cache: Extremely Aggressive Local TTL (12 hours)
+      // Completely skips the network (no Firebase ping, no HTTP ping)
+      if (cachedData != null && !TripCacheService.shouldCheckServer('places', ttl: const Duration(hours: 12))) {
         data = json.decode(cachedData);
-        SecureLogger.info("Discovery data loaded from cache (Smart Refresh).");
-      } else {
-        // 1. Try fetching from the Real-time API
-        final response = await http.get(
-          Uri.parse('${AppConfig.baseUrl}/discovery/places'),
-          headers: {'X-TripMe-Key': AppConfig.tripMeApiKey},
-        ).timeout(const Duration(seconds: 5));
+        SecureLogger.info("Discovery data loaded from Level-1 Local TTL Cache (No Network).");
+      } 
+      // 2. Level-2 Cache: Soft Refresh (Remote Config Timestamp Check)
+      else {
+        final remoteConfig = await RemoteConfigService.getInstance();
+        final remoteTimestamp = remoteConfig.dataRefreshTimestamp;
+        final localTimestamp = TripCacheService.getGlobalDataTimestamp('places');
+        
+        if (cachedData != null && localTimestamp >= remoteTimestamp) {
+          data = json.decode(cachedData);
+          TripCacheService.markLastServerCheck('places'); // Validated with server, reset local TTL
+          SecureLogger.info("Discovery data loaded from Level-2 Cache (Timestamp validated).");
+        } 
+        // 3. Level-3: Fetch directly from the REST API
+        else {
+          final response = await http.get(
+            Uri.parse('${AppConfig.baseUrl}/discovery/places'),
+            headers: {'X-TripMe-Key': AppConfig.tripMeApiKey},
+          ).timeout(const Duration(seconds: 5));
 
-        if (response.statusCode == 200) {
-          data = json.decode(response.body);
-          await TripCacheService.cacheGlobalData('places', response.body);
-          SecureLogger.info("Discovery data fetched from Real-time API and cached.");
-        } else {
-          throw Exception("API returned ${response.statusCode}");
+          if (response.statusCode == 200) {
+            data = json.decode(response.body);
+            await TripCacheService.cacheGlobalData('places', response.body);
+            TripCacheService.markLastServerCheck('places'); // Reset TTL on fresh download
+            SecureLogger.info("Discovery data fetched from API and fully cached.");
+          } else {
+            throw Exception("API returned ${response.statusCode}");
+          }
         }
       }
     } catch (e) {

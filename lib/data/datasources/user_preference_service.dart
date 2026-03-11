@@ -46,6 +46,11 @@ class UserPreferenceService {
     await _secureStorage.write(key: _profileKey, value: json.encode(profile.toJson()));
   }
 
+  static Future<void> clearProfile() async {
+    _cachedProfile = null;
+    await _secureStorage.delete(key: _profileKey);
+  }
+
   static Future<void> ensureProfileLoaded() async {
     _cachedProfile = await loadProfile();
   }
